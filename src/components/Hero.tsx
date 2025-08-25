@@ -1,35 +1,66 @@
-import { useState, useEffect } from "react";
-import PAGE1Image from "@/assets/PAGE1.png";
-import PAGE3Image from "@/assets/PAGE3.png";
+import React, { useState, useEffect } from "react";
+import { HeroProducts } from "./HeroProducts";
+import milaflogo from "@/assets/milaflogo.png";
 
-export const Hero = () => {
-  const [currentImage, setCurrentImage] = useState(PAGE1Image);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+interface HeroProps {
+  onGradientChange?: (gradient: string) => void;
+}
+
+export const Hero = ({ onGradientChange }: HeroProps): JSX.Element => {
+  const [currentGradient, setCurrentGradient] = useState("linear-gradient(135deg, #84B393, #C5E2CE)");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentImage(PAGE3Image);
-        setIsTransitioning(false);
-      }, 500); // Half second for fade out
-    }, 2500); // 2.5 seconds delay
-
-    return () => clearTimeout(timer);
-  }, []);
+    if (onGradientChange) {
+      onGradientChange(currentGradient);
+    }
+  }, [currentGradient, onGradientChange]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div
-        className="absolute inset-0 transition-opacity duration-500 ease-in-out"
-        style={{
-          backgroundImage: `url(${currentImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          opacity: isTransitioning ? 0 : 1
-        }}
-      />
-    </section>
+    <main className="h-screen w-full relative overflow-hidden snap-start snap-always" style={{ background: currentGradient }}>
+      {/* Navigation Header */}
+      <header className="absolute top-0 left-0 right-0 z-10 p-6">
+        <div className="flex items-center relative">
+          {/* Left - Milaf Logo */}
+          <div className="flex items-center">
+            <img
+              src={milaflogo}
+              alt="Milaf Logo"
+              className="h-16 w-auto object-contain"
+            />
+          </div>
+
+          {/* Center - Navigation Links */}
+          <nav className="flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+              Home
+            </a>
+            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+              About
+            </a>
+            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+              Products
+            </a>
+            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+              Contact
+            </a>
+          </nav>
+          
+          {/* Right side - Shop Button */}
+          <button 
+            className="px-6 py-3 font-bold font-poppins uppercase rounded-[20px] border-2 hover:opacity-80 transition-all duration-300 ml-auto"
+            style={{ 
+              backgroundColor: 'transparent',
+              borderColor: 'white',
+              color: 'white'
+            }}
+          >
+            Shop
+          </button>
+        </div>
+      </header>
+
+      {/* Hero Products Component */}
+      <HeroProducts onGradientChange={setCurrentGradient} />
+    </main>
   );
 };
