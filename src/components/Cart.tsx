@@ -76,12 +76,12 @@ export const Cart = (): JSX.Element => {
       <Header showNavigationWithoutShop={true} />
       
       {/* Cart Content - Single screen height */}
-      <div className="pt-16 h-full overflow-y-auto px-4 pb-4">
+      <div className="pt-16 h-full overflow-y-auto px-2 sm:px-4 pb-4">
         <div className="max-w-6xl mx-auto">
           {/* Back to Shop Button */}
           <button
             onClick={handleBackToShop}
-            className="mb-2 w-8 h-8 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800 ml-4"
+            className="mb-2 w-8 h-8 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800 ml-2 sm:ml-4"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -92,8 +92,8 @@ export const Cart = (): JSX.Element => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Cart Items */}
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-2xl shadow-xl p-4 mt-8">
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                <div className="bg-white rounded-2xl shadow-xl p-3 sm:p-4 mt-8">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
                     Cart Items
                   </h2>
                   
@@ -112,11 +112,11 @@ export const Cart = (): JSX.Element => {
                       {cartItems.map((item) => (
                         <div 
                           key={item.id}
-                          className="flex items-center p-3 rounded-xl border border-gray-100 hover:shadow-md transition-all duration-300"
+                          className="flex items-center p-2 sm:p-3 rounded-xl border border-gray-100 hover:shadow-md transition-all duration-300"
                         >
                           {/* Product Image */}
                           <div 
-                            className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 mr-4"
+                            className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden flex-shrink-0 mr-2 sm:mr-4"
                             style={{ background: item.gradient || 'linear-gradient(135deg, #666, #999)' }}
                           >
                             <img
@@ -127,46 +127,46 @@ export const Cart = (): JSX.Element => {
                           </div>
 
                           {/* Product Info */}
-                          <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-800 mb-1">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1 truncate">
                               {item.name}
                             </h3>
-                            <p className="text-xl font-bold text-green-600">
+                            <p className="text-lg sm:text-xl font-bold text-green-600">
                               ${item.price.toFixed(2)}
                             </p>
                           </div>
 
                           {/* Quantity Controls */}
-                          <div className="flex items-center space-x-2 mr-4">
+                          <div className="flex items-center space-x-1 sm:space-x-2 mr-2 sm:mr-4">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
+                              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                               </svg>
                             </button>
                             
-                            <span className="text-lg font-bold text-gray-800 min-w-[2rem] text-center">
+                            <span className="text-base sm:text-lg font-bold text-gray-800 min-w-[1.5rem] sm:min-w-[2rem] text-center">
                               {item.quantity}
                             </span>
                             
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
+                              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                               </svg>
                             </button>
                           </div>
 
                           {/* Total Price */}
-                          <div className="text-right mr-4">
-                            <p className="text-sm font-semibold text-gray-600 mb-1">
+                          <div className="text-right mr-2 sm:mr-4">
+                            <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1">
                               Total
                             </p>
-                            <p className="text-xl font-bold text-green-600">
+                            <p className="text-lg sm:text-xl font-bold text-green-600">
                               ${(item.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
@@ -174,9 +174,9 @@ export const Cart = (): JSX.Element => {
                           {/* Remove Button */}
                           <button
                             onClick={() => removeFromCart(item.id)}
-                            className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 transition-colors flex items-center justify-center text-red-600 hover:text-red-800"
+                            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 hover:bg-red-200 transition-colors flex items-center justify-center text-red-600 hover:text-red-800"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
@@ -187,8 +187,8 @@ export const Cart = (): JSX.Element => {
                 </div>
 
                 {/* Ordered Items Card */}
-                <div className="bg-white rounded-2xl shadow-xl p-4 mt-4">
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                <div className="bg-white rounded-2xl shadow-xl p-3 sm:p-4 mt-4">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
                     Ordered Items
                   </h2>
                   

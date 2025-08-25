@@ -71,7 +71,7 @@ export const Page4Section = () => {
 
 
       {/* About Milaf Section - Left Side */}
-      <div className="absolute z-20 left-[3cm] top-1/2 transform -translate-y-1/2 max-sm:left-1/2 max-sm:transform max-sm:-translate-x-1/2 max-sm:top-[200px] max-sm:px-4">
+      <div className="absolute z-20 left-[3cm] top-1/2 transform -translate-y-1/2 max-sm:left-1/2 max-sm:transform max-sm:-translate-x-1/2 max-sm:top-[100px] max-sm:px-4">
         <div className="max-w-[500px] sm:max-w-[550px] md:max-w-[600px] lg:max-w-[650px] xl:max-w-[700px]">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight tracking-wide mb-6 max-sm:text-xl max-sm:text-center max-sm:mb-4">
             About Milaf
@@ -98,8 +98,8 @@ export const Page4Section = () => {
       </div>
 
       {/* Compressed Three-Part Carousel - Right Side */}
-      <div className="absolute z-20 right-[3cm] top-1/2 transform -translate-y-1/2 max-sm:right-1/2 max-sm:transform max-sm:translate-x-1/2 max-sm:translate-y-0 max-sm:top-[400px]">
-        <div className="relative w-[260px] h-[390px] sm:w-[286px] sm:h-[416px] md:w-[312px] md:h-[442px] lg:w-[338px] lg:h-[468px] xl:w-[364px] xl:h-[494px] overflow-hidden">
+      <div className="absolute z-20 right-[3cm] top-1/2 transform -translate-y-1/2 max-sm:right-1/2 max-sm:transform max-sm:translate-x-1/2 max-sm:translate-y-0 max-sm:top-[350px]">
+        <div className="relative w-[260px] h-[390px] sm:w-[286px] sm:h-[416px] md:w-[312px] md:h-[442px] lg:w-[338px] lg:h-[468px] xl:w-[364px] xl:h-[494px] max-sm:w-[200px] max-sm:h-[300px] overflow-hidden">
           {/* Three-Part Image Stack */}
           <div className="relative h-full">
             {images.map((image, index) => {
@@ -146,7 +146,7 @@ export const Page4Section = () => {
                 >
                   {/* Image Card */}
                   <div className="relative">
-                    <div className="w-40 h-40 sm:w-44 sm:h-44 md:w-48 md:h-48 lg:w-52 lg:h-52 xl:w-56 xl:h-56 bg-white/5 rounded-xl shadow-lg border border-white/20 p-4">
+                    <div className="w-40 h-40 sm:w-44 sm:h-44 md:w-48 md:h-48 lg:w-52 lg:h-52 xl:w-56 xl:h-56 max-sm:w-32 max-sm:h-32 bg-white/5 rounded-xl shadow-lg border border-white/20 p-4">
                       <img 
                         src={image} 
                         alt={`Product ${index + 1}`}
@@ -164,34 +164,34 @@ export const Page4Section = () => {
 
           
           {/* Navigation Controls */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 -top-20">
+          <div className="absolute left-1/2 transform -translate-x-1/2 -top-20 max-sm:-top-16">
             <button 
               onClick={prevImage}
-              className="w-16 h-16 rounded-full border border-white bg-black/60 flex items-center justify-center hover:bg-black/80 transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
+              className="w-16 h-16 max-sm:w-12 max-sm:h-12 rounded-full border border-white bg-black/60 flex items-center justify-center hover:bg-black/80 transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
             >
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 max-sm:w-6 max-sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
               </svg>
             </button>
           </div>
           
-          <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-20">
+          <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-20 max-sm:-bottom-16">
             <button 
               onClick={nextImage}
-              className="w-16 h-16 rounded-full border border-white bg-black/60 flex items-center justify-center hover:bg-black/80 transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
+              className="w-16 h-16 max-sm:w-12 max-sm:h-12 rounded-full border border-white bg-black/60 flex items-center justify-center hover:bg-black/80 transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
             >
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 max-sm:w-6 max-sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
           </div>
           
           {/* Progress Indicator */}
-          <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 flex flex-col space-y-2">
+          <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 flex flex-col space-y-2 max-sm:-right-6 max-sm:space-y-1">
             {images.map((_, index) => (
               <div
                 key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`w-2 h-2 max-sm:w-1.5 max-sm:h-1.5 rounded-full transition-all duration-300 ${
                   index === currentImage 
                     ? 'bg-white scale-110' 
                     : 'bg-white/40'

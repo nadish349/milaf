@@ -18,19 +18,19 @@ export const Hero = ({ onGradientChange }: HeroProps): JSX.Element => {
   return (
     <main className="h-screen w-full relative overflow-hidden snap-start snap-always" style={{ background: currentGradient }}>
       {/* Navigation Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 p-6">
+      <header className="absolute top-0 left-0 right-0 z-10 p-4 sm:p-6">
         <div className="flex items-center relative">
           {/* Left - Milaf Logo */}
           <div className="flex items-center">
             <img
               src={milaflogo}
               alt="Milaf Logo"
-              className="h-16 w-auto object-contain"
+              className="h-12 w-auto object-contain sm:h-16"
             />
           </div>
 
-          {/* Center - Navigation Links */}
-          <nav className="flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+          {/* Center - Navigation Links (Hidden on mobile) */}
+          <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
             <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
               Home
             </a>
@@ -47,7 +47,7 @@ export const Hero = ({ onGradientChange }: HeroProps): JSX.Element => {
           
           {/* Right side - Shop Button */}
           <button 
-            className="px-6 py-3 font-bold font-poppins uppercase rounded-[20px] border-2 hover:opacity-80 transition-all duration-300 ml-auto"
+            className="px-3 py-2 sm:px-6 sm:py-3 font-bold font-poppins uppercase rounded-[20px] border-2 hover:opacity-80 transition-all duration-300 text-sm sm:text-base ml-auto"
             style={{ 
               backgroundColor: 'transparent',
               borderColor: 'white',
