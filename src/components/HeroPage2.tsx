@@ -3,7 +3,7 @@ import final4 from "@/assets/final4.png";
 import dates2 from "@/assets/dates2.png";
 import dates1 from "@/assets/dates1.png";
 import dates3 from "@/assets/dates3.png";
-import cutdate4 from "@/assets/cutdate4.png";
+import cutdate4 from "@/assets/CUTDATE4.png";
 import titledcolacan from "@/assets/titledcolacan.png";
 
 export const HeroPage2 = (): JSX.Element => {
