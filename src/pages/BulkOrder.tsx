@@ -280,11 +280,12 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
         <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
           <div className="relative">
             <h1 
-              className={`font-bold font-poppins leading-tight mb-8 uppercase text-center transition-all duration-700 ease-in-out ${
+              className={`font-bold leading-tight mb-8 uppercase text-center transition-all duration-700 ease-in-out ${
                 isAnimating ? 'transform -translate-x-full opacity-0' : 'transform translate-x-0 opacity-100'
               }`}
               style={{ 
                 fontSize: '5.5rem',
+                fontFamily: 'Andada Pro, serif',
                 color: currentProductData.id === 0 && currentProductData.textColor ? currentProductData.textColor : 'white'
               }}
             >
@@ -435,16 +436,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
             +
           </button>
         </div>
-        <div className="mt-3 text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <span className="text-base text-black">
-              price
-            </span>
-            <span className="text-2xl font-bold text-black">
-              ${(currentProductData.price * quantity).toFixed(2)}
-            </span>
-          </div>
-        </div>
+
       </div>
       
       {/* Add to Cart Button */}

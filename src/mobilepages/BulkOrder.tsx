@@ -169,8 +169,11 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
         {/* Main Title */}
         <div className="text-center">
           <h1 
-            className="font-bold font-poppins leading-tight uppercase text-4xl sm:text-6xl lg:text-7xl mb-4"
-            style={{ color: currentProductData.textColor || "white" }}
+            className="font-bold leading-tight uppercase text-4xl sm:text-6xl lg:text-7xl mb-4"
+            style={{ 
+              fontFamily: 'Andada Pro, serif',
+              color: currentProductData.textColor || "white" 
+            }}
           >
             {currentProductData.displayName.map((word, i) => (
               <span key={i} className="block">{word}</span>
@@ -270,16 +273,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
               </button>
             </div>
             
-            {/* Price Display */}
-            <div className="mt-4">
-              <span className="text-sm text-black/80">Total Price:</span>
-              <p className="text-2xl font-bold text-black">
-                ${(currentProductData.price * quantity * 20).toFixed(2)}
-              </p>
-              <p className="text-sm text-black/60">
-                ${(currentProductData.price).toFixed(2)} per unit
-              </p>
-            </div>
+
           </div>
 
           {/* Add to Cart Button */}
