@@ -6,7 +6,7 @@ import { User, Edit3, Package, Calendar, DollarSign } from "lucide-react";
 import { auth, db } from "@/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ProfileEditPopup } from "@/components/ProfileEditPopup";
-import m1Image from "@/assets/original files/m1.png";
+import m1Image from "@/assets/m1.png";
 
 interface UserData {
   uid: string;
