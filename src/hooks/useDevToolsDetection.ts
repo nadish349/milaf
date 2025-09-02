@@ -22,14 +22,52 @@ export const useDevToolsDetection = () => {
       }
     };
 
-    // Method 2: Block right-click context menu (inspect element attempt)
+    // Method 2: Detect when user tries to select "Inspect Element" from context menu
+    let contextMenuShown = false;
+    let inspectElementAttempted = false;
+
     const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDevToolsOpen(true);
-      console.clear();
-      originalLog.call(console, '%c🚫 Right-Click Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
-      return false;
+      // Allow context menu to show, but track it
+      contextMenuShown = true;
+      
+      // Set a timeout to reset the flag if no inspect element is selected
+      setTimeout(() => {
+        if (!inspectElementAttempted) {
+          contextMenuShown = false;
+        }
+      }, 2000); // 2 second window to detect inspect element selection
+    };
+
+    // Method 2b: Detect when user actually tries to inspect element
+    const handleKeyDownAfterContextMenu = (e: KeyboardEvent) => {
+      // If context menu was shown and user presses Enter or clicks, they might be selecting inspect
+      if (contextMenuShown && (e.key === 'Enter' || e.key === ' ')) {
+        // Check if dev tools would open (this is a heuristic)
+        setTimeout(() => {
+          const widthDiff = window.outerWidth - window.innerWidth;
+          const heightDiff = window.outerHeight - window.innerHeight;
+          if (widthDiff > 100 || heightDiff > 100) {
+            inspectElementAttempted = true;
+            setIsDevToolsOpen(true);
+            console.clear();
+            originalLog.call(console, '%c🚫 Inspect Element Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
+          }
+        }, 100);
+      }
+    };
+
+    // Method 2c: Detect dev tools opening after context menu
+    const checkDevToolsAfterContextMenu = () => {
+      if (contextMenuShown) {
+        const widthDiff = window.outerWidth - window.innerWidth;
+        const heightDiff = window.outerHeight - window.innerHeight;
+        if (widthDiff > 100 || heightDiff > 100) {
+          inspectElementAttempted = true;
+          setIsDevToolsOpen(true);
+          console.clear();
+          originalLog.call(console, '%c🚫 Inspect Element Detected!', 'color: red; font-size: 20px; font-weight: bold;');
+        }
+      }
     };
 
     // Method 3: Block common dev tools shortcuts (intentional access)
@@ -102,6 +140,10 @@ export const useDevToolsDetection = () => {
     document.addEventListener('keydown', handleKeyDown, true);
     document.addEventListener('contextmenu', handleContextMenu, true);
     document.addEventListener('keydown', handleKeyCombo, true);
+    document.addEventListener('keydown', handleKeyDownAfterContextMenu, true);
+    
+    // Monitor for dev tools opening after context menu
+    const contextMenuInterval = setInterval(checkDevToolsAfterContextMenu, 500);
     
     // Reset console count every 5 seconds
     const consoleResetInterval = setInterval(resetConsoleCount, 5000);
@@ -111,6 +153,7 @@ export const useDevToolsDetection = () => {
       document.removeEventListener('keydown', handleKeyDown, true);
       document.removeEventListener('contextmenu', handleContextMenu, true);
       document.removeEventListener('keydown', handleKeyCombo, true);
+      document.removeEventListener('keydown', handleKeyDownAfterContextMenu, true);
       
       // Restore original console methods
       console.log = originalLog;
@@ -119,6 +162,7 @@ export const useDevToolsDetection = () => {
       console.info = originalInfo;
       
       clearInterval(consoleResetInterval);
+      clearInterval(contextMenuInterval);
       clearTimeout(consoleUsageTimeout);
     };
   }, []);

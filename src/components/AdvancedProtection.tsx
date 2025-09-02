@@ -54,7 +54,7 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
            lineHeight: '1.6',
            color: '#cccccc'
          }}>
-           You attempted to access developer tools (F12, right-click inspect, or console usage). This website is protected and blocks such access attempts.
+           You attempted to access developer tools (F12, inspect element, or console usage). This website is protected and blocks such access attempts.
          </p>
         <div style={{ 
           fontSize: '18px', 
@@ -68,7 +68,7 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
                      <p style={{ marginBottom: '15px', fontWeight: 'bold' }}>To continue using this website:</p>
            <ul style={{ textAlign: 'left', lineHeight: '1.8' }}>
              <li>Do not press F12 or use dev tools shortcuts</li>
-             <li>Do not right-click to inspect elements</li>
+             <li>Do not select "Inspect Element" from right-click menu</li>
              <li>Do not use the browser console</li>
              <li>Refresh the page to continue normal browsing</li>
            </ul>
