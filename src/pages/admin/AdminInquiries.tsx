@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchAllInquiries, markInquiryAsRead, InquiryWithId } from '@/services/inquiryService';
+import { fetchAllInquiries, markInquiryAsRead, InquiryWithId } from '@/services/inquiryFetch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

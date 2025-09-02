@@ -9,7 +9,7 @@ export interface InquiryData {
   address: string;
   questions: string;
   read: boolean;
-  createdAt: any; // serverTimestamp
+  createdAt: any; // Firebase serverTimestamp
 }
 
 export interface InquiryWithId extends InquiryData {
