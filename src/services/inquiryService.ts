@@ -46,22 +46,17 @@ export const saveInquiry = async (inquiryData: Omit<InquiryData, 'read' | 'creat
 
 export const fetchAllInquiries = async (): Promise<InquiryWithId[]> => {
   try {
-    console.log('Starting to fetch inquiries...');
     const inquiries: InquiryWithId[] = [];
     
     // Get all months from the inquiry collection
     const inquiryCollectionRef = collection(db, 'inquiry');
-    console.log('Getting inquiry collection...');
     const inquirySnapshot = await getDocs(inquiryCollectionRef);
-    console.log('Found months:', inquirySnapshot.docs.length);
     
     // For each month, get all inquiries
     for (const monthDoc of inquirySnapshot.docs) {
       const month = monthDoc.id;
-      console.log('Processing month:', month);
       const inquiriesCollectionRef = collection(db, 'inquiry', month, 'inquiries');
       const inquiriesSnapshot = await getDocs(query(inquiriesCollectionRef, orderBy('createdAt', 'desc')));
-      console.log(`Found ${inquiriesSnapshot.docs.length} inquiries in ${month}`);
       
       inquiriesSnapshot.docs.forEach(doc => {
         inquiries.push({
@@ -80,16 +75,11 @@ export const fetchAllInquiries = async (): Promise<InquiryWithId[]> => {
       return 0;
     });
     
-    console.log('Successfully fetched inquiries:', inquiries.length);
+    console.log('Fetched inquiries:', inquiries.length);
     return inquiries;
   } catch (error) {
     console.error('Error fetching inquiries:', error);
-    console.error('Error details:', {
-      code: error.code,
-      message: error.message,
-      stack: error.stack
-    });
-    throw new Error(`Failed to fetch inquiries: ${error.message}`);
+    throw new Error('Failed to fetch inquiries. Please try again.');
   }
 };
 

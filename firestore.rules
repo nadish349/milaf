@@ -31,11 +31,6 @@ service cloud.firestore {
       allow read: if request.auth != null;
     }
     
-    // Allow reading inquiry collection root for admin dashboard
-    match /inquiry {
-      allow read: if request.auth != null;
-    }
-    
     // Block access to all other collections by default
     match /{document=**} {
       allow read, write: if false;
