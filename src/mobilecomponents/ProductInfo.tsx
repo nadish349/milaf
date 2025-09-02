@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import m1 from "@/assets/m1.png";
-import titledcolacandesign4 from "@/assets/titledcolacandesign4.png";
+import milafcola from "@/assets/milafcola.png";
 import chocospread from "@/assets/chocospread.png";
 import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
@@ -36,7 +36,7 @@ export const ProductInfo = ({ onProductSelect }: ProductInfoProps) => {
     {
       id: 0,
       name: "Milaf Cola",
-      image: titledcolacandesign4,
+      image: milafcola,
       description: "Saudi Arabia's unique twist on a classic favorite, infused with the rich natural sweetness of premium local dates.",
       gradient: "linear-gradient(135deg, #66A992, #FFFFFF)",
       category: "Beverages"

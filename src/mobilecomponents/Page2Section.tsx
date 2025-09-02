@@ -19,16 +19,34 @@ export const Page2Section = () => {
           setShowVideo(true);
           setHasPlayed(true);
           
-          // Start video after a short delay
+          // Start video after a short delay - optimized for mobile
           setTimeout(() => {
             if (videoRef.current) {
               videoRef.current.currentTime = 0;
-              videoRef.current.play().catch(console.error);
+              // Try to play the video
+              const playPromise = videoRef.current.play();
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => {
+                    console.log('Video autoplay started successfully');
+                  })
+                  .catch((error) => {
+                    console.log('Autoplay prevented:', error);
+                    // If autoplay fails, try again after user interaction
+                    const tryPlayAgain = () => {
+                      videoRef.current?.play().catch(console.error);
+                      document.removeEventListener('touchstart', tryPlayAgain);
+                      document.removeEventListener('click', tryPlayAgain);
+                    };
+                    document.addEventListener('touchstart', tryPlayAgain, { once: true });
+                    document.addEventListener('click', tryPlayAgain, { once: true });
+                  });
+              }
             }
-          }, 500);
+          }, 800); // Increased delay for better mobile compatibility
         }
       },
-      { threshold: 0.5 } // Trigger when 50% of section is visible
+      { threshold: 0.3 } // Reduced threshold for earlier trigger
     );
 
     if (sectionRef.current) {
@@ -57,8 +75,8 @@ export const Page2Section = () => {
       className="relative w-full min-h-screen bg-cover bg-center flex flex-col items-center justify-center px-4 text-center"
       style={{ backgroundImage: `url(${about2frame})` }}
     >
-      {/* Main title - lifted 4cm upwards */}
-      <h1 className="text-xl sm:text-3xl md:text-5xl font-bold text-white mb-6 -mt-16">
+      {/* Main title - visible and properly positioned */}
+      <h1 className="text-xl sm:text-3xl md:text-5xl font-bold text-white mb-6 mt-8">
         Elevate your Refreshment
       </h1>
 
@@ -87,14 +105,30 @@ export const Page2Section = () => {
               className="w-full h-full object-contain"
               muted
               playsInline
+              autoPlay
+              loop={false}
+              preload="metadata"
               onEnded={handleVideoEnded}
               onLoadedData={handleVideoLoad}
+              onCanPlay={() => {
+                // Ensure video can play on mobile
+                if (videoRef.current) {
+                  videoRef.current.play().catch(console.error);
+                }
+              }}
               onError={(e) => {
                 console.error('Video error:', e);
                 setShowVideo(false);
               }}
+              onLoadStart={() => {
+                console.log('Video loading started');
+              }}
+              onPlay={() => {
+                console.log('Video started playing');
+              }}
             >
               <source src={goldenring} type="video/webm" />
+              <source src={goldenring.replace('.webm', '.mp4')} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>

@@ -25,7 +25,25 @@ export const Page2Section = () => {
               setShowVideo(true);
               if (videoRef.current) {
                 videoRef.current.currentTime = 0; // Reset video to start
-                videoRef.current.play();
+                // Try to play the video with mobile compatibility
+                const playPromise = videoRef.current.play();
+                if (playPromise !== undefined) {
+                  playPromise
+                    .then(() => {
+                      console.log('Desktop video autoplay started successfully');
+                    })
+                    .catch((error) => {
+                      console.log('Desktop autoplay prevented:', error);
+                      // If autoplay fails, try again after user interaction
+                      const tryPlayAgain = () => {
+                        videoRef.current?.play().catch(console.error);
+                        document.removeEventListener('touchstart', tryPlayAgain);
+                        document.removeEventListener('click', tryPlayAgain);
+                      };
+                      document.addEventListener('touchstart', tryPlayAgain, { once: true });
+                      document.addEventListener('click', tryPlayAgain, { once: true });
+                    });
+                }
               }
             }, 2000);
             
@@ -37,7 +55,25 @@ export const Page2Section = () => {
               setShowVideo(true);
               if (videoRef.current) {
                 videoRef.current.currentTime = 0; // Reset video to start
-                videoRef.current.play();
+                // Try to play the video with mobile compatibility
+                const playPromise = videoRef.current.play();
+                if (playPromise !== undefined) {
+                  playPromise
+                    .then(() => {
+                      console.log('Desktop video autoplay started successfully');
+                    })
+                    .catch((error) => {
+                      console.log('Desktop autoplay prevented:', error);
+                      // If autoplay fails, try again after user interaction
+                      const tryPlayAgain = () => {
+                        videoRef.current?.play().catch(console.error);
+                        document.removeEventListener('touchstart', tryPlayAgain);
+                        document.removeEventListener('click', tryPlayAgain);
+                      };
+                      document.addEventListener('touchstart', tryPlayAgain, { once: true });
+                      document.addEventListener('click', tryPlayAgain, { once: true });
+                    });
+                }
               }
             }, 2000);
             
@@ -107,9 +143,29 @@ export const Page2Section = () => {
             className="w-full h-full object-contain"
             onEnded={handleVideoEnded}
             muted
-            preload="none"
+            playsInline
+            autoPlay
+            loop={false}
+            preload="metadata"
+            onCanPlay={() => {
+              // Ensure video can play on mobile
+              if (videoRef.current) {
+                videoRef.current.play().catch(console.error);
+              }
+            }}
+            onError={(e) => {
+              console.error('Video error:', e);
+              setShowVideo(false);
+            }}
+            onLoadStart={() => {
+              console.log('Video loading started');
+            }}
+            onPlay={() => {
+              console.log('Video started playing');
+            }}
           >
             <source src={goldenring} type="video/webm" />
+            <source src={goldenring.replace('.webm', '.mp4')} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
