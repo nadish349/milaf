@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useDevToolsDetection } from '@/hooks/useDevToolsDetection';
 
 interface AdvancedProtectionProps {
@@ -7,116 +7,9 @@ interface AdvancedProtectionProps {
 
 export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children }) => {
   const isDevToolsOpen = useDevToolsDetection();
-  const [isProtected, setIsProtected] = useState(false);
 
-  useEffect(() => {
-    // Additional protection measures
-    const protectPage = () => {
-      // Disable common keyboard shortcuts
-      const disableShortcuts = (e: KeyboardEvent) => {
-        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U, Ctrl+S, Ctrl+A, Ctrl+P
-        if (
-          e.key === 'F12' ||
-          (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
-          (e.ctrlKey && ['U', 'S', 'A', 'P'].includes(e.key))
-        ) {
-          e.preventDefault();
-          e.stopPropagation();
-          setIsProtected(true);
-          return false;
-        }
-      };
-
-      // Disable right-click
-      const disableRightClick = (e: MouseEvent) => {
-        e.preventDefault();
-        setIsProtected(true);
-        return false;
-      };
-
-      // Disable text selection
-      const disableSelection = (e: Event) => {
-        e.preventDefault();
-        return false;
-      };
-
-      // Disable drag and drop
-      const disableDrag = (e: DragEvent) => {
-        e.preventDefault();
-        return false;
-      };
-
-      // Disable image dragging
-      const disableImageDrag = (e: Event) => {
-        e.preventDefault();
-        return false;
-      };
-
-      // Add event listeners
-      document.addEventListener('keydown', disableShortcuts, true);
-      document.addEventListener('contextmenu', disableRightClick, true);
-      document.addEventListener('selectstart', disableSelection, true);
-      document.addEventListener('dragstart', disableDrag, true);
-      document.addEventListener('drag', disableDrag, true);
-      document.addEventListener('dragover', disableDrag, true);
-      document.addEventListener('drop', disableDrag, true);
-
-      // Disable image dragging
-      const images = document.querySelectorAll('img');
-      images.forEach(img => {
-        img.addEventListener('dragstart', disableImageDrag, true);
-        img.style.pointerEvents = 'none';
-        img.style.userSelect = 'none';
-      });
-
-      // Disable text selection on all elements
-      document.body.style.userSelect = 'none';
-      document.body.style.webkitUserSelect = 'none';
-      document.body.style.mozUserSelect = 'none';
-      document.body.style.msUserSelect = 'none';
-
-      // Disable highlighting
-      document.body.style.webkitTouchCallout = 'none';
-      document.body.style.webkitUserSelect = 'none';
-      document.body.style.khtmlUserSelect = 'none';
-      document.body.style.mozUserSelect = 'none';
-      document.body.style.msUserSelect = 'none';
-      document.body.style.userSelect = 'none';
-
-      // Cleanup function
-      return () => {
-        document.removeEventListener('keydown', disableShortcuts, true);
-        document.removeEventListener('contextmenu', disableRightClick, true);
-        document.removeEventListener('selectstart', disableSelection, true);
-        document.removeEventListener('dragstart', disableDrag, true);
-        document.removeEventListener('drag', disableDrag, true);
-        document.removeEventListener('dragover', disableDrag, true);
-        document.removeEventListener('drop', disableDrag, true);
-
-        // Re-enable image dragging
-        const images = document.querySelectorAll('img');
-        images.forEach(img => {
-          img.removeEventListener('dragstart', disableImageDrag, true);
-          img.style.pointerEvents = 'auto';
-          img.style.userSelect = 'auto';
-        });
-
-        // Re-enable text selection
-        document.body.style.userSelect = 'auto';
-        document.body.style.webkitUserSelect = 'auto';
-        document.body.style.mozUserSelect = 'auto';
-        document.body.style.msUserSelect = 'auto';
-        document.body.style.webkitTouchCallout = 'auto';
-        document.body.style.khtmlUserSelect = 'auto';
-      };
-    };
-
-    const cleanup = protectPage();
-    return cleanup;
-  }, []);
-
-  // Show protection screen if dev tools are open or protection is triggered
-  if (isDevToolsOpen || isProtected) {
+  // Show protection screen only when dev tools access is attempted
+  if (isDevToolsOpen) {
     return (
       <div 
         style={{
@@ -146,23 +39,23 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
         }}>
           🛡️
         </div>
-        <h1 style={{ 
-          fontSize: '36px', 
-          marginBottom: '20px', 
-          color: '#ff4444',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-        }}>
-          Security Protection Active
-        </h1>
-        <p style={{ 
-          fontSize: '20px', 
-          marginBottom: '30px', 
-          maxWidth: '700px', 
-          lineHeight: '1.6',
-          color: '#cccccc'
-        }}>
-          This website is protected by advanced security measures. Developer tools and unauthorized access attempts have been detected.
-        </p>
+                 <h1 style={{ 
+           fontSize: '36px', 
+           marginBottom: '20px', 
+           color: '#ff4444',
+           textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+         }}>
+           Developer Tools Access Blocked
+         </h1>
+         <p style={{ 
+           fontSize: '20px', 
+           marginBottom: '30px', 
+           maxWidth: '700px', 
+           lineHeight: '1.6',
+           color: '#cccccc'
+         }}>
+           You attempted to access developer tools (F12 or right-click inspect). This website is protected and blocks such access attempts.
+         </p>
         <div style={{ 
           fontSize: '18px', 
           color: '#aaaaaa', 
@@ -172,13 +65,13 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
           borderRadius: '10px',
           border: '1px solid rgba(255,255,255,0.2)'
         }}>
-          <p style={{ marginBottom: '15px', fontWeight: 'bold' }}>To access this website:</p>
-          <ul style={{ textAlign: 'left', lineHeight: '1.8' }}>
-            <li>Close all developer tools (F12, Inspect Element)</li>
-            <li>Disable any browser extensions that modify the page</li>
-            <li>Refresh the page after closing developer tools</li>
-            <li>Ensure you're not using any debugging tools</li>
-          </ul>
+                     <p style={{ marginBottom: '15px', fontWeight: 'bold' }}>To continue using this website:</p>
+           <ul style={{ textAlign: 'left', lineHeight: '1.8' }}>
+             <li>Do not press F12 or use developer tools shortcuts</li>
+             <li>Do not right-click to inspect elements</li>
+             <li>Refresh the page to continue normal browsing</li>
+             <li>Use the website normally without developer tools</li>
+           </ul>
         </div>
         <div style={{ 
           marginTop: '40px', 
@@ -189,9 +82,9 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
           color: '#ffaaaa',
           border: '1px solid rgba(255,68,68,0.3)'
         }}>
-          <p style={{ margin: 0 }}>
-            <strong>Note:</strong> This protection ensures the integrity and security of our application.
-          </p>
+                     <p style={{ margin: 0 }}>
+             <strong>Note:</strong> This protection only activates when you attempt to access developer tools.
+           </p>
         </div>
         <style>{`
           @keyframes pulse {
