@@ -45,7 +45,7 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
            color: '#ff4444',
            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
          }}>
-           Developer Tools Access Blocked
+           Developer Tools Usage Detected
          </h1>
          <p style={{ 
            fontSize: '20px', 
@@ -54,7 +54,7 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
            lineHeight: '1.6',
            color: '#cccccc'
          }}>
-           You attempted to access developer tools (F12 or right-click inspect). This website is protected and blocks such access attempts.
+           You pressed F12 or are actively using developer tools to inspect elements. This website is protected and blocks such activities.
          </p>
         <div style={{ 
           fontSize: '18px', 
@@ -67,10 +67,10 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
         }}>
                      <p style={{ marginBottom: '15px', fontWeight: 'bold' }}>To continue using this website:</p>
            <ul style={{ textAlign: 'left', lineHeight: '1.8' }}>
-             <li>Do not press F12 or use developer tools shortcuts</li>
-             <li>Do not right-click to inspect elements</li>
+             <li>Do not press F12 to open developer tools</li>
+             <li>Do not use the inspect element feature</li>
+             <li>Close any open developer tools</li>
              <li>Refresh the page to continue normal browsing</li>
-             <li>Use the website normally without developer tools</li>
            </ul>
         </div>
         <div style={{ 
@@ -83,7 +83,7 @@ export const AdvancedProtection: React.FC<AdvancedProtectionProps> = ({ children
           border: '1px solid rgba(255,68,68,0.3)'
         }}>
                      <p style={{ margin: 0 }}>
-             <strong>Note:</strong> This protection only activates when you attempt to access developer tools.
+             <strong>Note:</strong> This protection only activates when you use F12 or actively inspect elements.
            </p>
         </div>
         <style>{`
