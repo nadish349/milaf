@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Suspense, lazy } from "react";
+import { AdvancedProtection } from "@/components/AdvancedProtection";
 
 // Lazy load components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -100,17 +101,19 @@ const App = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <HashRouter>
-            {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
-          </HashRouter>
-        </TooltipProvider>
-      </CartProvider>
-    </QueryClientProvider>
+    <AdvancedProtection>
+      <QueryClientProvider client={queryClient}>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <HashRouter>
+              {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
+            </HashRouter>
+          </TooltipProvider>
+        </CartProvider>
+      </QueryClientProvider>
+    </AdvancedProtection>
   );
 };
 
