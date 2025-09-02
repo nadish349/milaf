@@ -19,9 +19,12 @@ export const AdminInquiries = (): JSX.Element => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Loading inquiries...');
       const fetchedInquiries = await fetchAllInquiries();
+      console.log('Fetched inquiries:', fetchedInquiries);
       setInquiries(fetchedInquiries);
     } catch (err) {
+      console.error('Error loading inquiries:', err);
       setError(err instanceof Error ? err.message : 'Failed to load inquiries');
     } finally {
       setLoading(false);

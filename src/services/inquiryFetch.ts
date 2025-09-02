@@ -201,3 +201,53 @@ export const getInquiryStats = async (): Promise<{
     throw new Error('Failed to get inquiry statistics. Please try again.');
   }
 };
+
+/**
+ * Test function to verify Firebase connection and collection structure
+ */
+export const testInquiryConnection = async (): Promise<void> => {
+  try {
+    console.log('Testing Firebase connection...');
+    
+    // Test 1: Check if we can access the inquiry collection
+    const inquiryCollectionRef = collection(db, 'inquiry');
+    const inquirySnapshot = await getDocs(inquiryCollectionRef);
+    
+    console.log(`✅ Successfully connected to Firebase`);
+    console.log(`✅ Found ${inquirySnapshot.docs.length} month collections in inquiry collection`);
+    
+    if (inquirySnapshot.docs.length === 0) {
+      console.log('ℹ️ No month collections found. This is normal if no inquiries have been submitted yet.');
+      return;
+    }
+    
+    // Test 2: Check each month collection
+    for (const monthDoc of inquirySnapshot.docs) {
+      const month = monthDoc.id;
+      console.log(`📅 Checking month: ${month}`);
+      
+      const inquiriesCollectionRef = collection(db, 'inquiry', month, 'inquiries');
+      const inquiriesSnapshot = await getDocs(inquiriesCollectionRef);
+      
+      console.log(`   📝 Found ${inquiriesSnapshot.docs.length} inquiries in ${month}`);
+      
+      // Test 3: Check a sample inquiry document
+      if (inquiriesSnapshot.docs.length > 0) {
+        const sampleDoc = inquiriesSnapshot.docs[0];
+        const sampleData = sampleDoc.data();
+        console.log(`   📄 Sample inquiry data:`, {
+          id: sampleDoc.id,
+          name: sampleData.name,
+          email: sampleData.email,
+          read: sampleData.read,
+          createdAt: sampleData.createdAt
+        });
+      }
+    }
+    
+    console.log('✅ All tests passed! Firebase connection is working correctly.');
+  } catch (error) {
+    console.error('❌ Firebase connection test failed:', error);
+    throw error;
+  }
+};

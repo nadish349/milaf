@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchAllInquiries, markInquiryAsRead, InquiryWithId } from '@/services/inquiryFetch';
+import { fetchAllInquiries, markInquiryAsRead, InquiryWithId, testInquiryConnection } from '@/services/inquiryFetch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,9 +19,12 @@ export const AdminInquiries = (): JSX.Element => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Loading inquiries...');
       const fetchedInquiries = await fetchAllInquiries();
+      console.log('Fetched inquiries:', fetchedInquiries);
       setInquiries(fetchedInquiries);
     } catch (err) {
+      console.error('Error loading inquiries:', err);
       setError(err instanceof Error ? err.message : 'Failed to load inquiries');
     } finally {
       setLoading(false);
@@ -41,6 +44,17 @@ export const AdminInquiries = (): JSX.Element => {
       }
     } catch (err) {
       console.error('Error marking inquiry as read:', err);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    try {
+      console.log('Testing Firebase connection...');
+      await testInquiryConnection();
+      alert('Connection test completed! Check console for details.');
+    } catch (err) {
+      console.error('Connection test failed:', err);
+      alert('Connection test failed! Check console for details.');
     }
   };
 
@@ -103,9 +117,14 @@ export const AdminInquiries = (): JSX.Element => {
               {inquiries.length} total inquiries • {unreadCount} unread
             </p>
           </div>
-          <Button onClick={loadInquiries} variant="outline">
-            Refresh
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={loadInquiries} variant="outline">
+              Refresh
+            </Button>
+            <Button onClick={handleTestConnection} variant="outline" className="bg-blue-50 text-blue-700 hover:bg-blue-100">
+              Test Connection
+            </Button>
+          </div>
         </div>
       </div>
 
