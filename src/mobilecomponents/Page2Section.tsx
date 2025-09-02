@@ -62,15 +62,7 @@ export const Page2Section = () => {
         Elevate your Refreshment
       </h1>
 
-      {/* Description - now above the image */}
-      <p className="text-white text-lg sm:text-xl md:text-2xl max-w-2xl mb-4 text-left">
-        Discover the first-ever date-based cola, with no added sugar.
-      </p>
-      <p className="text-white text-lg sm:text-xl md:text-2xl max-w-2xl mb-6 text-left">
-        Enjoy a unique, health-conscious refreshment, enriched with natural sweetness and nutrition.
-      </p>
-
-      {/* Cola image / video */}
+      {/* Cola image / video - moved above description */}
       <div className="w-44 h-44 sm:w-66 sm:h-66 mb-6 relative mt-8">
         {/* Image - shown initially and after video ends */}
         <img 
@@ -108,6 +100,14 @@ export const Page2Section = () => {
           </div>
         )}
       </div>
+
+      {/* Description - moved below the image */}
+      <p className="text-white text-lg sm:text-xl md:text-2xl max-w-2xl mb-4 text-left">
+        Discover the first-ever date-based cola, with no added sugar.
+      </p>
+      <p className="text-white text-lg sm:text-xl md:text-2xl max-w-2xl mb-6 text-left">
+        Enjoy a unique, health-conscious refreshment, enriched with natural sweetness and nutrition.
+      </p>
 
       {/* Big title */}
       <h2 className="text-lg sm:text-2xl md:text-3xl text-white font-semibold mb-6">
