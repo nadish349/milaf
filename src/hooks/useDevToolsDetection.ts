@@ -4,6 +4,12 @@ export const useDevToolsDetection = () => {
   const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
 
   useEffect(() => {
+    // Store original console methods first
+    const originalLog = console.log;
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    const originalInfo = console.info;
+
     // Method 1: Block F12 key
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'F12') {
@@ -11,7 +17,7 @@ export const useDevToolsDetection = () => {
         e.stopPropagation();
         setIsDevToolsOpen(true);
         console.clear();
-        console.log('%c🚫 F12 Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
+        originalLog.call(console, '%c🚫 F12 Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
         return false;
       }
     };
@@ -21,8 +27,8 @@ export const useDevToolsDetection = () => {
       e.preventDefault();
       e.stopPropagation();
       setIsDevToolsOpen(true);
-      console.clear();
-      console.log('%c🚫 Right-Click Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
+              console.clear();
+        originalLog.call(console, '%c🚫 Right-Click Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
       return false;
     };
 
@@ -38,7 +44,7 @@ export const useDevToolsDetection = () => {
         e.stopPropagation();
         setIsDevToolsOpen(true);
         console.clear();
-        console.log('%c🚫 Dev Tools Shortcut Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
+        originalLog.call(console, '%c🚫 Dev Tools Shortcut Blocked!', 'color: red; font-size: 20px; font-weight: bold;');
         return false;
       }
     };
@@ -52,41 +58,37 @@ export const useDevToolsDetection = () => {
       if (widthDiff > threshold || heightDiff > threshold) {
         setIsDevToolsOpen(true);
         console.clear();
-        console.log('%c🚫 Developer Tools Detected!', 'color: red; font-size: 20px; font-weight: bold;');
+        originalLog.call(console, '%c🚫 Developer Tools Detected!', 'color: red; font-size: 20px; font-weight: bold;');
       }
     };
 
     // Method 5: Detect console usage
-    const originalLog = console.log;
-    const originalWarn = console.warn;
-    const originalError = console.error;
-    const originalInfo = console.info;
 
     console.log = function(...args) {
       setIsDevToolsOpen(true);
       console.clear();
-      console.log('%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
+      originalLog.call(console, '%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
       return originalLog.apply(console, args);
     };
 
     console.warn = function(...args) {
       setIsDevToolsOpen(true);
       console.clear();
-      console.log('%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
+      originalLog.call(console, '%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
       return originalWarn.apply(console, args);
     };
 
     console.error = function(...args) {
       setIsDevToolsOpen(true);
       console.clear();
-      console.log('%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
+      originalLog.call(console, '%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
       return originalError.apply(console, args);
     };
 
     console.info = function(...args) {
       setIsDevToolsOpen(true);
       console.clear();
-      console.log('%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
+      originalLog.call(console, '%c🚫 Console Usage Detected!', 'color: red; font-size: 20px; font-weight: bold;');
       return originalInfo.apply(console, args);
     };
 
@@ -99,7 +101,7 @@ export const useDevToolsDetection = () => {
       if (end - start > 100) {
         setIsDevToolsOpen(true);
         console.clear();
-        console.log('%c🚫 Debugger Detected!', 'color: red; font-size: 20px; font-weight: bold;');
+        originalLog.call(console, '%c🚫 Debugger Detected!', 'color: red; font-size: 20px; font-weight: bold;');
       }
     };
 
