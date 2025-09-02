@@ -4,7 +4,7 @@ A modern, responsive website showcasing the Milaf Cola brand with smooth animati
 
 ## 🚀 Live Demo
 
-Visit the live website: [https://nadish349.github.io/milaf](https://nadish349.github.io/milaf)
+Visit the live website: [https://milaf.ae.vercel.app](https://milaf.ae.vercel.app)
 
 ## ✨ Features
 
@@ -21,13 +21,13 @@ Visit the live website: [https://nadish349.github.io/milaf](https://nadish349.gi
 - **Styling**: Tailwind CSS
 - **UI Components**: Shadcn/ui
 - **Build Tool**: Vite
-- **Deployment**: GitHub Pages
+- **Deployment**: Vercel
 
 ## 📦 Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/nadish349/milaf.git
+   git clone <your-repository-url>
    cd milaf
    ```
 
@@ -44,41 +44,36 @@ Visit the live website: [https://nadish349.github.io/milaf](https://nadish349.gi
 4. **Open your browser**
    Navigate to `http://localhost:8080`
 
-## 🚀 Deployment to GitHub Pages
+## 🚀 Deployment to Vercel
 
-### Option 1: Automatic Deployment (Recommended)
+### Automatic Deployment (Recommended)
 
-1. **Push to GitHub**
+1. **Connect to Vercel**
+   - Push your code to GitHub
+   - Go to [vercel.com](https://vercel.com) and sign in
+   - Click "New Project" and import your GitHub repository
+
+2. **Configure Domain**
+   - Set your custom domain to `milaf.ae.vercel.app`
+   - Vercel will automatically handle SSL certificates
+
+3. **Automatic Deployments**
+   - Every push to your main branch will trigger a new deployment
+   - Vercel provides preview deployments for pull requests
+
+### Manual Deployment
+
+1. **Install Vercel CLI**
    ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
+   npm i -g vercel
    ```
 
-2. **Enable GitHub Pages**
-   - Go to your repository on GitHub
-   - Navigate to Settings → Pages
-   - Set Source to "GitHub Actions"
-
-3. **The website will automatically deploy** when you push to the main branch
-
-### Option 2: Manual Deployment
-
-1. **Install gh-pages**
+2. **Deploy**
    ```bash
-   npm install --save-dev gh-pages
+   vercel
    ```
 
-2. **Update package.json homepage**
-   The homepage is already configured for your GitHub username:
-   ```json
-   "homepage": "https://nadish349.github.io/milaf"
-   ```
-
-3. **Deploy**
-   ```bash
-   npm run deploy
-   ```
+3. **Follow the prompts** to configure your project
 
 ## 📁 Project Structure
 
@@ -102,8 +97,7 @@ milaf/
 │   │   └── milafcola.png
 │   └── pages/
 │       └── Index.tsx             # Main page layout
-├── .github/workflows/
-│   └── deploy.yml                # GitHub Actions workflow
+
 └── package.json
 ```
 
@@ -131,7 +125,7 @@ The project uses Tailwind CSS. You can customize colors, spacing, and other styl
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `npm run deploy` - Deploy to GitHub Pages
+- `vercel` - Deploy to Vercel
 
 ## 📱 Browser Support
 

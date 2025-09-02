@@ -6,6 +6,7 @@ import { Page3Section } from "@/components/Page3Section";
 import { Page4Section } from "@/components/Page4Section";
 import { ProductInfo } from "@/components/ProductInfo";
 import { ProductDetail } from "@/components/ProductDetail";
+import { CompanyInfoSection } from "@/components/CompanyInfoSection";
 import { Footer } from "@/components/Footer";
 import React, { useState, useEffect, useRef } from "react";
 
@@ -23,6 +24,8 @@ const Index = () => {
     "#8B4513", // Page3Section (brown from m1 background)
     "#8B4513", // Page4Section (brown from m1 background)
     "#8B4513", // ProductInfo (brown from m1 background)
+    "#8B4513", // ProductDetail (brown from m1 background)
+    "#8B4513", // CompanyInfoSection (brown from m1 background)
     "#1f2937"  // Footer (dark gray)
   ], [heroGradient]);
 
@@ -84,6 +87,7 @@ const Index = () => {
         <Page4Section />
         <ProductInfo onProductSelect={setSelectedProductId} />
         <ProductDetail selectedProductId={selectedProductId} />
+        <CompanyInfoSection />
         <Footer />
       </div>
     </div>

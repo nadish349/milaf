@@ -29,16 +29,41 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  // Show bulk order popup after 2 seconds when page becomes visible
+  // Show bulk order popup after 2 seconds when page becomes visible - only once per session
   useEffect(() => {
     if (isVisible && hasInitialized) {
-      const timer = setTimeout(() => {
-        setShowBulkOrderPopup(true);
-      }, 2000);
+      // Check if popup has already been shown in this session
+      const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
+      
+      if (!hasShownPopup) {
+        const timer = setTimeout(() => {
+          setShowBulkOrderPopup(true);
+          // Mark as shown in localStorage
+          localStorage.setItem('bulkOrderPopupShown', 'true');
+        }, 2000);
 
-      return () => clearTimeout(timer);
+        return () => clearTimeout(timer);
+      }
     }
   }, [isVisible, hasInitialized]);
+
+  // Listen for product change events from footer
+  useEffect(() => {
+    const handleProductChange = (event: CustomEvent) => {
+      console.log('ProductDetail received changeProduct event:', event.detail);
+      const { productId } = event.detail;
+      console.log('Setting current product to:', productId);
+      setCurrentProduct(productId);
+    };
+
+    console.log('ProductDetail: Adding changeProduct event listener');
+    window.addEventListener('changeProduct', handleProductChange as EventListener);
+    
+    return () => {
+      console.log('ProductDetail: Removing changeProduct event listener');
+      window.removeEventListener('changeProduct', handleProductChange as EventListener);
+    };
+  }, []);
 
   const products = [
     {
@@ -180,7 +205,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   }, [hasInitialized]);
 
       return (
-      <section className="product-detail-section relative min-h-screen w-full overflow-hidden snap-start snap-always">
+      <section id="product-detail-section" className="product-detail-section relative min-h-screen w-full overflow-hidden snap-start snap-always">
       {/* Background - either gradient or background image */}
       <div 
         className="absolute inset-0 transition-all duration-700 ease-in-out"
@@ -209,11 +234,12 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
         <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
           <div className="relative">
             <h1 
-              className={`font-bold font-poppins leading-tight mb-8 uppercase text-center transition-all duration-700 ease-in-out ${
+              className={`font-bold leading-tight mb-8 uppercase text-center transition-all duration-700 ease-in-out ${
                 isAnimating ? 'transform -translate-x-full opacity-0' : 'transform translate-x-0 opacity-100'
               }`}
               style={{ 
                 fontSize: '6.5rem',
+                fontFamily: 'Andada Pro, serif',
                 color: currentProductData.id === 0 && currentProductData.textColor ? currentProductData.textColor : 'white'
               }}
             >
@@ -353,16 +379,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
             +
           </button>
         </div>
-        <div className="mt-3 text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <span className="text-sm text-black">
-              price
-            </span>
-            <span className="text-xl font-bold text-black">
-              ${(currentProductData.price * quantity).toFixed(2)}
-            </span>
-          </div>
-        </div>
+
       </div>
       
       {/* Add to Cart Button */}

@@ -15,6 +15,67 @@ img {
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile Browser Taskbar & Safe Area Handling */
+@supports (padding: max(0px)) {
+  .mobile-safe-area {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .mobile-safe-bottom {
+    padding-bottom: max(2rem, env(safe-area-inset-bottom) + 1rem);
+  }
+  
+  .mobile-safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top) + 1rem);
+  }
+}
+
+/* Mobile-specific viewport handling */
+@media screen and (max-width: 768px) {
+  html {
+    /* Prevent zoom on input focus */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+  
+  body {
+    /* Ensure proper mobile rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Handle mobile browser UI */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
+  }
+  
+  /* Fix for iOS Safari 100vh issue */
+  .mobile-viewport {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: -moz-available;
+    min-height: stretch;
+  }
+  
+  /* Ensure content is above mobile browser UI */
+  .mobile-content {
+    position: relative;
+    z-index: 1;
+    /* Add bottom padding for mobile browsers */
+    padding-bottom: env(safe-area-inset-bottom, 2rem);
+  }
+  
+  /* Mobile navigation safe areas */
+  .mobile-nav-safe {
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    left: max(1rem, env(safe-area-inset-left));
+    right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

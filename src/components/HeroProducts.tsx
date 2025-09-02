@@ -176,7 +176,7 @@ export const HeroProducts = ({ onGradientChange }: HeroProductsProps): JSX.Eleme
             }`}
             style={{ 
               fontSize: '6.5rem',
-              fontFamily: 'Cairo, sans-serif',
+              fontFamily: 'Andada Pro, serif',
               fontWeight: 200,
               color: currentProductData.id === 0 && currentProductData.textColor ? currentProductData.textColor : 'white'
             }}

@@ -1,6 +1,6 @@
 import React from "react";
 import m1 from "@/assets/m1.png";
-import milafcola from "@/assets/milafcola.png";
+import titledcolacandesign4 from "@/assets/titledcolacandesign4.png";
 import chocospread from "@/assets/chocospread.png";
 import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
@@ -18,7 +18,7 @@ export const ProductInfo = ({ onProductSelect }: ProductInfoProps) => {
     {
       id: 0,
       name: "Milaf Cola",
-      image: milafcola,
+      image: titledcolacandesign4,
       description: "Saudi Arabia's unique twist on a classic favorite, infused with the rich natural sweetness of premium local dates.",
       gradient: "linear-gradient(135deg, #66A992, #FFFFFF)",
       category: "Beverages"
@@ -67,7 +67,7 @@ export const ProductInfo = ({ onProductSelect }: ProductInfoProps) => {
 
   return (
     <>
-      <section className="relative min-h-screen w-full overflow-hidden snap-start snap-always">
+      <section id="product-info-section" className="relative min-h-screen w-full overflow-hidden snap-start snap-always">
       {/* Background image - m1.png */}
       <div 
         className="absolute inset-0"
@@ -82,7 +82,7 @@ export const ProductInfo = ({ onProductSelect }: ProductInfoProps) => {
       {/* Main title - "DATE'S PRODUCTS" */}
       <div className="absolute z-20 left-[50%] transform -translate-x-1/2 top-[60px] sm:top-[70px] md:top-[80px] lg:top-[90px] xl:top-[100px] max-sm:top-[40px] max-sm:px-4">
         <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-white leading-tight tracking-wide text-center max-sm:text-sm">
-          DATE'S PRODUCTS
+          PRODUCTS
         </h1>
 
       </div>

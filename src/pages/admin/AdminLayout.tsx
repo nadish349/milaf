@@ -27,6 +27,12 @@ export const AdminLayout = (): JSX.Element => {
       description: "Manage product inventory"
     },
     {
+      name: "Inquiries",
+      path: "/admin/inquiries",
+      icon: "💬",
+      description: "Business inquiries"
+    },
+    {
       name: "Analytics",
       path: "/admin/analytics",
       icon: "📈",

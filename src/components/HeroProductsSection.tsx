@@ -15,7 +15,7 @@ export const HeroProductsSection = ({ onGradientChange }: HeroProductsSectionPro
   }, [currentGradient, onGradientChange]);
 
   return (
-    <main className="h-screen w-full relative overflow-hidden snap-start snap-always" style={{ background: currentGradient }}>
+    <main id="hero-products-section" className="h-screen w-full relative overflow-hidden snap-start snap-always" style={{ background: currentGradient }}>
       {/* Hero Products Component */}
       <HeroProducts onGradientChange={setCurrentGradient} />
     </main>

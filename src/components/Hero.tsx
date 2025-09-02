@@ -25,29 +25,29 @@ export const Hero = ({ onGradientChange }: HeroProps): JSX.Element => {
             <img
               src={milaflogo}
               alt="Milaf Logo"
-              className="h-12 w-auto object-contain sm:h-16"
+              className="h-10 sm:h-16 w-auto object-contain"
             />
           </div>
 
-          {/* Center - Navigation Links (Hidden on mobile) */}
-          <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+          {/* Center - Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 absolute left-1/2 transform -translate-x-1/2">
+            <a href="#hero-products-section" className="text-white font-bold font-poppins text-sm lg:text-lg uppercase hover:opacity-80 transition-opacity">
               Home
             </a>
-            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+            <a href="#page4-section" className="text-white font-bold font-poppins text-sm lg:text-lg uppercase hover:opacity-80 transition-opacity">
               About
             </a>
-            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+            <a href="#product-info-section" className="text-white font-bold font-poppins text-sm lg:text-lg uppercase hover:opacity-80 transition-opacity">
               Products
             </a>
-            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+            <a href="#footer-section" className="text-white font-bold font-poppins text-sm lg:text-lg uppercase hover:opacity-80 transition-opacity">
               Contact
             </a>
           </nav>
           
           {/* Right side - Shop Button */}
           <button 
-            className="px-3 py-2 sm:px-6 sm:py-3 font-bold font-poppins uppercase rounded-[20px] border-2 hover:opacity-80 transition-all duration-300 text-sm sm:text-base ml-auto"
+            className="px-4 py-2 sm:px-6 sm:py-3 font-bold font-poppins text-sm sm:text-base uppercase rounded-[20px] border-2 hover:opacity-80 transition-all duration-300 ml-auto"
             style={{ 
               backgroundColor: 'transparent',
               borderColor: 'white',

@@ -25,11 +25,11 @@ export const HeroPage2 = (): JSX.Element => {
     >
       {showIntroduction && (
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-black bg-opacity-80">
-          <div className="text-center px-4 max-sm:px-6">
-            <h1 className="text-white font-bold font-poppins text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-8xl mb-3 sm:mb-4 md:mb-6 lg:mb-8 animate-pulse">
+          <div className="text-center">
+            <h1 className="text-white font-bold font-poppins text-6xl md:text-8xl mb-8 animate-pulse">
               INTRODUCING
             </h1>
-            <p className="text-white font-poppins text-base sm:text-lg md:text-xl lg:text-2xl xl:text-4xl leading-relaxed max-w-4xl mx-auto animate-fade-in">
+            <p className="text-white font-poppins text-2xl md:text-4xl leading-relaxed max-w-4xl animate-fade-in">
               THE FIRST EVER DATE'S COLA
             </p>
           </div>
@@ -39,34 +39,28 @@ export const HeroPage2 = (): JSX.Element => {
       <div className={`flex items-center justify-center h-full pt-20 transition-all duration-1000 ease-in-out ${
         showMainContent ? 'blur-none opacity-100' : 'blur-md opacity-30'
       }`} style={{ zIndex: 9999999, position: 'relative' }}>
-        <div className="flex flex-col sm:flex-row items-center justify-center w-full px-6 space-y-4 sm:space-y-0 sm:space-x-16">
+        <div className="flex items-center justify-center w-full px-6 space-x-16">
           <div className="flex justify-center">
-            <h1 className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out max-sm:text-2xl sm:text-4xl md:text-6xl lg:text-8xl max-sm:text-center ${
+            <h1 className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out ${
               showMainContent ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform -translate-x-32'
-            }`} style={{ 
-              transform: showMainContent ? 'translateX(-1cm) translateY(-2cm)' : 'translateX(-8rem) translateY(-2cm)', 
-              opacity: showMainContent ? 0.7 : 0 
-            }}>M I L A F</h1>
+            }`} style={{ fontSize: '8.5rem', transform: showMainContent ? 'translateX(-0.5cm) translateY(-2cm)' : 'translateX(-8rem) translateY(-2cm)', opacity: showMainContent ? 0.7 : 0 }}>M I L A F</h1>
           </div>
           <div className="flex justify-center">
-            <h1 className={`text-black font-normal font-poppins uppercase transition-all duration-1000 ease-out max-sm:text-2xl sm:text-4xl md:text-6xl lg:text-8xl max-sm:text-center ${
+            <h1 className={`text-black font-normal font-poppins uppercase transition-all duration-1000 ease-out ${
               showMainContent ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform translate-x-32'
-            }`} style={{ 
-              transform: showMainContent ? 'translateX(1cm) translateY(-2cm)' : 'translateX(8rem) translateY(-2cm)', 
-              opacity: showMainContent ? 0.7 : 0 
-            }}>C O L A</h1>
+            }`} style={{ fontSize: '7rem', transform: showMainContent ? 'translateX(-0.7cm) translateY(-1.7cm)' : 'translateX(8rem) translateY(-1.7cm)', opacity: showMainContent ? 0.7 : 0 }}>C O L A</h1>
           </div>
         </div>
       </div>
       
       {/* ENRICHED . SMOOTH . text */}
-      <div className={`absolute inset-0 flex flex-col items-start justify-end pb-48 pl-[21.7cm] max-sm:pl-0 max-sm:items-center max-sm:justify-center max-sm:pb-0 transition-all duration-1000 ease-in-out ${
+      <div className={`absolute inset-0 flex flex-col items-start justify-end pb-48 pl-[21.7cm] transition-all duration-1000 ease-in-out ${
         showMainContent ? 'opacity-100' : 'opacity-0'
       }`} style={{ zIndex: 9999999 }}>
-        <p className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl max-sm:text-center max-sm:mb-2 ${
+        <p className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out ${
           showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-8'
         }`} style={{ fontSize: '30px', opacity: showMainContent ? 0.3 : 0 }}>ENRICHED . SMOOTH .</p>
-        <p className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl max-sm:text-center ${
+        <p className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out ${
           showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-8'
         }`} style={{ fontSize: '30px', opacity: showMainContent ? 0.3 : 0, marginTop: '-0.5rem' }}>NUTRITIOUS .</p>
       </div>
@@ -79,7 +73,7 @@ export const HeroPage2 = (): JSX.Element => {
         <img 
           src={dates2} 
           alt="Dates 2" 
-          className="absolute animate-sway-dates2 max-sm:left-1/2 max-sm:top-1/2 max-sm:transform max-sm:-translate-x-1/2 max-sm:-translate-y-1/2 max-sm:w-16 max-sm:h-14 max-sm:mt-0"
+          className="absolute animate-sway-dates2"
           style={{
             left: 'calc(439px - 4cm)',
             top: 'calc(813px - 8cm)',
@@ -92,7 +86,7 @@ export const HeroPage2 = (): JSX.Element => {
         <img 
           src={dates1} 
           alt="Dates 1" 
-          className="absolute animate-float-dates1 max-sm:left-1/2 max-sm:top-1/2 max-sm:transform max-sm:-translate-x-1/2 max-sm:-translate-y-1/2 max-sm:w-20 max-sm:h-16 max-sm:mt-20"
+          className="absolute animate-float-dates1"
           style={{
             left: 'calc(824px - 8cm)',
             top: 'calc(743px - 8cm)',
@@ -105,7 +99,7 @@ export const HeroPage2 = (): JSX.Element => {
         <img 
           src={dates3} 
           alt="Dates 3" 
-          className="absolute animate-sway max-sm:left-1/2 max-sm:top-1/2 max-sm:transform max-sm:-translate-x-1/2 max-sm:-translate-y-1/2 max-sm:w-16 max-sm:h-14 max-sm:mt-40"
+          className="absolute animate-sway"
           style={{
             left: 'calc(976px - 7.5cm)',
             top: 'calc(552px - 5.5cm)',
@@ -118,7 +112,7 @@ export const HeroPage2 = (): JSX.Element => {
         <img 
           src={cutdate4} 
           alt="Cut Date 4" 
-          className="absolute animate-float max-sm:left-1/2 max-sm:top-1/2 max-sm:transform max-sm:-translate-x-1/2 max-sm:-translate-y-1/2 max-sm:w-16 max-sm:h-16 max-sm:mt-60"
+          className="absolute animate-float"
           style={{
             left: 'calc(778px - 7cm)',
             top: 'calc(194px - 3cm)',
@@ -133,14 +127,14 @@ export const HeroPage2 = (): JSX.Element => {
       <img 
         src={titledcolacan} 
         alt="Tilted COLA can" 
-        className={`absolute transition-all duration-1000 ease-out max-sm:left-1/2 max-sm:top-1/2 max-sm:transform max-sm:-translate-x-1/2 max-sm:-translate-y-1/2 max-sm:w-48 max-sm:h-72 max-sm:rotate-12 max-sm:mt-80 ${
+        className={`absolute transition-all duration-1000 ease-out ${
           showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-32'
         }`}
         style={{
           left: 'calc(315px + 0.5cm)',
           top: 'calc(-537px + 16.5cm)',
-          width: 'calc(1131.01px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1)',
-          height: 'calc(1696.52px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1)',
+          width: 'calc(1131.01px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1 - 10px)',
+          height: 'calc(1696.52px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1 - 10px)',
                       transform: showMainContent ? 'rotate(14.77deg)' : 'rotate(14.77deg) translateY(-8rem)',
             zIndex: 5
         }}

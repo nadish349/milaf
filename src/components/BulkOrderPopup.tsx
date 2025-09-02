@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface BulkOrderPopupProps {
   isVisible: boolean;
@@ -17,6 +18,7 @@ interface ConfettiItem {
 
 export const BulkOrderPopup: React.FC<BulkOrderPopupProps> = ({ isVisible, onClose }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const navigate = useNavigate();
   const [confetti, setConfetti] = useState<ConfettiItem[]>([]);
 
   useEffect(() => {
@@ -96,7 +98,13 @@ export const BulkOrderPopup: React.FC<BulkOrderPopupProps> = ({ isVisible, onClo
           </p>
           
           {/* Call-to-action Button */}
-          <button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button 
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+            onClick={() => {
+              onClose();
+              navigate('/bulk-order');
+            }}
+          >
             👉 Order in Bulk Now
           </button>
         </div>

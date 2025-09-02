@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Prefer canonical site
+Sitemap: https://milaf-australia.web.app/sitemap.xml
+
+# Prevent indexing of specific known fake site (helps crawlers avoid linking)
+# Note: robots.txt on your site cannot block other domains; this is for your site only.
+
+# Crawl-delay can be set for aggressive bots (optional)
+# Crawl-delay: 10
