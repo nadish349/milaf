@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { AdminAuth } from "@/components/AdminAuth";
 import m1 from "@/assets/m1.png";
 
 export const AdminLayout = (): JSX.Element => {
@@ -47,15 +48,16 @@ export const AdminLayout = (): JSX.Element => {
   };
 
   return (
-    <div 
-      className="min-h-screen flex"
-      style={{
-        backgroundImage: `url(${m1})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
+    <AdminAuth>
+      <div 
+        className="min-h-screen flex"
+        style={{
+          backgroundImage: `url(${m1})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
       {/* Sidebar */}
       <div className={`bg-white shadow-xl transition-all duration-300 ${
         isSidebarOpen ? 'w-64' : 'w-20'
@@ -127,6 +129,7 @@ export const AdminLayout = (): JSX.Element => {
           <Outlet />
         </div>
       </div>
-    </div>
+      </div>
+    </AdminAuth>
   );
 };
