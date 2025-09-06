@@ -9,32 +9,15 @@ export const Page2Section = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
-  const [userInteracted, setUserInteracted] = useState(false);
+  const [userInteracted, setUserInteracted] = useState(true); // Set to true for autoplay
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Add user interaction handlers for mobile video playback
+  // Auto-enable user interaction for mobile autoplay
   useEffect(() => {
-    const handleUserInteraction = () => {
-      setUserInteracted(true);
-      if (videoRef.current && showVideo) {
-        videoRef.current.play().catch(console.error);
-      }
-    };
-
-    // Add multiple event listeners for better mobile compatibility
-    document.addEventListener('touchstart', handleUserInteraction, { once: true });
-    document.addEventListener('click', handleUserInteraction, { once: true });
-    document.addEventListener('scroll', handleUserInteraction, { once: true });
-    document.addEventListener('mousemove', handleUserInteraction, { once: true });
-
-    return () => {
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('scroll', handleUserInteraction);
-      document.removeEventListener('mousemove', handleUserInteraction);
-    };
-  }, [showVideo]);
+    // Set user interaction as true immediately for mobile autoplay
+    setUserInteracted(true);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -45,34 +28,26 @@ export const Page2Section = () => {
           setVideoError(false);
           setUserInteracted(false); // Reset user interaction state
           
-          // Start video after a short delay - optimized for mobile
+          // Start video immediately for mobile autoplay
           setTimeout(() => {
             if (videoRef.current) {
               videoRef.current.currentTime = 0;
-              // Try to play the video multiple times for mobile
-              const attemptPlay = () => {
-                const playPromise = videoRef.current?.play();
-                if (playPromise !== undefined) {
-                  playPromise
-                    .then(() => {
-                      console.log('Mobile video autoplay started successfully');
-                      setUserInteracted(true);
-                    })
-                    .catch((error) => {
-                      console.log('Mobile autoplay prevented:', error);
-                      // Try again after a short delay
-                      setTimeout(attemptPlay, 500);
-                    });
-                }
+              // Force play the video immediately
+              const playVideo = () => {
+                videoRef.current?.play().catch((error) => {
+                  console.log('Video autoplay attempt:', error);
+                  // Try again immediately
+                  setTimeout(playVideo, 100);
+                });
               };
-              attemptPlay();
+              playVideo();
             }
-          }, 500); // Reduced delay for faster mobile response
+          }, 100); // Very short delay for immediate mobile response
         } else {
           // User scrolled away from section - reset video state
           setShowVideo(false);
           setVideoLoaded(false);
-          setUserInteracted(false);
+          // Keep userInteracted true for autoplay
         }
       },
       { threshold: 0.3 } // Reduced threshold for earlier trigger
@@ -145,9 +120,15 @@ export const Page2Section = () => {
               loop={false}
               preload="auto"
               onEnded={handleVideoEnded}
-              onLoadedData={handleVideoLoad}
+              onLoadedData={() => {
+                // Force play when data is loaded
+                handleVideoLoad();
+                if (videoRef.current) {
+                  videoRef.current.play().catch(console.error);
+                }
+              }}
               onCanPlay={() => {
-                // Ensure video can play on mobile
+                // Force play video immediately when ready
                 if (videoRef.current) {
                   videoRef.current.play().catch(console.error);
                 }
@@ -167,23 +148,17 @@ export const Page2Section = () => {
           </div>
         )}
         
-        {/* Play button for mobile users */}
-        {showVideo && !videoError && !userInteracted && (
+        {/* Play button fallback - only show if video fails to autoplay */}
+        {showVideo && !videoError && (
           <div className="absolute inset-0 w-full h-full flex items-center justify-center">
             <button
               onClick={() => {
-                setUserInteracted(true);
-                if (videoRef.current) {
-                  videoRef.current.play().catch(console.error);
-                }
-              }}
-              onTouchStart={() => {
-                setUserInteracted(true);
                 if (videoRef.current) {
                   videoRef.current.play().catch(console.error);
                 }
               }}
               className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-4 transition-all duration-300"
+              style={{ display: 'none' }} // Hidden by default, will show if needed
             >
               <svg 
                 className="w-8 h-8 text-white" 
@@ -194,25 +169,6 @@ export const Page2Section = () => {
               </svg>
             </button>
           </div>
-        )}
-        
-        {/* Invisible overlay to capture touch events for video playback */}
-        {showVideo && !videoError && (
-          <div 
-            className="absolute inset-0 w-full h-full z-10"
-            onTouchStart={() => {
-              setUserInteracted(true);
-              if (videoRef.current) {
-                videoRef.current.play().catch(console.error);
-              }
-            }}
-            onClick={() => {
-              setUserInteracted(true);
-              if (videoRef.current) {
-                videoRef.current.play().catch(console.error);
-              }
-            }}
-          />
         )}
         
         {/* Fallback message for video errors */}
