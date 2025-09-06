@@ -13,6 +13,22 @@ export const Page2Section = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
+  // iPhone specific: Initialize audio context for autoplay
+  useEffect(() => {
+    const isIPhone = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    if (isIPhone) {
+      // Create a temporary audio context to enable autoplay on iPhone
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+      } catch (e) {
+        console.log('Audio context creation failed:', e);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -22,21 +38,40 @@ export const Page2Section = () => {
           setVideoError(false);
           setUserInteracted(false); // Reset user interaction state
           
+          // Check if iPhone for aggressive autoplay
+          const isIPhone = /iPhone|iPad|iPod/.test(navigator.userAgent);
+          
           // Start video immediately for mobile autoplay
           setTimeout(() => {
             if (videoRef.current) {
               videoRef.current.currentTime = 0;
-              // Force play the video immediately
+              
+              // iPhone specific: More aggressive play attempts
               const playVideo = () => {
-                videoRef.current?.play().catch((error) => {
-                  console.log('Video autoplay attempt:', error);
-                  // Try again immediately
-                  setTimeout(playVideo, 100);
-                });
+                if (videoRef.current) {
+                  videoRef.current.play().catch((error) => {
+                    console.log('Video autoplay attempt:', error);
+                    // iPhone: Try multiple times with different intervals
+                    if (isIPhone) {
+                      setTimeout(playVideo, 50); // Faster retry for iPhone
+                    } else {
+                      setTimeout(playVideo, 100);
+                    }
+                  });
+                }
               };
-              playVideo();
+              
+              // iPhone: Try multiple play attempts immediately
+              if (isIPhone) {
+                playVideo();
+                setTimeout(playVideo, 10);
+                setTimeout(playVideo, 25);
+                setTimeout(playVideo, 50);
+              } else {
+                playVideo();
+              }
             }
-          }, 50); // Even shorter delay for immediate mobile response
+          }, isIPhone ? 10 : 50); // Even faster for iPhone
         } else {
           // User scrolled away from section - reset video state
           setShowVideo(false);
@@ -131,7 +166,8 @@ export const Page2Section = () => {
               playsInline
               autoPlay
               loop={false}
-              preload="auto"
+              preload="metadata"
+              webkit-playsinline="true"
               onEnded={handleVideoEnded}
               onLoadedData={() => {
                 // Force play when data is loaded
@@ -142,6 +178,12 @@ export const Page2Section = () => {
               }}
               onCanPlay={() => {
                 // Force play video immediately when ready
+                if (videoRef.current) {
+                  videoRef.current.play().catch(console.error);
+                }
+              }}
+              onLoadedMetadata={() => {
+                // iPhone specific: try to play as soon as metadata is loaded
                 if (videoRef.current) {
                   videoRef.current.play().catch(console.error);
                 }
