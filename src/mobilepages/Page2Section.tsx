@@ -8,7 +8,6 @@ import about2frame from "@/assets/about2frame.png";
 export const Page2Section = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [hasPlayed, setHasPlayed] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -35,11 +34,11 @@ export const Page2Section = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasPlayed) {
-          // User scrolled to this section and video hasn't played yet
+        if (entry.isIntersecting) {
+          // User scrolled to this section - play video every time
           setShowVideo(true);
-          setHasPlayed(true);
           setVideoError(false);
+          setUserInteracted(false); // Reset user interaction state
           
           // Start video after a short delay - optimized for mobile
           setTimeout(() => {
@@ -51,6 +50,7 @@ export const Page2Section = () => {
                 playPromise
                   .then(() => {
                     console.log('Mobile video autoplay started successfully');
+                    setUserInteracted(true);
                   })
                   .catch((error) => {
                     console.log('Mobile autoplay prevented:', error);
@@ -59,6 +59,11 @@ export const Page2Section = () => {
               }
             }
           }, 1000); // Increased delay for better mobile compatibility
+        } else {
+          // User scrolled away from section - reset video state
+          setShowVideo(false);
+          setVideoLoaded(false);
+          setUserInteracted(false);
         }
       },
       { threshold: 0.3 } // Reduced threshold for earlier trigger
@@ -69,7 +74,7 @@ export const Page2Section = () => {
     }
 
     return () => observer.disconnect();
-  }, [hasPlayed]);
+  }, []);
 
   const handleVideoEnded = () => {
     setShowVideo(false);
