@@ -5,12 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Suspense, lazy } from "react";
-import { AdvancedProtection } from "@/components/AdvancedProtection";
 
 // Lazy load components for better performance
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Cart = lazy(() => import("./components/Cart").then(module => ({ default: module.Cart })));
+const Cart = lazy(() => import("./pages/Cart").then(module => ({ default: module.Cart })));
 const BulkOrder = lazy(() => import("./pages/BulkOrder").then(module => ({ default: module.BulkOrder })));
 const Payment = lazy(() => import("./pages/Payment").then(module => ({ default: module.Payment })));
 const MyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
@@ -24,7 +23,7 @@ const AdminInquiries = lazy(() => import("./pages/admin/AdminInquiries").then(mo
 // Mobile Components
 const MobileIndex = lazy(() => import("./mobilepages/Index"));
 const MobileNotFound = lazy(() => import("./mobilepages/NotFound"));
-const MobileCart = lazy(() => import("./mobilecomponents/Cart").then(module => ({ default: module.Cart })));
+const MobileCart = lazy(() => import("./mobilepages/Cart").then(module => ({ default: module.Cart })));
 const MobileBulkOrder = lazy(() => import("./mobilepages/BulkOrder").then(module => ({ default: module.BulkOrder })));
 const MobilePayment = lazy(() => import("./mobilepages/Payment").then(module => ({ default: module.Payment })));
 const MobileMyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
@@ -101,19 +100,17 @@ const App = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
-    <AdvancedProtection>
-      <QueryClientProvider client={queryClient}>
-        <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <HashRouter>
-              {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
-            </HashRouter>
-          </TooltipProvider>
-        </CartProvider>
-      </QueryClientProvider>
-    </AdvancedProtection>
+    <QueryClientProvider client={queryClient}>
+      <CartProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <HashRouter>
+            {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
+          </HashRouter>
+        </TooltipProvider>
+      </CartProvider>
+    </QueryClientProvider>
   );
 };
 

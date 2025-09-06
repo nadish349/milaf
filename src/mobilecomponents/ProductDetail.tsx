@@ -1,222 +1,256 @@
-  import React, { useState, useEffect } from "react";
-  import group5 from "@/assets/Group5.png";
-  import milafframe from "@/assets/milafframe.png";
-  import chocospread from "@/assets/chocospread.png";
-  import datespread from "@/assets/datespread.png";
-  import safawidates from "@/assets/safawidates.png";
-  import segaidates from "@/assets/segaidates.png";
-  import khalasdates from "@/assets/khalasdates.png";
-  import { useCart } from "@/contexts/CartContext";
-  import { Notification } from "./Notification";
-  import { BulkOrderPopup } from "./BulkOrderPopup";
-  import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import group5 from "@/assets/Group5.png";
+import milafframe from "@/assets/milafframe.png";
+import chocospread from "@/assets/chocospread.png";
+import datespread from "@/assets/datespread.png";
+import safawidates from "@/assets/safawidates.png";
+import segaidates from "@/assets/segaidates.png";
+import khalasdates from "@/assets/khalasdates.png";
+import { useCart } from "@/contexts/CartContext";
+import { Notification } from "./Notification";
+import { BulkOrderPopup } from "./BulkOrderPopup";
+import { useNavigate } from "react-router-dom";
 
-  interface ProductDetailProps {
-    onGradientChange?: (gradient: string) => void;
-    selectedProductId?: number;
-  }
+interface ProductDetailProps {
+  onGradientChange?: (gradient: string) => void;
+  selectedProductId?: number;
+}
 
-  export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDetailProps): JSX.Element => {
+export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDetailProps): JSX.Element => {
+  
+  const [currentProduct, setCurrentProduct] = useState(selectedProductId || 0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [showNotification, setShowNotification] = useState(false);
+  const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
+  const [visibleStartIndex, setVisibleStartIndex] = useState(0);
+
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  // Show bulk order popup after 2 seconds when page becomes visible - only once per session
+  useEffect(() => {
+    // Check if popup has already been shown in this session
+    const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
     
-    const [currentProduct, setCurrentProduct] = useState(selectedProductId || 0);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [quantity, setQuantity] = useState(1);
-    const [showNotification, setShowNotification] = useState(false);
-    const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
+    if (!hasShownPopup) {
+      const timer = setTimeout(() => {
+        setShowBulkOrderPopup(true);
+        // Mark as shown in localStorage
+        localStorage.setItem('bulkOrderPopupShown', 'true');
+      }, 2000);
 
-    const { addToCart } = useCart();
-    const navigate = useNavigate();
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
-    // Show bulk order popup after 2 seconds when page becomes visible - only once per session
-    useEffect(() => {
-      // Check if popup has already been shown in this session
-      const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
-      
-      if (!hasShownPopup) {
-        const timer = setTimeout(() => {
-          setShowBulkOrderPopup(true);
-          // Mark as shown in localStorage
-          localStorage.setItem('bulkOrderPopupShown', 'true');
-        }, 2000);
-
-        return () => clearTimeout(timer);
-      }
-    }, []);
-
-    // Listen for product change events from footer
-    useEffect(() => {
-      const handleProductChange = (event: CustomEvent) => {
-        console.log('Mobile ProductDetail received changeProduct event:', event.detail);
-        const { productId } = event.detail;
-        console.log('Setting current product to:', productId);
-        setCurrentProduct(productId);
-      };
-
-      console.log('Mobile ProductDetail: Adding changeProduct event listener');
-      window.addEventListener('changeProduct', handleProductChange as EventListener);
-      
-      return () => {
-        console.log('Mobile ProductDetail: Removing changeProduct event listener');
-        window.removeEventListener('changeProduct', handleProductChange as EventListener);
-      };
-    }, []);
-
-    const products = [
-      {
-        id: 0,
-        name: "milaf cola",
-        displayName: ["MILAF", "COLA"],
-        image: group5,
-        description: "Milaf Cola, crafted in Saudi Arabia, enriched with Ajwa dates, zero sugar, bold refreshing taste.",
-        backgroundImage: milafframe,
-        textColor: "#BF7E3E",
-        price: 4.99,
-        gradient: "linear-gradient(135deg, #66A992, #FFFFFF)"
-      },
-      {
-        id: 1,
-        name: "chocolate spread",
-        displayName: ["CHOCO", "SPREAD"],
-        image: chocospread,
-        description: "Rich and creamy chocolate spread, made with premium cocoa and natural ingredients for the perfect indulgence.",
-        gradient: "linear-gradient(135deg, #743002, #7C3C16)",
-        price: 3.99
-      },
-      {
-        id: 2,
-        name: "date spread",
-        displayName: ["DATE", "SPREAD"],
-        image: datespread,
-        description: "Natural and nutritious date spread, made from premium Ajwa dates, rich in fiber and natural sweetness.",
-        gradient: "linear-gradient(135deg, #CE8437, #FBDCA4)",
-        price: 2.99
-      },
-      {
-        id: 3,
-        name: "khalas dates",
-        displayName: ["KHALAS", "DATES"],
-        image: khalasdates,
-        description: "Classic Khalas dates with caramel-like sweetness and a smooth bite.",
-        gradient: "linear-gradient(135deg, #98371F, #A94733)",
-        price: 5.99
-      },
-      {
-        id: 4,
-        name: "safawi dates",
-        displayName: ["SAFAWI", "DATES"],
-        image: safawidates,
-        description: "Premium Safawi dates known for their rich flavor and soft texture.",
-        gradient: "linear-gradient(135deg, #D69150, #B66325)",
-        price: 5.99
-      },
-      {
-        id: 5,
-        name: "segai dates",
-        displayName: ["SEGAI", "DATES"],
-        image: segaidates,
-        description: "Segai dates featuring a delightful blend of firm and soft textures with a balanced sweetness.",
-        gradient: "linear-gradient(135deg, #722E17, #D8582C)",
-        price: 4.99
-      }
-    ];
-
-    const currentProductData = products[currentProduct];
-
-    const handleAddToCart = () => {
-      addToCart({
-        name: currentProductData.name,
-        image: currentProductData.image,
-        price: currentProductData.price,
-        quantity: quantity,
-        gradient: currentProductData.gradient
-      });
-      
-      setShowNotification(true);
-      setQuantity(1);
+  // Listen for product change events from footer
+  useEffect(() => {
+    const handleProductChange = (event: CustomEvent) => {
+      console.log('Mobile ProductDetail received changeProduct event:', event.detail);
+      const { productId } = event.detail;
+      console.log('Setting current product to:', productId);
+      setCurrentProduct(productId);
     };
 
-    useEffect(() => {
-      if (onGradientChange && currentProductData.gradient) {
-        onGradientChange(currentProductData.gradient);
-      }
-    }, [currentProduct, onGradientChange, currentProductData.gradient]);
+    console.log('Mobile ProductDetail: Adding changeProduct event listener');
+    window.addEventListener('changeProduct', handleProductChange as EventListener);
+    
+    return () => {
+      console.log('Mobile ProductDetail: Removing changeProduct event listener');
+      window.removeEventListener('changeProduct', handleProductChange as EventListener);
+    };
+  }, []);
 
-    useEffect(() => {
-      if (selectedProductId !== undefined) {
-        setCurrentProduct(selectedProductId);
-      }
-    }, [selectedProductId]);
+  const products = [
+    {
+      id: 0,
+      name: "milaf cola",
+      displayName: ["MILAF", "COLA"],
+      image: group5,
+      description: "Milaf Cola, crafted in Saudi Arabia, enriched with Ajwa dates, zero sugar, bold refreshing taste.",
+      backgroundImage: milafframe,
+      textColor: "#BF7E3E",
+      price: 4.99,
+      gradient: "linear-gradient(135deg, #66A992, #FFFFFF)"
+    },
+    {
+      id: 1,
+      name: "chocolate spread",
+      displayName: ["CHOCO", "SPREAD"],
+      image: chocospread,
+      description: "Rich and creamy chocolate spread, made with premium cocoa and natural ingredients for the perfect indulgence.",
+      gradient: "linear-gradient(135deg, #743002, #7C3C16)",
+      price: 3.99
+    },
+    {
+      id: 2,
+      name: "date spread",
+      displayName: ["DATE", "SPREAD"],
+      image: datespread,
+      description: "Natural and nutritious date spread, made from premium Ajwa dates, rich in fiber and natural sweetness.",
+      gradient: "linear-gradient(135deg, #CE8437, #FBDCA4)",
+      price: 2.99
+    },
+    {
+      id: 3,
+      name: "khalas dates",
+      displayName: ["KHALAS", "DATES"],
+      image: khalasdates,
+      description: "Classic Khalas dates with caramel-like sweetness and a smooth bite.",
+      gradient: "linear-gradient(135deg, #98371F, #A94733)",
+      price: 5.99
+    },
+    {
+      id: 4,
+      name: "safawi dates",
+      displayName: ["SAFAWI", "DATES"],
+      image: safawidates,
+      description: "Premium Safawi dates known for their rich flavor and soft texture.",
+      gradient: "linear-gradient(135deg, #D69150, #B66325)",
+      price: 5.99
+    },
+    {
+      id: 5,
+      name: "segai dates",
+      displayName: ["SEGAI", "DATES"],
+      image: segaidates,
+      description: "Segai dates featuring a delightful blend of firm and soft textures with a balanced sweetness.",
+      gradient: "linear-gradient(135deg, #722E17, #D8582C)",
+      price: 4.99
+    }
+  ];
 
-    return (
-      <section id="product-detail-section" className="product-detail-section relative min-h-screen w-full overflow-hidden">
-        {/* Background */}
-        <div 
-          className="absolute inset-0 transition-all duration-700 ease-in-out"
-          style={{
-            background: currentProductData.id === 0 && currentProductData.backgroundImage
-              ? `url(${currentProductData.backgroundImage})`
-              : currentProductData.gradient,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
+  const currentProductData = products[currentProduct];
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-stretch justify-between h-full px-4 sm:px-8 pt-20">
-          
-          {/* Left: Product Title + Retailer Button */}
-          <div className="flex-1 flex flex-col items-center lg:items-start justify-center text-center lg:text-left">
-            <h1 
-              className={`font-bold leading-tight uppercase transition-all duration-700 ${
-                isAnimating ? "opacity-0" : "opacity-100"
-              } text-4xl sm:text-6xl lg:text-[6.5rem]`}
-              style={{ 
-                fontFamily: 'Andada Pro, serif',
-                color: currentProductData.textColor || "white" 
-              }}
-            >
-              {currentProductData.displayName.map((word, i) => (
-                <span key={i} className="block">{word}</span>
-              ))}
-            </h1>
+  // Navigation functions for mobile carousel
+  const handlePrevious = () => {
+    if (visibleStartIndex > 0) {
+      setVisibleStartIndex(visibleStartIndex - 1);
+    }
+  };
 
-            <button
-              className="mt-4 sm:mt-6 px-4 py-2 sm:px-6 sm:py-3 border-2 rounded-lg text-sm sm:text-lg uppercase transition hover:opacity-80"
-              style={{
-                borderColor: currentProductData.textColor || "white",
-                color: currentProductData.textColor || "white",
-              }}
-              onClick={() => navigate("/bulk-order")}
-            >
-              Are you retailer? Need in bulk
-            </button>
-            
-            <button
-              className="mt-3 sm:mt-4 px-4 py-2 sm:px-6 sm:py-3 bg-white/20 backdrop-blur-sm rounded-lg text-sm sm:text-lg transition hover:bg-white/30"
-              style={{
-                color: currentProductData.textColor || "white",
-              }}
-              onClick={() => setShowBulkOrderPopup(true)}
-            >
-              ℹ️ Learn About Bulk Orders
-            </button>
-          </div>
+  const handleNext = () => {
+    if (visibleStartIndex < products.length - 2) {
+      setVisibleStartIndex(visibleStartIndex + 1);
+    }
+  };
 
-          {/* Center: Product Image + Carousel */}
-          <div className="flex-1 flex flex-col items-center relative">
-            <img 
-              src={currentProductData.image as string}
-              alt={currentProductData.name}
-              className="max-h-[40vh] sm:max-h-[60vh] object-contain transition-all duration-700"
-            />
+  // Get visible products (2 at a time, but ensure we don't go out of bounds)
+  const maxStartIndex = Math.max(0, products.length - 2);
+  const safeStartIndex = Math.min(visibleStartIndex, maxStartIndex);
+  const visibleProducts = products.slice(safeStartIndex, safeStartIndex + 2);
 
-            {/* Carousel Thumbnails - Scrollable */}
-            <div className="mt-6 w-full">
-              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
-                {products.map((product) => (
+  const handleAddToCart = () => {
+    addToCart({
+      name: currentProductData.name,
+      image: currentProductData.image,
+      price: currentProductData.price,
+      quantity: quantity,
+      gradient: currentProductData.gradient
+    });
+    
+    setShowNotification(true);
+    setQuantity(1);
+  };
+
+  useEffect(() => {
+    if (onGradientChange && currentProductData.gradient) {
+      onGradientChange(currentProductData.gradient);
+    }
+  }, [currentProduct, onGradientChange, currentProductData.gradient]);
+
+  useEffect(() => {
+    if (selectedProductId !== undefined) {
+      setCurrentProduct(selectedProductId);
+    }
+  }, [selectedProductId]);
+
+  // Auto-adjust visible range when current product changes
+  useEffect(() => {
+    const newStartIndex = Math.floor(currentProduct / 2) * 2;
+    const maxStartIndex = Math.max(0, products.length - 2);
+    const safeNewStartIndex = Math.min(newStartIndex, maxStartIndex);
+    setVisibleStartIndex(safeNewStartIndex);
+  }, [currentProduct, products.length]);
+
+  return (
+    <section id="product-detail-section" className="product-detail-section relative min-h-screen w-full overflow-hidden">
+      {/* Background */}
+      <div 
+        className="absolute inset-0 transition-all duration-700 ease-in-out"
+        style={{
+          background: currentProductData.id === 0 && currentProductData.backgroundImage
+            ? `url(${currentProductData.backgroundImage})`
+            : currentProductData.gradient,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+
+      <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-stretch justify-between h-full px-4 sm:px-8 pt-20">
+        
+        {/* Left: Product Title + Retailer Button */}
+        <div className="flex-1 flex flex-col items-center lg:items-start justify-center text-center lg:text-left">
+          <h1 
+            className={`font-bold leading-tight uppercase transition-all duration-700 ${
+              isAnimating ? "opacity-0" : "opacity-100"
+            } text-4xl sm:text-6xl lg:text-[6.5rem]`}
+            style={{ 
+              fontFamily: 'Andada Pro, serif',
+              color: currentProductData.textColor || "white" 
+            }}
+          >
+            {currentProductData.displayName.map((word, i) => (
+              <span key={i} className="block">{word}</span>
+            ))}
+          </h1>
+
+          <button
+            className="mt-4 sm:mt-6 px-4 py-2 sm:px-6 sm:py-3 border-2 rounded-lg text-sm sm:text-lg uppercase transition hover:opacity-80"
+            style={{
+              borderColor: currentProductData.textColor || "white",
+              color: currentProductData.textColor || "white",
+            }}
+            onClick={() => navigate("/bulk-order")}
+          >
+            Are you retailer? Need in bulk
+          </button>
+        </div>
+
+        {/* Center: Product Image + Carousel */}
+        <div className="flex-1 flex flex-col items-center relative">
+          <img 
+            src={currentProductData.image as string}
+            alt={currentProductData.name}
+            className="max-h-[40vh] sm:max-h-[60vh] object-contain transition-all duration-700"
+          />
+
+          {/* Mobile Carousel with Navigation - Show 2 products at a time */}
+          <div className="mt-6 w-full px-2">
+            <div className="flex items-center justify-between gap-2">
+              {/* Left Navigation Button */}
+              <button
+                onClick={handlePrevious}
+                disabled={safeStartIndex === 0}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
+                  safeStartIndex === 0 
+                    ? 'bg-white/20 text-white/50 cursor-not-allowed' 
+                    : 'bg-white/80 text-gray-800 hover:bg-white hover:scale-105'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* Visible Products Container */}
+              <div className="flex-1 flex items-center gap-2 justify-center min-w-0 overflow-hidden">
+                {visibleProducts.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => !isAnimating && setCurrentProduct(product.id)}
-                    className={`cursor-pointer flex-shrink-0 p-2 rounded-lg transition-all duration-300 hover:scale-105 ${
+                    className={`cursor-pointer flex-shrink-0 p-2 rounded-lg transition-all duration-300 hover:scale-105 min-w-0 ${
                       currentProduct === product.id ? "ring-2 ring-blue-500 ring-offset-2" : "ring-1 ring-white/30"
                     }`}
                     style={{ background: product.gradient }}
@@ -232,54 +266,84 @@
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
 
-          {/* Right: Description + Quantity + Add to Cart */}
-          <div className="flex-1 flex flex-col items-center lg:items-start mt-8 lg:mt-0 mb-8 lg:mb-12">
-            <h2 className="text-2xl sm:text-4xl font-bold uppercase mb-4" style={{ color: currentProductData.textColor || "white" }}>
-              {currentProductData.name}
-            </h2>
-            <p 
-              className="text-base sm:text-lg max-w-md mb-6" 
-              style={{ 
-                color: currentProductData.id === 0 && currentProductData.textColor 
-                  ? currentProductData.textColor 
-                  : "white" 
-              }}
-            >
-              {currentProductData.description}
-            </p>
-
-            {/* Quantity */}
-            <div className="flex items-center gap-4 mb-6">
-              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 border rounded-full">-</button>
-              <span className="text-lg font-bold">{quantity}</span>
-              <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 border rounded-full">+</button>
+              {/* Right Navigation Button */}
+              <button
+                onClick={handleNext}
+                disabled={safeStartIndex >= maxStartIndex}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
+                  safeStartIndex >= maxStartIndex 
+                    ? 'bg-white/20 text-white/50 cursor-not-allowed' 
+                    : 'bg-white/80 text-gray-800 hover:bg-white hover:scale-105'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
 
-            {/* Add to Cart */}
-            <button 
-              className="w-full sm:w-auto px-6 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </button>
+            {/* Page Indicators */}
+            <div className="flex justify-center mt-3 gap-1">
+              {Array.from({ length: Math.ceil(products.length / 2) }).map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    Math.floor(safeStartIndex / 2) === index 
+                      ? 'bg-white' 
+                      : 'bg-white/30'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Notification & Bulk Popup */}
-        <Notification
-          message={`${quantity} ${currentProductData.name} added to cart!`}
-          isVisible={showNotification}
-          onClose={() => setShowNotification(false)}
-          type="success"
-        />
-        
-        <BulkOrderPopup
-          isVisible={showBulkOrderPopup}
-          onClose={() => setShowBulkOrderPopup(false)}
-        />
-      </section>
-    );
-  };
+        {/* Right: Description + Quantity + Add to Cart */}
+        <div className="flex-1 flex flex-col items-center lg:items-start mt-8 lg:mt-0 mb-8 lg:mb-12">
+          <h2 className="text-2xl sm:text-4xl font-bold uppercase mb-4" style={{ color: currentProductData.textColor || "white" }}>
+            {currentProductData.name}
+          </h2>
+          <p 
+            className="text-base sm:text-lg max-w-md mb-6" 
+            style={{ 
+              color: currentProductData.id === 0 && currentProductData.textColor 
+                ? currentProductData.textColor 
+                : "white" 
+            }}
+          >
+            {currentProductData.description}
+          </p>
+
+          {/* Quantity */}
+          <div className="flex items-center gap-4 mb-6">
+            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 border rounded-full">-</button>
+            <span className="text-lg font-bold">{quantity}</span>
+            <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 border rounded-full">+</button>
+          </div>
+
+          {/* Add to Cart */}
+          <button 
+            className="w-full sm:w-auto px-6 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800"
+            onClick={handleAddToCart}
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+
+      {/* Notification & Bulk Popup */}
+      <Notification
+        message={`${quantity} ${currentProductData.name} added to cart!`}
+        isVisible={showNotification}
+        onClose={() => setShowNotification(false)}
+        type="success"
+      />
+      
+      <BulkOrderPopup
+        isVisible={showBulkOrderPopup}
+        onClose={() => setShowBulkOrderPopup(false)}
+      />
+    </section>
+  );
+};

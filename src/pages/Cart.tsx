@@ -4,7 +4,7 @@ import chocospread from "@/assets/chocospread.png";
 import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import m1 from "@/assets/m1.png";
-import { Header } from "./Header";
+import { Header } from "@/components/Header";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 
@@ -79,14 +79,17 @@ export const Cart = (): JSX.Element => {
       <div className="pt-16 h-full overflow-y-auto px-4 pb-4">
         <div className="max-w-6xl mx-auto">
           {/* Back to Shop Button */}
-          <button
-            onClick={handleBackToShop}
-            className="mb-2 w-8 h-8 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800 ml-4"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
+          <div className="relative z-50 mb-2">
+            <button
+              onClick={handleBackToShop}
+              className="w-10 h-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800 ml-4 cursor-pointer"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
           
           <div className="p-2">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

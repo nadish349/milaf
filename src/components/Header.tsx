@@ -45,6 +45,34 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
     setIsLoginOpen(false);
   };
 
+  // Scroll functions for navigation
+  const scrollToSection = (sectionIndex: number) => {
+    const container = document.querySelector('.h-screen.overflow-y-scroll');
+    if (container) {
+      const windowHeight = window.innerHeight;
+      const scrollPosition = sectionIndex * windowHeight;
+      container.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToSection(1); // HeroProductsSection is at index 1
+  };
+
+  const handleAboutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToSection(4); // Page4Section is at index 4
+  };
+
+  const handleProductsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToSection(5); // ProductInfo is at index 5
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-6">
       <div className="flex items-center relative">
@@ -60,15 +88,24 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
         {/* Center - Navigation Links */}
         {(!showOnlyLogo || showNavigationWithoutShop) && (
           <nav className="flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+            <button 
+              onClick={handleHomeClick}
+              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity cursor-pointer"
+            >
               Home
-            </a>
-            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+            </button>
+            <button 
+              onClick={handleAboutClick}
+              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity cursor-pointer"
+            >
               About
-            </a>
-            <a href="#" className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity">
+            </button>
+            <button 
+              onClick={handleProductsClick}
+              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity cursor-pointer"
+            >
               Products
-            </a>
+            </button>
           </nav>
         )}
         

@@ -1,5 +1,5 @@
 import { Header } from "@/mobilecomponents/Header";
-import { HeroPage2 as Hero } from "@/mobilecomponents/HeroPage2";
+import { HeroPage2 as Hero } from "@/mobilepages/HeroPage2";
 import { HeroProductsSection } from "@/mobilecomponents/HeroProductsSection";
 import { Page2Section } from "@/mobilecomponents/Page2Section";
 import { Page3Section } from "@/mobilecomponents/Page3Section";

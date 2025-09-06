@@ -203,6 +203,48 @@ export const getInquiryStats = async (): Promise<{
 };
 
 /**
+ * Create a test inquiry to verify the backend is working
+ */
+export const createTestInquiry = async (): Promise<string> => {
+  try {
+    console.log('Creating test inquiry...');
+    
+    const testInquiryData = {
+      inquiryAbout: 'Test Inquiry',
+      name: 'Test User',
+      contactNumber: '+1234567890',
+      email: 'test@example.com',
+      address: '123 Test Street, Test City',
+      questions: 'This is a test inquiry to verify the backend is working correctly.'
+    };
+    
+    // Get current date to create month-based collection path
+    const now = new Date();
+    const month = now.toISOString().slice(0, 7); // Format: YYYY-MM (e.g., "2024-01")
+    
+    // Create the collection path: inquiry -> month -> inquiryId
+    const monthCollectionRef = collection(db, 'inquiry', month, 'inquiries');
+    
+    // Prepare the data with additional fields
+    const dataToSave = {
+      ...testInquiryData,
+      read: false,
+      createdAt: serverTimestamp()
+    };
+    
+    // Add the document to Firestore
+    const docRef = await addDoc(monthCollectionRef, dataToSave);
+    
+    console.log('✅ Test inquiry created successfully with ID:', docRef.id);
+    console.log('✅ Test inquiry saved in month:', month);
+    return docRef.id;
+  } catch (error) {
+    console.error('❌ Error creating test inquiry:', error);
+    throw new Error('Failed to create test inquiry. Please check Firebase connection.');
+  }
+};
+
+/**
  * Test function to verify Firebase connection and collection structure
  */
 export const testInquiryConnection = async (): Promise<void> => {
@@ -218,6 +260,7 @@ export const testInquiryConnection = async (): Promise<void> => {
     
     if (inquirySnapshot.docs.length === 0) {
       console.log('ℹ️ No month collections found. This is normal if no inquiries have been submitted yet.');
+      console.log('💡 Try creating a test inquiry to verify the backend is working.');
       return;
     }
     

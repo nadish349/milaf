@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import { HeroPage2 as Hero } from "@/components/HeroPage2";
+import { HeroPage2 as Hero } from "@/pages/HeroPage2";
 import { HeroProductsSection } from "@/components/HeroProductsSection";
 import { Page2Section } from "@/components/Page2Section";
 import { Page3Section } from "@/components/Page3Section";

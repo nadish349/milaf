@@ -32,6 +32,37 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
     setIsLoginOpen(false);
   };
 
+  // Scroll functions for navigation
+  const scrollToSection = (sectionIndex: number) => {
+    const container = document.querySelector('.h-screen.overflow-y-scroll');
+    if (container) {
+      const windowHeight = window.innerHeight;
+      const scrollPosition = sectionIndex * windowHeight;
+      container.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToSection(1); // HeroProductsSection is at index 1
+    setIsMenuOpen(false);
+  };
+
+  const handleAboutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToSection(2); // Page4Section is at index 2 in mobile
+    setIsMenuOpen(false);
+  };
+
+  const handleProductsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToSection(3); // ProductInfo is at index 3 in mobile
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       <div className="flex items-center justify-between p-4">
@@ -47,18 +78,24 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
         {/* Center - Navigation Links (Hidden on mobile) */}
         {(!showOnlyLogo || showNavigationWithoutShop) && (
           <nav className="hidden md:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
-            <a href="#hero-products-section" className="text-white font-bold font-poppins text-base uppercase hover:opacity-80 transition-opacity">
+            <button 
+              onClick={handleHomeClick}
+              className="text-white font-bold font-poppins text-base uppercase hover:opacity-80 transition-opacity cursor-pointer"
+            >
               Home
-            </a>
-            <a href="#page4-section" className="text-white font-bold font-poppins text-base uppercase hover:opacity-80 transition-opacity">
+            </button>
+            <button 
+              onClick={handleAboutClick}
+              className="text-white font-bold font-poppins text-base uppercase hover:opacity-80 transition-opacity cursor-pointer"
+            >
               About
-            </a>
-            <a href="#page4-section" className="text-white font-bold font-poppins text-base uppercase hover:opacity-80 transition-opacity">
+            </button>
+            <button 
+              onClick={handleProductsClick}
+              className="text-white font-bold font-poppins text-base uppercase hover:opacity-80 transition-opacity cursor-pointer"
+            >
               Products
-            </a>
-            <a href="#footer-section" className="text-white font-bold font-poppins text-base uppercase hover:opacity-80 transition-opacity">
-              Contact
-            </a>
+            </button>
           </nav>
         )}
         
@@ -100,7 +137,7 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
             {/* Shop Button (Hidden on mobile) */}
             <button 
               onClick={handleShopClick}
-              className="hidden md:block px-4 py-2 font-bold font-poppins text-sm uppercase rounded-[20px] border-2 hover:opacity-80 transition-all duration-300 flex items-center space-x-2"
+              className="hidden md:flex px-4 py-2 font-bold font-poppins text-sm uppercase rounded-[20px] border-2 hover:opacity-80 transition-all duration-300 items-center space-x-2"
               style={{ 
                 backgroundColor: 'transparent',
                 borderColor: 'white',
@@ -118,34 +155,24 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-sm border-t border-white/20">
           <nav className="flex flex-col p-4 space-y-4">
-            <a 
-              href="#" 
-              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity py-2 border-b border-white/20"
-              onClick={() => setIsMenuOpen(false)}
+            <button 
+              onClick={handleHomeClick}
+              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity py-2 border-b border-white/20 text-left"
             >
               Home
-            </a>
-            <a 
-              href="#" 
-              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity py-2 border-b border-white/20"
-              onClick={() => setIsMenuOpen(false)}
+            </button>
+            <button 
+              onClick={handleAboutClick}
+              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity py-2 border-b border-white/20 text-left"
             >
               About
-            </a>
-            <a 
-              href="#" 
-              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity py-2 border-b border-white/20"
-              onClick={() => setIsMenuOpen(false)}
+            </button>
+            <button 
+              onClick={handleProductsClick}
+              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity py-2 border-b border-white/20 text-left"
             >
               Products
-            </a>
-            <a 
-              href="#" 
-              className="text-white font-bold font-poppins text-lg uppercase hover:opacity-80 transition-opacity py-2 border-b border-white/20"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Contact
-            </a>
+            </button>
             <button 
               onClick={() => {
                 setIsMenuOpen(false);

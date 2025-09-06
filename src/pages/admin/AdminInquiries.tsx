@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { fetchAllInquiries, markInquiryAsRead, InquiryWithId, testInquiryConnection } from '@/services/inquiryFetch';
+import { fetchAllInquiries, markInquiryAsRead, InquiryWithId, testInquiryConnection, createTestInquiry, getInquiryStats } from '@/services/inquiryFetch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Mail, Phone, MapPin, Calendar, User, MessageSquare } from 'lucide-react';
+import { Eye, Mail, Phone, MapPin, Calendar, User, MessageSquare, Plus, BarChart3 } from 'lucide-react';
 
 export const AdminInquiries = (): JSX.Element => {
   const [inquiries, setInquiries] = useState<InquiryWithId[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedInquiry, setSelectedInquiry] = useState<InquiryWithId | null>(null);
+  const [stats, setStats] = useState<{ total: number; unread: number; byMonth: Record<string, { total: number; unread: number }> } | null>(null);
+  const [isCreatingTest, setIsCreatingTest] = useState(false);
 
   useEffect(() => {
     loadInquiries();
@@ -20,9 +22,18 @@ export const AdminInquiries = (): JSX.Element => {
       setLoading(true);
       setError(null);
       console.log('Loading inquiries...');
-      const fetchedInquiries = await fetchAllInquiries();
+      
+      // Load both inquiries and statistics in parallel
+      const [fetchedInquiries, inquiryStats] = await Promise.all([
+        fetchAllInquiries(),
+        getInquiryStats()
+      ]);
+      
       console.log('Fetched inquiries:', fetchedInquiries);
+      console.log('Inquiry statistics:', inquiryStats);
+      
       setInquiries(fetchedInquiries);
+      setStats(inquiryStats);
     } catch (err) {
       console.error('Error loading inquiries:', err);
       setError(err instanceof Error ? err.message : 'Failed to load inquiries');
@@ -55,6 +66,25 @@ export const AdminInquiries = (): JSX.Element => {
     } catch (err) {
       console.error('Connection test failed:', err);
       alert('Connection test failed! Check console for details.');
+    }
+  };
+
+  const handleCreateTestInquiry = async () => {
+    try {
+      setIsCreatingTest(true);
+      console.log('Creating test inquiry...');
+      const inquiryId = await createTestInquiry();
+      console.log('Test inquiry created with ID:', inquiryId);
+      
+      // Reload inquiries to show the new test inquiry
+      await loadInquiries();
+      
+      alert('Test inquiry created successfully! Check the inquiries list.');
+    } catch (err) {
+      console.error('Error creating test inquiry:', err);
+      alert('Failed to create test inquiry. Check console for details.');
+    } finally {
+      setIsCreatingTest(false);
     }
   };
 
@@ -116,10 +146,35 @@ export const AdminInquiries = (): JSX.Element => {
             <p className="text-gray-600">
               {inquiries.length} total inquiries • {unreadCount} unread
             </p>
+            {stats && (
+              <div className="mt-2 flex gap-4 text-sm text-gray-500">
+                <span>📊 Total: {stats.total}</span>
+                <span>📬 Unread: {stats.unread}</span>
+                <span>📅 Months: {Object.keys(stats.byMonth).length}</span>
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <Button onClick={loadInquiries} variant="outline">
               Refresh
+            </Button>
+            <Button 
+              onClick={handleCreateTestInquiry} 
+              variant="outline" 
+              className="bg-green-50 text-green-700 hover:bg-green-100"
+              disabled={isCreatingTest}
+            >
+              {isCreatingTest ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin mr-2" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Test
+                </>
+              )}
             </Button>
             <Button onClick={handleTestConnection} variant="outline" className="bg-blue-50 text-blue-700 hover:bg-blue-100">
               Test Connection
@@ -127,6 +182,47 @@ export const AdminInquiries = (): JSX.Element => {
           </div>
         </div>
       </div>
+
+      {/* Statistics Card */}
+      {stats && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-5 h-5 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-800">Inquiry Statistics</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+              <div className="text-sm text-blue-800">Total Inquiries</div>
+            </div>
+            <div className="bg-orange-50 rounded-lg p-4">
+              <div className="text-2xl font-bold text-orange-600">{stats.unread}</div>
+              <div className="text-sm text-orange-800">Unread Inquiries</div>
+            </div>
+            <div className="bg-green-50 rounded-lg p-4">
+              <div className="text-2xl font-bold text-green-600">{Object.keys(stats.byMonth).length}</div>
+              <div className="text-sm text-green-800">Active Months</div>
+            </div>
+          </div>
+          {Object.keys(stats.byMonth).length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Inquiries by Month:</h3>
+              <div className="space-y-1">
+                {Object.entries(stats.byMonth)
+                  .sort(([a], [b]) => b.localeCompare(a))
+                  .map(([month, data]) => (
+                    <div key={month} className="flex justify-between text-sm">
+                      <span className="text-gray-600">{month}</span>
+                      <span className="text-gray-800">
+                        {data.total} total ({data.unread} unread)
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Inquiries List */}

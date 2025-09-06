@@ -14,13 +14,32 @@ export const Page2Section = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
+  // Add user interaction handlers for mobile video playback
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setUserInteracted(true);
+      if (videoRef.current && showVideo) {
+        videoRef.current.play().catch(console.error);
+      }
+    };
+
+    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+    document.addEventListener('click', handleUserInteraction, { once: true });
+
+    return () => {
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('click', handleUserInteraction);
+    };
+  }, [showVideo]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasPlayed && !videoError) {
+        if (entry.isIntersecting && !hasPlayed) {
           // User scrolled to this section and video hasn't played yet
           setShowVideo(true);
           setHasPlayed(true);
+          setVideoError(false);
           
           // Start video after a short delay - optimized for mobile
           setTimeout(() => {
@@ -32,12 +51,10 @@ export const Page2Section = () => {
                 playPromise
                   .then(() => {
                     console.log('Mobile video autoplay started successfully');
-                    setUserInteracted(true);
                   })
                   .catch((error) => {
                     console.log('Mobile autoplay prevented:', error);
-                    // If autoplay fails, show play button for user interaction
-                    setUserInteracted(false);
+                    // Don't try to play again automatically - wait for user interaction
                   });
               }
             }
@@ -52,12 +69,11 @@ export const Page2Section = () => {
     }
 
     return () => observer.disconnect();
-  }, [hasPlayed, videoError]);
+  }, [hasPlayed]);
 
   const handleVideoEnded = () => {
     setShowVideo(false);
     setVideoLoaded(false);
-    setUserInteracted(false);
     // Reset to show image after video ends
     setTimeout(() => {
       setShowVideo(false);
@@ -66,28 +82,13 @@ export const Page2Section = () => {
 
   const handleVideoLoad = () => {
     setVideoLoaded(true);
+    setVideoError(false);
   };
 
   const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     console.error('Mobile video error:', e);
     setVideoError(true);
     setShowVideo(false);
-  };
-
-  const handlePlayButtonClick = () => {
-    if (videoRef.current) {
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('Mobile video started after user interaction');
-            setUserInteracted(true);
-          })
-          .catch((error) => {
-            console.error('Failed to play video after user interaction:', error);
-          });
-      }
-    }
   };
 
   return (
@@ -113,7 +114,7 @@ export const Page2Section = () => {
         />
         
         {/* Video - shown only when scrolled to */}
-        {showVideo && (
+        {showVideo && !videoError && (
           <div 
             className="absolute inset-0 w-full h-full"
             style={{
@@ -144,40 +145,43 @@ export const Page2Section = () => {
               onPlay={() => {
                 console.log('Mobile video started playing');
               }}
-              onWaiting={() => {
-                console.log('Mobile video waiting for data');
-              }}
-              onStalled={() => {
-                console.log('Mobile video stalled');
-              }}
             >
               <source src={goldenringMp4} type="video/mp4" />
               <source src={goldenringWebm} type="video/webm" />
               Your browser does not support the video tag.
             </video>
-            
-            {/* Play button fallback for mobile autoplay restrictions */}
-            {showVideo && !videoError && !userInteracted && (
-              <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-                <button
-                  onClick={handlePlayButtonClick}
-                  className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-4 transition-all duration-300"
-                >
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                </button>
-              </div>
-            )}
-            
-            {/* Error message */}
-            {videoError && (
-              <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-                <p className="text-white text-sm text-center">
-                  Video unavailable on this device
-                </p>
-              </div>
-            )}
+          </div>
+        )}
+        
+        {/* Play button for mobile users */}
+        {showVideo && !videoError && !userInteracted && (
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+            <button
+              onClick={() => {
+                setUserInteracted(true);
+                if (videoRef.current) {
+                  videoRef.current.play().catch(console.error);
+                }
+              }}
+              className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-4 transition-all duration-300"
+            >
+              <svg 
+                className="w-8 h-8 text-white" 
+                fill="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </button>
+          </div>
+        )}
+        
+        {/* Fallback message for video errors */}
+        {videoError && (
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+            <p className="text-white text-sm text-center">
+              Video unavailable on this device
+            </p>
           </div>
         )}
       </div>
