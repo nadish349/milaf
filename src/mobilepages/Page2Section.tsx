@@ -53,6 +53,8 @@ export const Page2Section = () => {
               // iPhone specific: More aggressive play attempts
               const playVideo = () => {
                 if (videoRef.current) {
+                  // Ensure video is muted for autoplay
+                  videoRef.current.muted = true;
                   videoRef.current.play().catch((error) => {
                     console.log('Video autoplay attempt:', error);
                     // iPhone: Try multiple times with different intervals
@@ -150,29 +152,37 @@ export const Page2Section = () => {
             <video
               ref={videoRef}
               className="w-full h-full object-contain"
-              muted
-              playsInline
-              autoPlay
+              muted={true}
+              playsInline={true}
+              autoPlay={true}
               loop={false}
               preload="metadata"
               webkit-playsinline="true"
+              controls={false}
+              disablePictureInPicture={true}
               onEnded={handleVideoEnded}
               onLoadedData={() => {
                 // Force play when data is loaded
                 handleVideoLoad();
                 if (videoRef.current) {
+                  // Ensure video is muted for autoplay
+                  videoRef.current.muted = true;
                   videoRef.current.play().catch(console.error);
                 }
               }}
               onCanPlay={() => {
                 // Force play video immediately when ready
                 if (videoRef.current) {
+                  // Ensure video is muted for autoplay
+                  videoRef.current.muted = true;
                   videoRef.current.play().catch(console.error);
                 }
               }}
               onLoadedMetadata={() => {
                 // iPhone specific: try to play as soon as metadata is loaded
                 if (videoRef.current) {
+                  // Ensure video is muted for autoplay
+                  videoRef.current.muted = true;
                   videoRef.current.play().catch(console.error);
                 }
               }}
