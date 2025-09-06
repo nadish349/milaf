@@ -36,7 +36,7 @@ export const Page2Section = () => {
               };
               playVideo();
             }
-          }, 100); // Very short delay for immediate mobile response
+          }, 50); // Even shorter delay for immediate mobile response
         } else {
           // User scrolled away from section - reset video state
           setShowVideo(false);
@@ -44,7 +44,10 @@ export const Page2Section = () => {
           // Keep userInteracted true for autoplay
         }
       },
-      { threshold: 0.3 } // Reduced threshold for earlier trigger
+      { 
+        threshold: [0.1, 0.25, 0.5], // Multiple thresholds for earlier detection
+        rootMargin: '50px 0px' // Start detecting 50px before section enters viewport
+      }
     );
 
     if (sectionRef.current) {
