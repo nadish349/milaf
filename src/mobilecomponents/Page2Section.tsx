@@ -26,22 +26,25 @@ export const Page2Section = () => {
           setTimeout(() => {
             if (videoRef.current) {
               videoRef.current.currentTime = 0;
-              // Try to play the video
-              const playPromise = videoRef.current.play();
-              if (playPromise !== undefined) {
-                playPromise
-                  .then(() => {
-                    console.log('Mobile video autoplay started successfully');
-                    setUserInteracted(true);
-                  })
-                  .catch((error) => {
-                    console.log('Mobile autoplay prevented:', error);
-                    // If autoplay fails, show play button for user interaction
-                    setUserInteracted(false);
-                  });
-              }
+              // Try to play the video multiple times for mobile
+              const attemptPlay = () => {
+                const playPromise = videoRef.current?.play();
+                if (playPromise !== undefined) {
+                  playPromise
+                    .then(() => {
+                      console.log('Mobile video autoplay started successfully');
+                      setUserInteracted(true);
+                    })
+                    .catch((error) => {
+                      console.log('Mobile autoplay prevented:', error);
+                      // Try again after a short delay
+                      setTimeout(attemptPlay, 500);
+                    });
+                }
+              };
+              attemptPlay();
             }
-          }, 1000); // Increased delay for better mobile compatibility
+          }, 500); // Reduced delay for faster mobile response
         } else {
           // User scrolled away from section - reset video state
           setShowVideo(false);
@@ -138,7 +141,7 @@ export const Page2Section = () => {
               onLoadedData={handleVideoLoad}
               onCanPlay={() => {
                 // Ensure video can play on mobile
-                if (videoRef.current && userInteracted) {
+                if (videoRef.current) {
                   videoRef.current.play().catch(console.error);
                 }
               }}
@@ -156,8 +159,8 @@ export const Page2Section = () => {
                 console.log('Mobile video stalled');
               }}
             >
-              <source src={goldenringMp4} type="video/mp4" />
               <source src={goldenringWebm} type="video/webm" />
+              <source src={goldenringMp4} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             
@@ -166,6 +169,7 @@ export const Page2Section = () => {
               <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                 <button
                   onClick={handlePlayButtonClick}
+                  onTouchStart={handlePlayButtonClick}
                   className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-4 transition-all duration-300"
                 >
                   <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -173,6 +177,25 @@ export const Page2Section = () => {
                   </svg>
                 </button>
               </div>
+            )}
+            
+            {/* Invisible overlay to capture touch events for video playback */}
+            {showVideo && !videoError && (
+              <div 
+                className="absolute inset-0 w-full h-full z-10"
+                onTouchStart={() => {
+                  setUserInteracted(true);
+                  if (videoRef.current) {
+                    videoRef.current.play().catch(console.error);
+                  }
+                }}
+                onClick={() => {
+                  setUserInteracted(true);
+                  if (videoRef.current) {
+                    videoRef.current.play().catch(console.error);
+                  }
+                }}
+              />
             )}
             
             {/* Error message */}
