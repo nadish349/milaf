@@ -5,8 +5,10 @@ import {
   removeItemFromUserCart, 
   updateItemQuantityInCart, 
   getUserCart, 
+  getUserCartWithProductDetails,
   clearUserCart,
-  CartItem as FirestoreCartItem 
+  CartItem as FirestoreCartItem,
+  CartItemWithProductDetails
 } from '@/services/cartService';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -62,13 +64,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     try {
       setIsCartLoading(true);
       
-      // Add to Firestore
+      // Add to Firestore (only store essential cart data)
       const success = await addItemToUserCart(user.uid, {
         name: item.name,
-        price: item.price,
         quantity: item.quantity,
-        category: item.category || 'General',
-        description: item.description || '',
         payment: false
       });
 
@@ -201,16 +200,18 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     try {
       setIsCartLoading(true);
       
-      // Load from Firestore
-      const firestoreCartItems = await getUserCart(user.uid);
+      // Load from Firestore with current product details
+      const cartItemsWithDetails = await getUserCartWithProductDetails(user.uid);
       
-      // Convert Firestore items to local format
-      const localCartItems: CartItem[] = firestoreCartItems.map((item, index) => ({
+      // Convert to local format
+      const localCartItems: CartItem[] = cartItemsWithDetails.map((item, index) => ({
         id: Date.now() + index, // Generate unique ID
         name: item.name,
         price: item.price,
         quantity: item.quantity,
         payment: item.payment,
+        category: item.category,
+        description: item.description,
         gradient: undefined // Add gradient if needed
       }));
 

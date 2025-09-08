@@ -12,16 +12,21 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { fetchProductFromFirestore, ProductData } from './productService';
 
 export interface CartItem {
   id: string;
   name: string;
-  price: number;
   quantity: number;
-  category: string;
-  description: string;
   payment: boolean;
   addedAt: any; // Firestore timestamp
+}
+
+export interface CartItemWithProductDetails extends CartItem {
+  price: number;
+  category: string;
+  description: string;
+  image: string;
 }
 
 export interface UserCart {
@@ -35,38 +40,50 @@ export interface UserCart {
 // Add item to user's cart in Firestore
 export const addItemToUserCart = async (userId: string, item: Omit<CartItem, 'id' | 'addedAt'>): Promise<boolean> => {
   try {
+    console.log('🔥 addItemToUserCart called with:', { userId, item });
     const cartRef = collection(db, 'users', userId, 'cart');
+    console.log('📁 Cart reference created:', cartRef.path);
     
     // Check if item already exists in cart
     const existingItemQuery = query(cartRef, where('name', '==', item.name));
+    console.log('🔍 Checking for existing item with name:', item.name);
     const existingItemSnap = await getDocs(existingItemQuery);
+    console.log('📊 Existing items found:', existingItemSnap.size);
     
     if (!existingItemSnap.empty) {
       // Update existing item quantity
       const existingItem = existingItemSnap.docs[0];
       const currentData = existingItem.data();
       const newQuantity = currentData.quantity + item.quantity;
+      console.log('📈 Updating existing item quantity from', currentData.quantity, 'to', newQuantity);
       
       await updateDoc(doc(db, 'users', userId, 'cart', existingItem.id), {
         quantity: newQuantity,
         lastUpdated: serverTimestamp()
       });
+      console.log('✅ Existing item updated successfully');
     } else {
       // Add new item to cart
-      await addDoc(cartRef, {
-        ...item,
+      console.log('➕ Adding new item to cart');
+      const docRef = await addDoc(cartRef, {
+        name: item.name,
+        quantity: item.quantity,
+        payment: false,
         addedAt: serverTimestamp(),
         lastUpdated: serverTimestamp()
       });
+      console.log('✅ New item added with ID:', docRef.id);
     }
     
     // Update user's cart summary
+    console.log('📊 Updating cart summary for user:', userId);
     await updateUserCartSummary(userId);
     
     console.log(`✅ Item "${item.name}" added to cart for user ${userId}`);
     return true;
   } catch (error) {
     console.error('❌ Error adding item to cart:', error);
+    console.error('❌ Error details:', error);
     return false;
   }
 };
@@ -131,27 +148,31 @@ export const updateItemQuantityInCart = async (userId: string, itemName: string,
 // Get user's cart from Firestore
 export const getUserCart = async (userId: string): Promise<CartItem[]> => {
   try {
+    console.log('🔄 getUserCart called for user:', userId);
     const cartRef = collection(db, 'users', userId, 'cart');
+    console.log('📁 Cart reference:', cartRef.path);
+    
     const cartSnap = await getDocs(cartRef);
+    console.log('📊 Cart snapshot size:', cartSnap.size);
     
     const cartItems: CartItem[] = [];
     cartSnap.forEach((doc) => {
       const data = doc.data();
+      console.log('📄 Processing cart item:', doc.id, data);
       cartItems.push({
         id: doc.id,
         name: data.name,
-        price: data.price,
         quantity: data.quantity,
-        category: data.category,
-        description: data.description,
         payment: data.payment || false,
         addedAt: data.addedAt
       });
     });
     
+    console.log('🛒 Final cart items:', cartItems);
     return cartItems;
   } catch (error) {
     console.error('❌ Error fetching user cart:', error);
+    console.error('❌ Error details:', error);
     return [];
   }
 };
@@ -198,6 +219,52 @@ export const updateUserCartSummary = async (userId: string): Promise<void> => {
     
   } catch (error) {
     console.error('❌ Error updating cart summary:', error);
+  }
+};
+
+// Get user's cart with current product details from products database
+export const getUserCartWithProductDetails = async (userId: string): Promise<CartItemWithProductDetails[]> => {
+  try {
+    console.log('🔄 getUserCartWithProductDetails called for user:', userId);
+    
+    // First get the basic cart items
+    const cartItems = await getUserCart(userId);
+    console.log('📦 Basic cart items:', cartItems);
+    
+    // Then fetch product details for each item
+    const cartItemsWithDetails: CartItemWithProductDetails[] = [];
+    
+    for (const cartItem of cartItems) {
+      console.log('🔍 Fetching product details for:', cartItem.name);
+      const productData = await fetchProductFromFirestore(cartItem.name);
+      
+      if (productData) {
+        console.log('✅ Product details found:', productData);
+        cartItemsWithDetails.push({
+          ...cartItem,
+          price: productData.price,
+          category: productData.category,
+          description: productData.description,
+          image: '' // Will be handled by getProductImage utility
+        });
+      } else {
+        console.warn('⚠️ Product details not found for:', cartItem.name);
+        // Add item with default values if product not found
+        cartItemsWithDetails.push({
+          ...cartItem,
+          price: 0,
+          category: 'Unknown',
+          description: 'Product not found',
+          image: ''
+        });
+      }
+    }
+    
+    console.log('🛒 Final cart items with details:', cartItemsWithDetails);
+    return cartItemsWithDetails;
+  } catch (error) {
+    console.error('❌ Error fetching cart with product details:', error);
+    return [];
   }
 };
 

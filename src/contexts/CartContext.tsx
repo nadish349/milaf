@@ -5,8 +5,10 @@ import {
   removeItemFromUserCart, 
   updateItemQuantityInCart, 
   getUserCart, 
+  getUserCartWithProductDetails,
   clearUserCart,
-  CartItem as FirestoreCartItem 
+  CartItem as FirestoreCartItem,
+  CartItemWithProductDetails
 } from '@/services/cartService';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -54,23 +56,26 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const { user } = useAuth();
 
   const addToCart = async (item: Omit<CartItem, 'id'>) => {
+    console.log('🛒 addToCart called with item:', item);
+    console.log('👤 Current user:', user);
+    
     if (!user) {
-      console.warn('User not authenticated, cannot add to cart');
+      console.warn('❌ User not authenticated, cannot add to cart');
       return;
     }
 
     try {
       setIsCartLoading(true);
+      console.log('🔄 Adding item to Firestore for user:', user.uid);
       
-      // Add to Firestore
+      // Add to Firestore (only store essential cart data)
       const success = await addItemToUserCart(user.uid, {
         name: item.name,
-        price: item.price,
         quantity: item.quantity,
-        category: item.category || 'General',
-        description: item.description || '',
         payment: false
       });
+
+      console.log('✅ Firestore add result:', success);
 
       if (success) {
         // Update local state
@@ -79,6 +84,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           
           if (existingItem) {
             // If item already exists, increase quantity
+            console.log('📈 Updating existing item quantity');
             return prev.map(cartItem =>
               cartItem.name === item.name
                 ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
@@ -86,6 +92,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             );
           } else {
             // If item doesn't exist, add new item with unique ID
+            console.log('➕ Adding new item to local cart');
             const newItem: CartItem = {
               ...item,
               id: Date.now() // Simple unique ID generation
@@ -93,9 +100,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             return [...prev, newItem];
           }
         });
+      } else {
+        console.error('❌ Failed to add item to Firestore');
       }
     } catch (error) {
-      console.error('Error adding item to cart:', error);
+      console.error('❌ Error adding item to cart:', error);
     } finally {
       setIsCartLoading(false);
     }
@@ -193,30 +202,38 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const loadUserCart = async () => {
+    console.log('🔄 loadUserCart called');
+    console.log('👤 Current user:', user);
+    
     if (!user) {
-      console.warn('User not authenticated, cannot load cart');
+      console.warn('❌ User not authenticated, cannot load cart');
       return;
     }
 
     try {
       setIsCartLoading(true);
+      console.log('🔄 Loading cart with product details from Firestore for user:', user.uid);
       
-      // Load from Firestore
-      const firestoreCartItems = await getUserCart(user.uid);
+      // Load from Firestore with current product details
+      const cartItemsWithDetails = await getUserCartWithProductDetails(user.uid);
+      console.log('📦 Cart items with product details:', cartItemsWithDetails);
       
-      // Convert Firestore items to local format
-      const localCartItems: CartItem[] = firestoreCartItems.map((item, index) => ({
+      // Convert to local format
+      const localCartItems: CartItem[] = cartItemsWithDetails.map((item, index) => ({
         id: Date.now() + index, // Generate unique ID
         name: item.name,
         price: item.price,
         quantity: item.quantity,
         payment: item.payment,
+        category: item.category,
+        description: item.description,
         gradient: undefined // Add gradient if needed
       }));
 
+      console.log('🛒 Converted local cart items:', localCartItems);
       setCartItems(localCartItems);
     } catch (error) {
-      console.error('Error loading user cart:', error);
+      console.error('❌ Error loading user cart:', error);
     } finally {
       setIsCartLoading(false);
     }
