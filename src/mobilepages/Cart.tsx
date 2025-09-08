@@ -9,14 +9,18 @@ import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { getProductImage } from "@/utils/productImages";
 import group5 from "@/assets/Group5.png";
+import { LoginModal } from "@/mobilecomponents/LoginModal";
+import { useState } from "react";
 
 export const Cart = (): JSX.Element => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest } = useCart();
   const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Debug logging
   console.log('🛒 Mobile Cart component - cartItems:', cartItems);
   console.log('💰 Mobile Cart component - getTotalPrice():', getTotalPrice());
+  console.log('👤 Mobile Cart component - isGuest:', isGuest);
 
   // Function to get the correct cart image (same logic as ProductDetail)
   const getCartImage = (productName: string): string => {
@@ -61,8 +65,13 @@ export const Cart = (): JSX.Element => {
   };
 
   const handleProceedToCheckout = () => {
-    // Navigate to the payment page
-    navigate('/payment');
+    if (isGuest) {
+      // Show login modal for guest users
+      setShowLoginModal(true);
+    } else {
+      // Navigate to payment for authenticated users
+      navigate('/payment');
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -333,6 +342,16 @@ export const Cart = (): JSX.Element => {
           </div>
         </div>
       </div>
+      
+      {/* Login Modal for Guest Users */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={() => {
+          // After successful login, navigate to payment
+          navigate('/payment');
+        }}
+      />
     </div>
   );
 };
