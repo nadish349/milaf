@@ -18,7 +18,14 @@ export const productImageMap: { [key: string]: string } = {
 
 // Function to get product image by name
 export const getProductImage = (productName: string): string => {
-  return productImageMap[productName] || milafcola; // fallback to milafcola if not found
+  console.log('🖼️ getProductImage called with:', productName);
+  console.log('🗺️ Available product names:', Object.keys(productImageMap));
+  console.log('🔍 Product found in map:', productImageMap[productName] ? 'YES' : 'NO');
+  
+  const image = productImageMap[productName] || milafcola;
+  console.log('📸 Returning image:', image);
+  
+  return image; // fallback to milafcola if not found
 };
 
 // Function to get all available product names

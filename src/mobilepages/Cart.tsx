@@ -127,6 +127,8 @@ export const Cart = (): JSX.Element => {
                               src={getProductImage(item.name)}
                               alt={item.name}
                               className="w-full h-full object-contain p-1"
+                              onLoad={() => console.log('🖼️ Mobile cart image loaded for:', item.name)}
+                              onError={() => console.log('❌ Mobile cart image failed to load for:', item.name)}
                             />
                           </div>
 
@@ -219,6 +221,8 @@ export const Cart = (): JSX.Element => {
                               src={getProductImage(item.name)}
                               alt={item.name}
                               className="w-full h-full object-contain p-1"
+                              onLoad={() => console.log('🖼️ Mobile cart image loaded for:', item.name)}
+                              onError={() => console.log('❌ Mobile cart image failed to load for:', item.name)}
                             />
                           </div>
 
