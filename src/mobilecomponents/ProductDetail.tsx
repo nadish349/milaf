@@ -10,6 +10,8 @@ import { useCart } from "@/contexts/CartContext";
 import { Notification } from "./Notification";
 import { BulkOrderPopup } from "./BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
+import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
+import { getProductImage } from "@/utils/productImages";
 
 interface ProductDetailProps {
   onGradientChange?: (gradient: string) => void;
@@ -24,45 +26,63 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  // Show bulk order popup after 2 seconds when page becomes visible - only once per session
+  // Load products from database
   useEffect(() => {
-    // Check if popup has already been shown in this session
-    const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
-    
-    if (!hasShownPopup) {
-      const timer = setTimeout(() => {
-        setShowBulkOrderPopup(true);
-        // Mark as shown in localStorage
-        localStorage.setItem('bulkOrderPopupShown', 'true');
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  // Listen for product change events from footer
-  useEffect(() => {
-    const handleProductChange = (event: CustomEvent) => {
-      console.log('Mobile ProductDetail received changeProduct event:', event.detail);
-      const { productId } = event.detail;
-      console.log('Setting current product to:', productId);
-      setCurrentProduct(productId);
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const firestoreProducts = await fetchAllProductsFromFirestore();
+        
+        if (firestoreProducts.length > 0) {
+          // Convert Firestore products to display format
+          const displayProducts = firestoreProducts.map((product, index) => ({
+            id: index,
+            name: product.name.toLowerCase(),
+            displayName: product.name.split(' ').map(word => word.toUpperCase()),
+            image: getProductImage(product.name),
+            description: product.description,
+            price: product.price,
+            category: product.category,
+            gradient: getGradientForProduct(product.name)
+          }));
+          
+          setProducts(displayProducts);
+        } else {
+          // Fallback to default products if no data in Firestore
+          setProducts(getDefaultProducts());
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setProducts(getDefaultProducts());
+      } finally {
+        setLoading(false);
+      }
     };
 
-    console.log('Mobile ProductDetail: Adding changeProduct event listener');
-    window.addEventListener('changeProduct', handleProductChange as EventListener);
-    
-    return () => {
-      console.log('Mobile ProductDetail: Removing changeProduct event listener');
-      window.removeEventListener('changeProduct', handleProductChange as EventListener);
-    };
+    loadProducts();
   }, []);
 
-  const products = [
+  // Helper function to get gradient for product
+  const getGradientForProduct = (productName: string): string => {
+    const gradients: { [key: string]: string } = {
+      "Milaf Cola": "linear-gradient(135deg, #BF7E3E, #D4A574)",
+      "Choco Spread": "linear-gradient(135deg, #743002, #7C3C16)",
+      "Date Spread": "linear-gradient(135deg, #CE8437, #FBDCA4)",
+      "Khalas Dates": "linear-gradient(135deg, #98371F, #A94733)",
+      "Safawi Dates": "linear-gradient(135deg, #D69150, #B66325)",
+      "Segai Dates": "linear-gradient(135deg, #722E17, #D8582C)"
+    };
+    return gradients[productName] || "linear-gradient(135deg, #666, #999)";
+  };
+
+  // Default products fallback
+  const getDefaultProducts = () => [
     {
       id: 0,
       name: "milaf cola",
@@ -71,8 +91,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
       description: "Milaf Cola, crafted in Saudi Arabia, enriched with Ajwa dates, zero sugar, bold refreshing taste.",
       backgroundImage: milafframe,
       textColor: "#BF7E3E",
-      price: 4.99,
-      gradient: "linear-gradient(135deg, #66A992, #FFFFFF)"
+      price: 4.99
     },
     {
       id: 1,
@@ -120,6 +139,41 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
       price: 4.99
     }
   ];
+
+  // Show bulk order popup after 2 seconds when page becomes visible - only once per session
+  useEffect(() => {
+    // Check if popup has already been shown in this session
+    const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
+    
+    if (!hasShownPopup) {
+      const timer = setTimeout(() => {
+        setShowBulkOrderPopup(true);
+        // Mark as shown in localStorage
+        localStorage.setItem('bulkOrderPopupShown', 'true');
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Listen for product change events from footer
+  useEffect(() => {
+    const handleProductChange = (event: CustomEvent) => {
+      console.log('Mobile ProductDetail received changeProduct event:', event.detail);
+      const { productId } = event.detail;
+      console.log('Setting current product to:', productId);
+      setCurrentProduct(productId);
+    };
+
+    console.log('Mobile ProductDetail: Adding changeProduct event listener');
+    window.addEventListener('changeProduct', handleProductChange as EventListener);
+    
+    return () => {
+      console.log('Mobile ProductDetail: Removing changeProduct event listener');
+      window.removeEventListener('changeProduct', handleProductChange as EventListener);
+    };
+  }, []);
+
 
   const currentProductData = products[currentProduct];
 
@@ -175,6 +229,29 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
     const safeNewStartIndex = Math.min(newStartIndex, maxStartIndex);
     setVisibleStartIndex(safeNewStartIndex);
   }, [currentProduct, products.length]);
+
+  // Show loading state while products are being fetched
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if no products
+  if (products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <p className="text-white">No products available</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section id="product-detail-section" className="product-detail-section relative min-h-screen w-full overflow-hidden">

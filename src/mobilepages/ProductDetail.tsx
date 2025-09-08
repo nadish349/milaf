@@ -10,6 +10,8 @@
   import { Notification } from "@/mobilecomponents/Notification";
   import { BulkOrderPopup } from "@/mobilecomponents/BulkOrderPopup";
   import { useNavigate } from "react-router-dom";
+  import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
+  import { getProductImage } from "@/utils/productImages";
 
   interface ProductDetailProps {
     onGradientChange?: (gradient: string) => void;
@@ -24,9 +26,119 @@
     const [showNotification, setShowNotification] = useState(false);
     const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { addToCart } = useCart();
   const navigate = useNavigate();
+
+  // Load products from database
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const firestoreProducts = await fetchAllProductsFromFirestore();
+        
+        if (firestoreProducts.length > 0) {
+          // Convert Firestore products to display format
+          const displayProducts = firestoreProducts.map((product, index) => ({
+            id: index,
+            name: product.name.toLowerCase(),
+            displayName: product.name.split(' ').map(word => word.toUpperCase()),
+            image: getProductImage(product.name),
+            description: product.description,
+            price: product.price,
+            category: product.category,
+            gradient: getGradientForProduct(product.name)
+          }));
+          
+          setProducts(displayProducts);
+        } else {
+          // Fallback to default products if no data in Firestore
+          setProducts(getDefaultProducts());
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setProducts(getDefaultProducts());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  // Helper function to get gradient for product
+  const getGradientForProduct = (productName: string): string => {
+    const gradients: { [key: string]: string } = {
+      "Milaf Cola": "linear-gradient(135deg, #BF7E3E, #D4A574)",
+      "Choco Spread": "linear-gradient(135deg, #743002, #7C3C16)",
+      "Date Spread": "linear-gradient(135deg, #CE8437, #FBDCA4)",
+      "Khalas Dates": "linear-gradient(135deg, #98371F, #A94733)",
+      "Safawi Dates": "linear-gradient(135deg, #D69150, #B66325)",
+      "Segai Dates": "linear-gradient(135deg, #722E17, #D8582C)"
+    };
+    return gradients[productName] || "linear-gradient(135deg, #666, #999)";
+  };
+
+  // Default products fallback
+  const getDefaultProducts = () => [
+    {
+      id: 0,
+      name: "milaf cola",
+      displayName: ["MILAF", "COLA"],
+      image: group5,
+      description: "Milaf Cola, crafted in Saudi Arabia, enriched with Ajwa dates, zero sugar, bold refreshing taste.",
+      backgroundImage: milafframe,
+      textColor: "#BF7E3E",
+      price: 4.99
+    },
+    {
+      id: 1,
+      name: "chocolate spread",
+      displayName: ["CHOCO", "SPREAD"],
+      image: chocospread,
+      description: "Rich and creamy chocolate spread, made with premium cocoa and natural ingredients for the perfect indulgence.",
+      gradient: "linear-gradient(135deg, #743002, #7C3C16)",
+      price: 3.99
+    },
+    {
+      id: 2,
+      name: "date spread",
+      displayName: ["DATE", "SPREAD"],
+      image: datespread,
+      description: "Natural and nutritious date spread, made from premium Ajwa dates, rich in fiber and natural sweetness.",
+      gradient: "linear-gradient(135deg, #CE8437, #FBDCA4)",
+      price: 2.99
+    },
+    {
+      id: 3,
+      name: "khalas dates",
+      displayName: ["KHALAS", "DATES"],
+      image: khalasdates,
+      description: "Classic Khalas dates with caramel-like sweetness and a smooth bite.",
+      gradient: "linear-gradient(135deg, #98371F, #A94733)",
+      price: 5.99
+    },
+    {
+      id: 4,
+      name: "safawi dates",
+      displayName: ["SAFAWI", "DATES"],
+      image: safawidates,
+      description: "Premium Safawi dates known for their rich flavor and soft texture.",
+      gradient: "linear-gradient(135deg, #D69150, #B66325)",
+      price: 5.99
+    },
+    {
+      id: 5,
+      name: "segai dates",
+      displayName: ["SEGAI", "DATES"],
+      image: segaidates,
+      description: "Segai dates featuring a delightful blend of firm and soft textures with a balanced sweetness.",
+      gradient: "linear-gradient(135deg, #722E17, #D8582C)",
+      price: 4.99
+    }
+  ];
 
     // Show bulk order popup after 2 seconds when page becomes visible - only once per session
     useEffect(() => {
@@ -62,64 +174,6 @@
       };
     }, []);
 
-    const products = [
-      {
-        id: 0,
-        name: "milaf cola",
-        displayName: ["MILAF", "COLA"],
-        image: group5,
-        description: "Milaf Cola, crafted in Saudi Arabia, enriched with Ajwa dates, zero sugar, bold refreshing taste.",
-        backgroundImage: milafframe,
-        textColor: "#BF7E3E",
-        price: 4.99,
-        gradient: "linear-gradient(135deg, #66A992, #FFFFFF)"
-      },
-      {
-        id: 1,
-        name: "chocolate spread",
-        displayName: ["CHOCO", "SPREAD"],
-        image: chocospread,
-        description: "Rich and creamy chocolate spread, made with premium cocoa and natural ingredients for the perfect indulgence.",
-        gradient: "linear-gradient(135deg, #743002, #7C3C16)",
-        price: 3.99
-      },
-      {
-        id: 2,
-        name: "date spread",
-        displayName: ["DATE", "SPREAD"],
-        image: datespread,
-        description: "Natural and nutritious date spread, made from premium Ajwa dates, rich in fiber and natural sweetness.",
-        gradient: "linear-gradient(135deg, #CE8437, #FBDCA4)",
-        price: 2.99
-      },
-      {
-        id: 3,
-        name: "khalas dates",
-        displayName: ["KHALAS", "DATES"],
-        image: khalasdates,
-        description: "Classic Khalas dates with caramel-like sweetness and a smooth bite.",
-        gradient: "linear-gradient(135deg, #98371F, #A94733)",
-        price: 5.99
-      },
-      {
-        id: 4,
-        name: "safawi dates",
-        displayName: ["SAFAWI", "DATES"],
-        image: safawidates,
-        description: "Premium Safawi dates known for their rich flavor and soft texture.",
-        gradient: "linear-gradient(135deg, #D69150, #B66325)",
-        price: 5.99
-      },
-      {
-        id: 5,
-        name: "segai dates",
-        displayName: ["SEGAI", "DATES"],
-        image: segaidates,
-        description: "Segai dates featuring a delightful blend of firm and soft textures with a balanced sweetness.",
-        gradient: "linear-gradient(135deg, #722E17, #D8582C)",
-        price: 4.99
-      }
-    ];
 
   const currentProductData = products[currentProduct];
 
@@ -176,7 +230,30 @@
     setVisibleStartIndex(safeNewStartIndex);
   }, [currentProduct, products.length]);
 
+  // Show loading state while products are being fetched
+  if (loading) {
     return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if no products
+  if (products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <p className="text-white">No products available</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
       <section id="product-detail-section" className="product-detail-section relative min-h-screen w-full overflow-hidden">
         {/* Background */}
         <div 
