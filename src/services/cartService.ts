@@ -18,9 +18,9 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  image: string;
   category: string;
   description: string;
+  payment: boolean;
   addedAt: any; // Firestore timestamp
 }
 
@@ -142,9 +142,9 @@ export const getUserCart = async (userId: string): Promise<CartItem[]> => {
         name: data.name,
         price: data.price,
         quantity: data.quantity,
-        image: data.image,
         category: data.category,
         description: data.description,
+        payment: data.payment || false,
         addedAt: data.addedAt
       });
     });

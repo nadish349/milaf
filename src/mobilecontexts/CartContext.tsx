@@ -13,9 +13,9 @@ import { useAuth } from '@/contexts/AuthContext';
 export interface CartItem {
   id: number;
   name: string;
-  image: string;
   price: number;
   quantity: number;
+  payment: boolean;
   gradient?: string;
 }
 
@@ -65,9 +65,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        image: item.image,
         category: item.category || 'General',
-        description: item.description || ''
+        description: item.description || '',
+        payment: false
       });
 
       if (success) {
@@ -208,7 +208,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        image: item.image,
+        payment: item.payment,
         gradient: undefined // Add gradient if needed
       }));
 
