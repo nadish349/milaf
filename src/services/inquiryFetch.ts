@@ -1,5 +1,5 @@
 import { db } from '@/firebase';
-import { collection, getDocs, query, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, updateDoc, serverTimestamp, addDoc } from 'firebase/firestore';
 
 export interface InquiryData {
   inquiryAbout: string;
@@ -18,47 +18,32 @@ export interface InquiryWithId extends InquiryData {
 }
 
 /**
- * Fetch all inquiries from all months in the inquiry collection
+ * Fetch all inquiries from the current month's collection
  * Collection structure: inquiry -> YYYY-MM -> inquiries -> documentId
  */
 export const fetchAllInquiries = async (): Promise<InquiryWithId[]> => {
   try {
     const inquiries: InquiryWithId[] = [];
     
-    // Get all months from the inquiry collection
-    const inquiryCollectionRef = collection(db, 'inquiry');
-    const inquirySnapshot = await getDocs(inquiryCollectionRef);
+    // Get current month in YYYY-MM format
+    const currentMonth = getCurrentMonth();
+    console.log(`Fetching inquiries for current month: ${currentMonth}`);
     
-    console.log(`Found ${inquirySnapshot.docs.length} month collections`);
+    // Get all inquiries from current month
+    const inquiriesCollectionRef = collection(db, 'inquiry', currentMonth, 'inquiries');
+    const inquiriesSnapshot = await getDocs(
+      query(inquiriesCollectionRef, orderBy('createdAt', 'desc'))
+    );
     
-    // For each month, get all inquiries
-    for (const monthDoc of inquirySnapshot.docs) {
-      const month = monthDoc.id; // This will be like "2025-09", "2025-10", etc.
-      console.log(`Fetching inquiries for month: ${month}`);
-      
-      const inquiriesCollectionRef = collection(db, 'inquiry', month, 'inquiries');
-      const inquiriesSnapshot = await getDocs(
-        query(inquiriesCollectionRef, orderBy('createdAt', 'desc'))
-      );
-      
-      console.log(`Found ${inquiriesSnapshot.docs.length} inquiries in ${month}`);
-      
-      inquiriesSnapshot.docs.forEach(doc => {
-        const data = doc.data() as InquiryData;
-        inquiries.push({
-          id: doc.id,
-          month,
-          ...data
-        });
+    console.log(`Found ${inquiriesSnapshot.docs.length} inquiries in ${currentMonth}`);
+    
+    inquiriesSnapshot.docs.forEach(doc => {
+      const data = doc.data() as InquiryData;
+      inquiries.push({
+        id: doc.id,
+        month: currentMonth,
+        ...data
       });
-    }
-    
-    // Sort all inquiries by creation date (newest first)
-    inquiries.sort((a, b) => {
-      if (a.createdAt && b.createdAt) {
-        return b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime();
-      }
-      return 0;
     });
     
     console.log(`Total inquiries fetched: ${inquiries.length}`);
@@ -249,7 +234,7 @@ export const createTestInquiry = async (): Promise<string> => {
  */
 export const testInquiryConnection = async (): Promise<void> => {
   try {
-    console.log('Testing Firebase connection...');
+    console.log('🔍 Testing Firebase connection...');
     
     // Test 1: Check if we can access the inquiry collection
     const inquiryCollectionRef = collection(db, 'inquiry');
@@ -291,6 +276,113 @@ export const testInquiryConnection = async (): Promise<void> => {
     console.log('✅ All tests passed! Firebase connection is working correctly.');
   } catch (error) {
     console.error('❌ Firebase connection test failed:', error);
+    throw error;
+  }
+};
+
+
+/**
+ * Get a summary of all inquiries in the database
+ */
+export const getInquirySummary = async (): Promise<{
+  totalInquiries: number;
+  months: Array<{ month: string; count: number; unread: number }>;
+  recentInquiries: InquiryWithId[];
+}> => {
+  try {
+    const allInquiries = await fetchAllInquiries();
+    const availableMonths = await getAvailableMonths();
+    
+    const months = availableMonths.map(month => {
+      const monthInquiries = allInquiries.filter(inq => inq.month === month);
+      return {
+        month,
+        count: monthInquiries.length,
+        unread: monthInquiries.filter(inq => !inq.read).length
+      };
+    });
+    
+    const recentInquiries = allInquiries.slice(0, 5); // Get 5 most recent
+    
+    return {
+      totalInquiries: allInquiries.length,
+      months,
+      recentInquiries
+    };
+  } catch (error) {
+    console.error('Error getting inquiry summary:', error);
+    throw error;
+  }
+};
+
+/**
+ * Debug function to test fetchAllInquiries step by step
+ */
+export const debugFetchAllInquiries = async (): Promise<void> => {
+  try {
+    console.log('🔍 DEBUG: Starting fetchAllInquiries debug...');
+    
+    const inquiries: InquiryWithId[] = [];
+    
+    // Step 1: Get all months from the inquiry collection
+    console.log('📋 Step 1: Getting month collections...');
+    const inquiryCollectionRef = collection(db, 'inquiry');
+    const inquirySnapshot = await getDocs(inquiryCollectionRef);
+    
+    console.log(`📊 Found ${inquirySnapshot.docs.length} month collections`);
+    console.log('📋 Month collections:', inquirySnapshot.docs.map(doc => doc.id));
+    
+    if (inquirySnapshot.docs.length === 0) {
+      console.log('❌ No month collections found! Database might be empty.');
+      return;
+    }
+    
+    // Step 2: For each month, get all inquiries
+    for (const monthDoc of inquirySnapshot.docs) {
+      const month = monthDoc.id;
+      console.log(`📅 Step 2: Processing month: ${month}`);
+      
+      const inquiriesCollectionRef = collection(db, 'inquiry', month, 'inquiries');
+      const inquiriesSnapshot = await getDocs(
+        query(inquiriesCollectionRef, orderBy('createdAt', 'desc'))
+      );
+      
+      console.log(`   📝 Found ${inquiriesSnapshot.docs.length} inquiries in ${month}`);
+      
+      // Step 3: Process each inquiry
+      inquiriesSnapshot.docs.forEach((doc, index) => {
+        const data = doc.data() as InquiryData;
+        console.log(`   📄 Inquiry ${index + 1}:`, {
+          id: doc.id,
+          month,
+          name: data.name,
+          email: data.email,
+          read: data.read,
+          createdAt: data.createdAt
+        });
+        
+        inquiries.push({
+          id: doc.id,
+          month,
+          ...data
+        });
+      });
+    }
+    
+    // Step 4: Sort and return
+    console.log(`📊 Step 3: Sorting ${inquiries.length} total inquiries...`);
+    inquiries.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime();
+      }
+      return 0;
+    });
+    
+    console.log(`✅ DEBUG COMPLETE: Total inquiries fetched: ${inquiries.length}`);
+    console.log('📋 Final inquiries array:', inquiries);
+    
+  } catch (error) {
+    console.error('❌ DEBUG ERROR:', error);
     throw error;
   }
 };
