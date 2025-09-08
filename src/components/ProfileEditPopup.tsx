@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PostalCodeAutocomplete } from "@/components/PostalCodeAutocomplete";
 import { User, Phone, MapPin, Hash, X } from "lucide-react";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase";
+import { PostalCodeSuggestion } from "@/utils/postalCodeService";
 
 interface ProfileEditPopupProps {
   isOpen: boolean;
@@ -189,18 +191,15 @@ export const ProfileEditPopup = ({ isOpen, onClose, userId, userEmail }: Profile
             {/* Zipcode */}
             <div className="space-y-2">
               <Label htmlFor="edit-zipcode">Zipcode *</Label>
-              <div className="relative">
-                <Hash className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="edit-zipcode"
-                  type="text"
-                  placeholder="Enter your zipcode"
-                  value={formData.zipcode}
-                  onChange={(e) => handleInputChange("zipcode", e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
+              <PostalCodeAutocomplete
+                value={formData.zipcode}
+                onChange={(value) => handleInputChange("zipcode", value)}
+                placeholder="Enter zip code or suburb name"
+                required
+                onSuggestionSelect={(suggestion: PostalCodeSuggestion) => {
+                  console.log('Selected postal code:', suggestion);
+                }}
+              />
             </div>
             
             <Button type="submit" disabled={isLoading} className="w-full">

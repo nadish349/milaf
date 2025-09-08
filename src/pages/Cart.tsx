@@ -14,9 +14,13 @@ export const Cart = (): JSX.Element => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCart();
   const navigate = useNavigate();
 
+  // Debug logging
+  console.log('🛒 Cart component - cartItems:', cartItems);
+  console.log('💰 Cart component - getTotalPrice():', getTotalPrice());
+
   // Function to get the correct cart image (same logic as ProductDetail)
   const getCartImage = (productName: string): string => {
-    const isMilafCola = productName === "Milaf Cola";
+    const isMilafCola = productName.toLowerCase() === "milaf cola";
     return isMilafCola ? group5 : getProductImage(productName);
   };
 

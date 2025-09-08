@@ -15,11 +15,15 @@ export interface ProductData {
 
 export const fetchProductFromFirestore = async (productName: string): Promise<ProductData | null> => {
   try {
+    console.log('🔍 fetchProductFromFirestore called with productName:', productName);
     const productRef = doc(db, 'products', productName);
+    console.log('📁 Product reference path:', productRef.path);
     const productSnap = await getDoc(productRef);
+    console.log('📊 Product snapshot exists:', productSnap.exists());
     
     if (productSnap.exists()) {
       const data = productSnap.data();
+      console.log('✅ Product data found:', data);
       return {
         name: data.name,
         price: data.price,
@@ -32,9 +36,10 @@ export const fetchProductFromFirestore = async (productName: string): Promise<Pr
         lastUpdated: data.lastUpdated
       };
     }
+    console.log('❌ Product not found in Firestore for name:', productName);
     return null;
   } catch (error) {
-    console.error('Error fetching product from Firestore:', error);
+    console.error('❌ Error fetching product from Firestore:', error);
     return null;
   }
 };

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { MilafPaymentForm } from "../components/MilafPaymentForm";
+import { AddressAutocomplete } from "../components/AddressAutocomplete";
 import m1 from "@/assets/m1.png";
 import { auth, db } from "@/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { PostalCodeSuggestion } from "@/utils/postalCodeService";
 
 interface DeliveryOption {
   id: string;
@@ -230,18 +232,6 @@ export const Payment = (): JSX.Element => {
       estimatedDays: "Same day"
     },
     {
-      id: "dhl",
-      name: "DHL",
-      description: "Express international shipping",
-      estimatedDays: "2-3 business days"
-    },
-    {
-      id: "mainfreight",
-      name: "Mainfreight Logistics",
-      description: "Reliable freight and logistics",
-      estimatedDays: "3-5 business days"
-    },
-    {
       id: "australian-post",
       name: "Australian Post",
       description: "Standard domestic shipping",
@@ -406,13 +396,19 @@ export const Payment = (): JSX.Element => {
                         </>
                       )}
                     </button>
-                    <textarea
+                    <AddressAutocomplete
                       value={billingInfo.address}
-                      onChange={(e) => handleInputChange("address", e.target.value)}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none"
-                      placeholder="Enter complete address or use multi-sensor location above"
+                      onChange={(value) => handleInputChange("address", value)}
+                      placeholder="Enter address, suburb, or city name"
+                      fieldType="address"
                       required
+                      onSuggestionSelect={(suggestion: PostalCodeSuggestion) => {
+                        // Auto-fill zipcode when address is selected
+                        setBillingInfo(prev => ({
+                          ...prev,
+                          zipcode: suggestion.postcode.toString()
+                        }));
+                      }}
                     />
                   </div>
                 </div>
@@ -421,13 +417,19 @@ export const Payment = (): JSX.Element => {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Zip Code *
                   </label>
-                  <input
-                    type="text"
+                  <AddressAutocomplete
                     value={billingInfo.zipcode}
-                    onChange={(e) => handleInputChange("zipcode", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Enter zip code"
+                    onChange={(value) => handleInputChange("zipcode", value)}
+                    placeholder="Enter zip code or suburb name"
+                    fieldType="zipcode"
                     required
+                    onSuggestionSelect={(suggestion: PostalCodeSuggestion) => {
+                      // Auto-fill address when zipcode is selected
+                      setBillingInfo(prev => ({
+                        ...prev,
+                        address: `${suggestion.suburb}, ${suggestion.state}`
+                      }));
+                    }}
                   />
                 </div>
               </div>
@@ -472,6 +474,17 @@ export const Payment = (): JSX.Element => {
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              {/* Factory Warehouse Location */}
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Warehouse Address</h3>
+                <p className="text-xs text-gray-600 mb-2">Beverages will be dispatched from here</p>
+                <div className="text-xs text-gray-600">
+                  <p className="font-medium">Factory Warehouse Location</p>
+                  <p>3/85 Alfred Street</p>
+                  <p>Chipping Norton 2170 NSW Australia</p>
+                </div>
               </div>
             </div>
           </div>

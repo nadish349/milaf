@@ -11,6 +11,8 @@ import { Notification } from "../components/Notification";
 import { BulkOrderPopup } from "../components/BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
+import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
+import { getProductImage } from "@/utils/productImages";
 
 interface BulkOrderProps {
   onGradientChange?: (gradient: string) => void;
@@ -27,42 +29,27 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
   const [showEntranceAnimation, setShowEntranceAnimation] = useState(true);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  // Entrance animation effect
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowEntranceAnimation(false);
-    }, 3000); // Show animation for 3 seconds
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleGoBack = () => {
-    window.history.back();
+  // Helper function to get gradient for product
+  const getGradientForProduct = (productName: string): string => {
+    const gradients: { [key: string]: string } = {
+      "Milaf Cola": "linear-gradient(135deg, #BF7E3E, #D4A574)",
+      "Choco Spread": "linear-gradient(135deg, #743002, #7C3C16)",
+      "Date Spread": "linear-gradient(135deg, #CE8437, #FBDCA4)",
+      "Khalas Dates": "linear-gradient(135deg, #98371F, #A94733)",
+      "Safawi Dates": "linear-gradient(135deg, #D69150, #B66325)",
+      "Segai Dates": "linear-gradient(135deg, #722E17, #D8582C)"
+    };
+    return gradients[productName] || "linear-gradient(135deg, #666, #999)";
   };
 
-  // Show bulk order popup after 2 seconds when page becomes visible - only once per session
-  useEffect(() => {
-    if (isVisible && hasInitialized) {
-      // Check if popup has already been shown in this session
-      const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
-      
-      if (!hasShownPopup) {
-        const timer = setTimeout(() => {
-          setShowBulkOrderPopup(true);
-          // Mark as shown in localStorage
-          localStorage.setItem('bulkOrderPopupShown', 'true');
-        }, 2000);
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [isVisible, hasInitialized]);
-
-  const products = [
+  // Default products fallback
+  const getDefaultProducts = () => [
     {
       id: 0,
       name: "milaf cola",
@@ -119,6 +106,75 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       price: 4.99
     }
   ];
+
+  // Load products from database
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const firestoreProducts = await fetchAllProductsFromFirestore();
+        
+        if (firestoreProducts.length > 0) {
+          // Use products from Firestore (backend) with proper formatting
+          const formattedProducts = firestoreProducts.map((product, index) => ({
+            id: index,
+            name: product.name.toLowerCase(),
+            displayName: product.name.toUpperCase().split(' '),
+            image: getProductImage(product.name),
+            description: product.description,
+            backgroundImage: product.name.toLowerCase() === 'milaf cola' ? milafframe : undefined,
+            textColor: product.name.toLowerCase() === 'milaf cola' ? "#BF7E3E" : undefined,
+            gradient: getGradientForProduct(product.name),
+            price: product.price,
+            category: product.category
+          }));
+          setProducts(formattedProducts);
+        } else {
+          // Fallback to default products only if no data in Firestore
+          setProducts(getDefaultProducts());
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setProducts(getDefaultProducts());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  // Entrance animation effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowEntranceAnimation(false);
+    }, 3000); // Show animation for 3 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleGoBack = () => {
+    window.history.back();
+  };
+
+  // Show bulk order popup after 2 seconds when page becomes visible - only once per session
+  useEffect(() => {
+    if (isVisible && hasInitialized) {
+      // Check if popup has already been shown in this session
+      const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
+      
+      if (!hasShownPopup) {
+        const timer = setTimeout(() => {
+          setShowBulkOrderPopup(true);
+          // Mark as shown in localStorage
+          localStorage.setItem('bulkOrderPopupShown', 'true');
+        }, 2000);
+
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isVisible, hasInitialized]);
+
 
   const nextProduct = () => {
     if (isAnimating) return;

@@ -67,82 +67,90 @@ export const AdminProducts = (): JSX.Element => {
         setLoading(true);
         const firestoreProducts = await fetchAllProductsFromFirestore();
         
-        // Always use default products to show all products
-        const defaultProducts: Product[] = [
-            {
-              id: 1,
-              name: "Milaf Cola",
-              image: milafcola,
-              price: 4.99,
-              casesInStock: 150,
-              casesPerCase: 20,
-              totalUnits: 3000,
-              status: "In Stock",
-              category: "Beverages",
-              description: "Refreshing natural cola drink"
-            },
-            {
-              id: 2,
-              name: "Choco Spread",
-              image: chocospread,
-              price: 6.99,
-              casesInStock: 75,
-              casesPerCase: 24,
-              totalUnits: 1800,
-              status: "Low Stock",
-              category: "Spreads",
-              description: "Rich chocolate date spread"
-            },
-            {
-              id: 3,
-              name: "Date Spread",
-              image: datespread,
-              price: 7.99,
-              casesInStock: 200,
-              casesPerCase: 20,
-              totalUnits: 4000,
-              status: "In Stock",
-              category: "Spreads",
-              description: "Natural date spread"
-            },
-            {
-              id: 4,
-              name: "Safawi Dates",
-              image: safawidates,
-              price: 8.99,
-              casesInStock: 0,
-              casesPerCase: 25,
-              totalUnits: 0,
-              status: "Out of Stock",
-              category: "Dates",
-              description: "Premium quality dates"
-            },
-            {
-              id: 5,
-              name: "Khalas Dates",
-              image: khalasdates,
-              price: 9.99,
-              casesInStock: 120,
-              casesPerCase: 30,
-              totalUnits: 3600,
-              status: "In Stock",
-              category: "Dates",
-              description: "Premium Khalas dates from Saudi Arabia"
-            },
-            {
-              id: 6,
-              name: "Segai Dates",
-              image: segaidates,
-              price: 10.99,
-              casesInStock: 80,
-              casesPerCase: 25,
-              totalUnits: 2000,
-              status: "In Stock",
-              category: "Dates",
-              description: "High-quality Segai dates"
-            },
-          ];
-          setProducts(defaultProducts);
+        if (firestoreProducts.length > 0) {
+          // Use products from Firestore (backend)
+          const convertedProducts = firestoreProducts.map((product, index) => 
+            convertToProduct(product, index + 1)
+          );
+          setProducts(convertedProducts);
+        } else {
+          // Fallback to default products only if no data in Firestore
+          const defaultProducts: Product[] = [
+              {
+                id: 1,
+                name: "Milaf Cola",
+                image: milafcola,
+                price: 4.99,
+                casesInStock: 150,
+                casesPerCase: 20,
+                totalUnits: 3000,
+                status: "In Stock",
+                category: "Beverages",
+                description: "Refreshing natural cola drink"
+              },
+              {
+                id: 2,
+                name: "Choco Spread",
+                image: chocospread,
+                price: 6.99,
+                casesInStock: 75,
+                casesPerCase: 24,
+                totalUnits: 1800,
+                status: "Low Stock",
+                category: "Spreads",
+                description: "Rich chocolate date spread"
+              },
+              {
+                id: 3,
+                name: "Date Spread",
+                image: datespread,
+                price: 7.99,
+                casesInStock: 200,
+                casesPerCase: 20,
+                totalUnits: 4000,
+                status: "In Stock",
+                category: "Spreads",
+                description: "Natural date spread"
+              },
+              {
+                id: 4,
+                name: "Safawi Dates",
+                image: safawidates,
+                price: 8.99,
+                casesInStock: 0,
+                casesPerCase: 25,
+                totalUnits: 0,
+                status: "Out of Stock",
+                category: "Dates",
+                description: "Premium quality dates"
+              },
+              {
+                id: 5,
+                name: "Khalas Dates",
+                image: khalasdates,
+                price: 9.99,
+                casesInStock: 120,
+                casesPerCase: 30,
+                totalUnits: 3600,
+                status: "In Stock",
+                category: "Dates",
+                description: "Premium Khalas dates from Saudi Arabia"
+              },
+              {
+                id: 6,
+                name: "Segai Dates",
+                image: segaidates,
+                price: 10.99,
+                casesInStock: 80,
+                casesPerCase: 25,
+                totalUnits: 2000,
+                status: "In Stock",
+                category: "Dates",
+                description: "High-quality Segai dates"
+              },
+            ];
+            setProducts(defaultProducts);
+        }
       } catch (error) {
         console.error('Error loading products:', error);
         // Set fallback products on error

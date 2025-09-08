@@ -20,12 +20,25 @@ export const productImageMap: { [key: string]: string } = {
 export const getProductImage = (productName: string): string => {
   console.log('🖼️ getProductImage called with:', productName);
   console.log('🗺️ Available product names:', Object.keys(productImageMap));
-  console.log('🔍 Product found in map:', productImageMap[productName] ? 'YES' : 'NO');
   
-  const image = productImageMap[productName] || milafcola;
-  console.log('📸 Returning image:', image);
+  // Try exact match first
+  let image = productImageMap[productName];
   
-  return image; // fallback to milafcola if not found
+  // If not found, try to find by converting to proper case
+  if (!image) {
+    const properCaseName = productName
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    console.log('🔄 Trying proper case:', properCaseName);
+    image = productImageMap[properCaseName];
+  }
+  
+  console.log('🔍 Product found in map:', image ? 'YES' : 'NO');
+  console.log('📸 Returning image:', image || milafcola);
+  
+  return image || milafcola; // fallback to milafcola if not found
 };
 
 // Function to get all available product names

@@ -64,10 +64,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     try {
       setIsCartLoading(true);
       
-      // Add to Firestore (only store essential cart data)
+      // Add to Firestore (store cart data with price)
       const success = await addItemToUserCart(user.uid, {
         name: item.name,
         quantity: item.quantity,
+        price: item.price,
         payment: false
       });
 
@@ -254,12 +255,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   }, [user]);
 
-  // Update prices when cart items change
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      updateCartPrices();
-    }
-  }, [cartItems.length]); // Only run when items are added/removed, not on every price update
+  // Note: Removed automatic price updates to preserve cart prices
+  // Cart prices should be locked in when items are added, not updated from current product prices
 
   const value: CartContextType = {
     cartItems,

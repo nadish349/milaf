@@ -18,6 +18,7 @@ export interface CartItem {
   id: string;
   name: string;
   quantity: number;
+  price: number;
   payment: boolean;
   addedAt: any; // Firestore timestamp
 }
@@ -57,17 +58,25 @@ export const addItemToUserCart = async (userId: string, item: Omit<CartItem, 'id
       const newQuantity = currentData.quantity + item.quantity;
       console.log('📈 Updating existing item quantity from', currentData.quantity, 'to', newQuantity);
       
+      console.log('💰 Updating existing item price in Firestore:', item.price, 'type:', typeof item.price);
+      const priceToStore = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+      console.log('💰 Storing price as:', priceToStore);
       await updateDoc(doc(db, 'users', userId, 'cart', existingItem.id), {
         quantity: newQuantity,
+        price: priceToStore,
         lastUpdated: serverTimestamp()
       });
       console.log('✅ Existing item updated successfully');
     } else {
       // Add new item to cart
       console.log('➕ Adding new item to cart');
+      console.log('💰 Storing price in Firestore:', item.price, 'type:', typeof item.price);
+      const priceToStore = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+      console.log('💰 Storing price as:', priceToStore);
       const docRef = await addDoc(cartRef, {
         name: item.name,
         quantity: item.quantity,
+        price: priceToStore,
         payment: false,
         addedAt: serverTimestamp(),
         lastUpdated: serverTimestamp()
@@ -159,10 +168,14 @@ export const getUserCart = async (userId: string): Promise<CartItem[]> => {
     cartSnap.forEach((doc) => {
       const data = doc.data();
       console.log('📄 Processing cart item:', doc.id, data);
+      console.log('💰 Retrieved price from Firestore:', data.price, 'type:', typeof data.price);
+      const price = typeof data.price === 'string' ? parseFloat(data.price) : (data.price || 0);
+      console.log('💰 Converted price:', price);
       cartItems.push({
         id: doc.id,
         name: data.name,
         quantity: data.quantity,
+        price: price,
         payment: data.payment || false,
         addedAt: data.addedAt
       });
@@ -240,9 +253,16 @@ export const getUserCartWithProductDetails = async (userId: string): Promise<Car
       
       if (productData) {
         console.log('✅ Product details found:', productData);
+        console.log('💰 Price check - cartItem.price:', cartItem.price, 'type:', typeof cartItem.price, 'productData.price:', productData.price, 'type:', typeof productData.price);
+        const cartPrice = typeof cartItem.price === 'string' ? parseFloat(cartItem.price) : cartItem.price;
+        const productPrice = typeof productData.price === 'string' ? parseFloat(productData.price) : productData.price;
+        const finalPrice = cartPrice > 0 ? cartPrice : productPrice;
+        console.log('💰 Final price selected:', finalPrice);
+        console.log('🔍 Debug - cartPrice > 0 check:', cartPrice > 0, 'cartPrice:', cartPrice, 'productPrice:', productPrice);
+        
         cartItemsWithDetails.push({
           ...cartItem,
-          price: productData.price,
+          price: finalPrice, // Use cart price if > 0, otherwise use current product price
           category: productData.category,
           description: productData.description,
           image: '' // Will be handled by getProductImage utility

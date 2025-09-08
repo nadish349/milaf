@@ -15,7 +15,6 @@ const Payment = lazy(() => import("./pages/Payment").then(module => ({ default: 
 const MyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
 const BusinessInquiry = lazy(() => import("./pages/BusinessInquiry").then(module => ({ default: module.BusinessInquiry })));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout").then(module => ({ default: module.AdminLayout })));
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard").then(module => ({ default: module.AdminDashboard })));
 const AdminOrders = lazy(() => import("./pages/admin/AdminOrders").then(module => ({ default: module.AdminOrders })));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts").then(module => ({ default: module.AdminProducts })));
 const AdminInquiries = lazy(() => import("./pages/admin/AdminInquiries").then(module => ({ default: module.AdminInquiries })));
@@ -29,7 +28,6 @@ const MobilePayment = lazy(() => import("./mobilepages/Payment").then(module => 
 const MobileMyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
 const MobileBusinessInquiry = lazy(() => import("./mobilepages/BusinessInquiry").then(module => ({ default: module.BusinessInquiry })));
 const MobileAdminLayout = lazy(() => import("./mobilepages/admin/AdminLayout").then(module => ({ default: module.AdminLayout })));
-const MobileAdminDashboard = lazy(() => import("./mobilepages/admin/AdminDashboard").then(module => ({ default: module.AdminDashboard })));
 const MobileAdminOrders = lazy(() => import("./mobilepages/admin/AdminOrders").then(module => ({ default: module.AdminOrders })));
 const MobileAdminProducts = lazy(() => import("./mobilepages/admin/AdminProducts").then(module => ({ default: module.AdminProducts })));
 const MobileAdminInquiries = lazy(() => import("./mobilepages/admin/AdminInquiries").then(module => ({ default: module.AdminInquiries })));
@@ -62,7 +60,7 @@ const MobileRoutes = () => (
       
       {/* Admin Routes */}
       <Route path="/admin" element={<MobileAdminLayout />}>
-        <Route index element={<MobileAdminDashboard />} />
+        <Route index element={<MobileAdminProducts />} />
         <Route path="orders" element={<MobileAdminOrders />} />
         <Route path="products" element={<MobileAdminProducts />} />
         <Route path="inquiries" element={<MobileAdminInquiries />} />
@@ -86,7 +84,7 @@ const DesktopRoutes = () => (
       
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
+        <Route index element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="inquiries" element={<AdminInquiries />} />

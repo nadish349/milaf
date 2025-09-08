@@ -10,6 +10,8 @@ import { useCart } from "@/contexts/CartContext";
 import { Notification } from "./Notification";
 import { BulkOrderPopup } from "./BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
+import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
+import { getProductImage } from "@/utils/productImages";
 
 interface BulkOrderProps {
   onGradientChange?: (gradient: string) => void;
@@ -21,30 +23,27 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [quantity, setQuantity] = useState(1);
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  // Hide scrollbar for the product carousel
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-    `;
-    document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
+  // Helper function to get gradient for product
+  const getGradientForProduct = (productName: string): string => {
+    const gradients: { [key: string]: string } = {
+      "Milaf Cola": "linear-gradient(135deg, #BF7E3E, #D4A574)",
+      "Choco Spread": "linear-gradient(135deg, #743002, #7C3C16)",
+      "Date Spread": "linear-gradient(135deg, #CE8437, #FBDCA4)",
+      "Khalas Dates": "linear-gradient(135deg, #98371F, #A94733)",
+      "Safawi Dates": "linear-gradient(135deg, #D69150, #B66325)",
+      "Segai Dates": "linear-gradient(135deg, #722E17, #D8582C)"
     };
-  }, []);
+    return gradients[productName] || "linear-gradient(135deg, #666, #999)";
+  };
 
-  const products = [
+  // Default products fallback
+  const getDefaultProducts = () => [
     {
       id: 0,
       name: "milaf cola",
@@ -53,8 +52,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       description: "Milaf Cola, crafted in Saudi Arabia, enriched with Ajwa dates, zero sugar, bold refreshing taste.",
       backgroundImage: milafframe,
       textColor: "#BF7E3E",
-      price: 4.99,
-      gradient: "linear-gradient(135deg, #66A992, #FFFFFF)"
+      price: 4.99
     },
     {
       id: 1,
@@ -102,6 +100,63 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       price: 4.99
     }
   ];
+
+  // Load products from database
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const firestoreProducts = await fetchAllProductsFromFirestore();
+        
+        if (firestoreProducts.length > 0) {
+          // Use products from Firestore (backend) with proper formatting
+          const formattedProducts = firestoreProducts.map((product, index) => ({
+            id: index,
+            name: product.name.toLowerCase(),
+            displayName: product.name.toUpperCase().split(' '),
+            image: getProductImage(product.name),
+            description: product.description,
+            backgroundImage: product.name.toLowerCase() === 'milaf cola' ? milafframe : undefined,
+            textColor: product.name.toLowerCase() === 'milaf cola' ? "#BF7E3E" : undefined,
+            gradient: getGradientForProduct(product.name),
+            price: product.price,
+            category: product.category
+          }));
+          setProducts(formattedProducts);
+        } else {
+          // Fallback to default products only if no data in Firestore
+          setProducts(getDefaultProducts());
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setProducts(getDefaultProducts());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  // Hide scrollbar for the product carousel
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
 
   const currentProductData = products[currentProduct];
 

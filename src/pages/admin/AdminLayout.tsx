@@ -35,12 +35,6 @@ export const AdminLayout = (): JSX.Element => {
 
   const navigationItems = [
     {
-      name: "Dashboard",
-      path: "/admin",
-      icon: "📊",
-      description: "Overview and analytics"
-    },
-    {
       name: "Orders",
       path: "/admin/orders",
       icon: "📦",
@@ -59,12 +53,6 @@ export const AdminLayout = (): JSX.Element => {
       description: "Business inquiries",
       hasNotification: true,
       notificationCount: unreadInquiriesCount
-    },
-    {
-      name: "Analytics",
-      path: "/admin/analytics",
-      icon: "📈",
-      description: "Sales and performance data"
     }
   ];
 

@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PostalCodeAutocomplete } from "@/components/PostalCodeAutocomplete";
 import { User, Phone, MapPin, Hash, Package, Calendar, DollarSign, Edit3, Save, X } from "lucide-react";
 import { doc, updateDoc, getDoc, collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db, auth } from "@/firebase";
+import { PostalCodeSuggestion } from "@/utils/postalCodeService";
 
 interface ProfilePageProps {
   isOpen: boolean;
@@ -289,19 +291,15 @@ export const ProfilePage = ({ isOpen, onClose }: ProfilePageProps) => {
                     {/* Zipcode */}
                     <div className="space-y-2">
                       <Label htmlFor="edit-zipcode">Zipcode *</Label>
-                      <div className="relative">
-                        <Hash className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="edit-zipcode"
-                          type="text"
-                          placeholder="Enter your zipcode"
-                          value={editForm.zipcode}
-                          onChange={(e) => handleInputChange("zipcode", e.target.value)}
-                          className="pl-10"
-                          disabled={!isEditing}
-                          required
-                        />
-                      </div>
+                      <PostalCodeAutocomplete
+                        value={editForm.zipcode}
+                        onChange={(value) => handleInputChange("zipcode", value)}
+                        placeholder="Enter zip code or suburb name"
+                        required
+                        onSuggestionSelect={(suggestion: PostalCodeSuggestion) => {
+                          console.log('Selected postal code:', suggestion);
+                        }}
+                      />
                     </div>
                   </div>
 
