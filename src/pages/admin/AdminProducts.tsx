@@ -67,15 +67,8 @@ export const AdminProducts = (): JSX.Element => {
         setLoading(true);
         const firestoreProducts = await fetchAllProductsFromFirestore();
         
-        if (firestoreProducts.length > 0) {
-          // Convert Firestore data to Product interface
-          const convertedProducts = firestoreProducts.map((product, index) => 
-            convertToProduct(product, index + 1)
-          );
-          setProducts(convertedProducts);
-        } else {
-          // Fallback to default products if no data in Firestore
-          const defaultProducts: Product[] = [
+        // Always use default products to show all products
+        const defaultProducts: Product[] = [
             {
               id: 1,
               name: "Milaf Cola",
@@ -150,7 +143,6 @@ export const AdminProducts = (): JSX.Element => {
             },
           ];
           setProducts(defaultProducts);
-        }
       } catch (error) {
         console.error('Error loading products:', error);
         // Set fallback products on error
