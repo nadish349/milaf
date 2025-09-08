@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 import { LoginForm } from './LoginForm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +15,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   onClose, 
   onLoginSuccess 
 }) => {
-  const [showLoginForm, setShowLoginForm] = useState(true);
   const { user } = useAuth();
   const { mergeGuestCart } = useCart();
 
@@ -34,7 +33,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">
-            {showLoginForm ? 'Sign In to Continue' : 'Create Account'}
+            Sign In
           </h2>
           <button
             onClick={onClose}
@@ -46,50 +45,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         {/* Content */}
         <div className="p-6">
-          {showLoginForm ? (
-            <div>
-              <div className="mb-6">
-                <p className="text-gray-600 text-center">
-                  You have items in your cart. Please sign in to proceed with checkout.
-                </p>
-              </div>
-              
-              <LoginForm onLoginSuccess={handleLoginSuccess} />
-              
-              <div className="mt-6 text-center">
-                <p className="text-gray-600">
-                  Don't have an account?{' '}
-                  <button
-                    onClick={() => setShowLoginForm(false)}
-                    className="text-blue-600 hover:text-blue-800 font-semibold"
-                  >
-                    Sign up here
-                  </button>
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="mb-6">
-                <p className="text-gray-600 text-center">
-                  Create an account to save your cart and proceed with checkout.
-                </p>
-              </div>
-              
-              {/* You can add a signup form here or redirect to signup */}
-              <div className="text-center">
-                <p className="text-gray-600 mb-4">
-                  Sign up functionality can be added here
-                </p>
-                <button
-                  onClick={() => setShowLoginForm(true)}
-                  className="text-blue-600 hover:text-blue-800 font-semibold"
-                >
-                  Already have an account? Sign in
-                </button>
-              </div>
-            </div>
-          )}
+          <LoginForm onLoginSuccess={handleLoginSuccess} />
         </div>
       </div>
     </div>
