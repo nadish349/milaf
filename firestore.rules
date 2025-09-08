@@ -22,6 +22,11 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
     
+    // Products collection - allow admin access for product management
+    match /products/{productId} {
+      allow read, write: if true;
+    }
+    
     // Block access to all other collections by default
     match /{document=**} {
       allow read, write: if false;
