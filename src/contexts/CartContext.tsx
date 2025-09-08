@@ -16,6 +16,8 @@ export interface CartItem {
   price: number;
   quantity: number;
   payment: boolean;
+  category?: string;
+  description?: string;
   gradient?: string;
 }
 
