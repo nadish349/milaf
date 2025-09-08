@@ -261,6 +261,18 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
     };
   }, [hasInitialized]);
 
+  // Don't render main content if no current product data (after all hooks)
+  if (!currentProductData) {
+    return (
+      <section id="product-detail-section" className="product-detail-section relative min-h-screen w-full overflow-hidden snap-start snap-always flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Loading products...</p>
+        </div>
+      </section>
+    );
+  }
+
   // Show loading state while products are being fetched
   if (loading) {
     return (

@@ -230,6 +230,18 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
     setVisibleStartIndex(safeNewStartIndex);
   }, [currentProduct, products.length]);
 
+  // Don't render main content if no current product data (after all hooks)
+  if (!currentProductData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show loading state while products are being fetched
   if (loading) {
     return (
