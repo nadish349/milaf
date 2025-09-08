@@ -8,10 +8,17 @@ import { Header } from "@/mobilecomponents/Header";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { getProductImage } from "@/utils/productImages";
+import group5 from "@/assets/Group5.png";
 
 export const Cart = (): JSX.Element => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCart();
   const navigate = useNavigate();
+
+  // Function to get the correct cart image (same logic as ProductDetail)
+  const getCartImage = (productName: string): string => {
+    const isMilafCola = productName === "Milaf Cola";
+    return isMilafCola ? group5 : getProductImage(productName);
+  };
 
   // Mock ordered items data - in a real app this would come from a database or context
   const orderedItems = [
@@ -120,11 +127,10 @@ export const Cart = (): JSX.Element => {
                         >
                           {/* Product Image */}
                           <div 
-                            className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 mr-4"
-                            style={{ background: item.gradient || 'linear-gradient(135deg, #666, #999)' }}
+                            className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 mr-4 bg-white"
                           >
                             <img
-                              src={getProductImage(item.name)}
+                              src={getCartImage(item.name)}
                               alt={item.name}
                               className="w-full h-full object-contain p-1"
                               onLoad={() => console.log('🖼️ Mobile cart image loaded for:', item.name)}
@@ -218,7 +224,7 @@ export const Cart = (): JSX.Element => {
                           {/* Product Image */}
                           <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 mr-3">
                             <img
-                              src={getProductImage(item.name)}
+                              src={getCartImage(item.name)}
                               alt={item.name}
                               className="w-full h-full object-contain p-1"
                               onLoad={() => console.log('🖼️ Mobile cart image loaded for:', item.name)}
