@@ -7,6 +7,7 @@ import m1 from "@/assets/m1.png";
 import { Header } from "@/mobilecomponents/Header";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
+import { getProductImage } from "@/utils/productImages";
 
 export const Cart = (): JSX.Element => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCart();
@@ -123,7 +124,7 @@ export const Cart = (): JSX.Element => {
                             style={{ background: item.gradient || 'linear-gradient(135deg, #666, #999)' }}
                           >
                             <img
-                              src={item.image}
+                              src={getProductImage(item.name)}
                               alt={item.name}
                               className="w-full h-full object-contain p-1"
                             />
@@ -215,7 +216,7 @@ export const Cart = (): JSX.Element => {
                           {/* Product Image */}
                           <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 mr-3">
                             <img
-                              src={item.image}
+                              src={getProductImage(item.name)}
                               alt={item.name}
                               className="w-full h-full object-contain p-1"
                             />

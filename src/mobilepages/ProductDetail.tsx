@@ -144,9 +144,11 @@
     const handleAddToCart = () => {
       addToCart({
         name: currentProductData.name,
-        image: currentProductData.image,
         price: currentProductData.price,
         quantity: quantity,
+        payment: false,
+        category: currentProductData.category || 'General',
+        description: currentProductData.description || '',
         gradient: currentProductData.gradient
       });
       
