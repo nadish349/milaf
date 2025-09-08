@@ -42,16 +42,24 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
         
         if (firestoreProducts.length > 0) {
           // Convert Firestore products to display format
-          const displayProducts = firestoreProducts.map((product, index) => ({
-            id: index,
-            name: product.name.toLowerCase(),
-            displayName: product.name.split(' ').map(word => word.toUpperCase()),
-            image: getProductImage(product.name),
-            description: product.description,
-            price: product.price,
-            category: product.category,
-            gradient: getGradientForProduct(product.name)
-          }));
+          const displayProducts = firestoreProducts.map((product, index) => {
+            const isMilafCola = product.name === "Milaf Cola";
+            return {
+              id: index,
+              name: product.name.toLowerCase(),
+              displayName: product.name.split(' ').map(word => word.toUpperCase()),
+              image: isMilafCola ? group5 : getProductImage(product.name), // Use original group5 for Milaf Cola
+              description: product.description,
+              price: product.price,
+              category: product.category,
+              gradient: getGradientForProduct(product.name),
+              // Special properties for Milaf Cola
+              ...(isMilafCola && {
+                backgroundImage: milafframe,
+                textColor: "#BF7E3E"
+              })
+            };
+          });
           
           setProducts(displayProducts);
         } else {
