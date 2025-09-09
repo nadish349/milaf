@@ -58,7 +58,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       description: "Milaf Cola, crafted in Saudi Arabia, enriched with Ajwa dates, zero sugar, bold refreshing taste.",
       backgroundImage: milafframe,
       textColor: "#BF7E3E",
-      price: 4.99
+      price: 99.80 // Case price for 20 units
     },
     {
       id: 1,
@@ -67,7 +67,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       image: chocospread,
       description: "Rich and creamy chocolate spread, made with premium cocoa and natural ingredients for the perfect indulgence.",
       gradient: "linear-gradient(135deg, #743002, #7C3C16)",
-      price: 3.99
+      price: 167.76 // Case price for 24 units
     },
     {
       id: 2,
@@ -76,7 +76,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       image: datespread,
       description: "Natural and nutritious date spread, made from premium Ajwa dates, rich in fiber and natural sweetness.",
       gradient: "linear-gradient(135deg, #CE8437, #FBDCA4)",
-      price: 2.99
+      price: 159.80 // Case price for 20 units
     },
     {
       id: 3,
@@ -85,7 +85,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       image: khalasdates,
       description: "Classic Khalas dates with caramel-like sweetness and a smooth bite.",
       gradient: "linear-gradient(135deg, #98371F, #A94733)",
-      price: 5.99
+      price: 299.70 // Case price for 30 units
     },
     {
       id: 4,
@@ -94,7 +94,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       image: safawidates,
       description: "Premium Safawi dates known for their rich flavor and soft texture.",
       gradient: "linear-gradient(135deg, #D69150, #B66325)",
-      price: 5.99
+      price: 224.75 // Case price for 25 units
     },
     {
       id: 5,
@@ -103,7 +103,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       image: segaidates,
       description: "Segai dates featuring a delightful blend of firm and soft textures with a balanced sweetness.",
       gradient: "linear-gradient(135deg, #722E17, #D8582C)",
-      price: 4.99
+      price: 274.75 // Case price for 25 units
     }
   ];
 
@@ -125,7 +125,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
             backgroundImage: product.name.toLowerCase() === 'milaf cola' ? milafframe : undefined,
             textColor: product.name.toLowerCase() === 'milaf cola' ? "#BF7E3E" : undefined,
             gradient: getGradientForProduct(product.name),
-            price: product.price,
+            price: product.casePrice || product.price, // Use case price for bulk orders
             category: product.category
           }));
           setProducts(formattedProducts);

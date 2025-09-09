@@ -4,6 +4,7 @@ import { db } from '@/firebase';
 export interface ProductData {
   name: string;
   price: number;
+  casePrice: number;
   casesInStock: number;
   casesPerCase: number;
   totalUnits: number;

@@ -14,6 +14,7 @@ interface Product {
   name: string;
   image: string;
   price: number;
+  casePrice: number;
   casesInStock: number;
   casesPerCase: number;
   totalUnits: number;
@@ -51,6 +52,7 @@ export const AdminProducts = (): JSX.Element => {
       name: firestoreData.name,
       image: productImages[firestoreData.name] || milafcola, // fallback image
       price: firestoreData.price,
+      casePrice: firestoreData.casePrice || 0,
       casesInStock: firestoreData.casesInStock,
       casesPerCase: firestoreData.casesPerCase,
       totalUnits: firestoreData.totalUnits,
@@ -81,6 +83,7 @@ export const AdminProducts = (): JSX.Element => {
                 name: "Milaf Cola",
                 image: milafcola,
                 price: 4.99,
+                casePrice: 99.80,
                 casesInStock: 150,
                 casesPerCase: 20,
                 totalUnits: 3000,
@@ -93,6 +96,7 @@ export const AdminProducts = (): JSX.Element => {
                 name: "Choco Spread",
                 image: chocospread,
                 price: 6.99,
+                casePrice: 167.76,
                 casesInStock: 75,
                 casesPerCase: 24,
                 totalUnits: 1800,
@@ -105,6 +109,7 @@ export const AdminProducts = (): JSX.Element => {
                 name: "Date Spread",
                 image: datespread,
                 price: 7.99,
+                casePrice: 159.80,
                 casesInStock: 200,
                 casesPerCase: 20,
                 totalUnits: 4000,
@@ -117,6 +122,7 @@ export const AdminProducts = (): JSX.Element => {
                 name: "Safawi Dates",
                 image: safawidates,
                 price: 8.99,
+                casePrice: 224.75,
                 casesInStock: 0,
                 casesPerCase: 25,
                 totalUnits: 0,
@@ -129,6 +135,7 @@ export const AdminProducts = (): JSX.Element => {
                 name: "Khalas Dates",
                 image: khalasdates,
                 price: 9.99,
+                casePrice: 299.70,
                 casesInStock: 120,
                 casesPerCase: 30,
                 totalUnits: 3600,
@@ -141,6 +148,7 @@ export const AdminProducts = (): JSX.Element => {
                 name: "Segai Dates",
                 image: segaidates,
                 price: 10.99,
+                casePrice: 274.75,
                 casesInStock: 80,
                 casesPerCase: 25,
                 totalUnits: 2000,
@@ -422,7 +430,7 @@ export const AdminProducts = (): JSX.Element => {
               
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Price:</span>
+                  <span className="text-gray-600">Price (per unit):</span>
                   {editingProduct?.id === product.id ? (
                     <input
                       type="number"
@@ -437,6 +445,24 @@ export const AdminProducts = (): JSX.Element => {
                     />
                   ) : (
                     <span className="font-semibold">${product.price}</span>
+                  )}
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Case Price:</span>
+                  {editingProduct?.id === product.id ? (
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editingProduct.casePrice}
+                      onChange={(e) => setEditingProduct({
+                        ...editingProduct,
+                        casePrice: parseFloat(e.target.value) || 0
+                      })}
+                      className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <span className="font-semibold">${product.casePrice}</span>
                   )}
                 </div>
                 <div className="flex justify-between text-sm">
