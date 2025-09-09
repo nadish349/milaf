@@ -215,10 +215,10 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   };
 
   useEffect(() => {
-    if (onGradientChange && currentProductData.gradient) {
+    if (onGradientChange && currentProductData?.gradient) {
       onGradientChange(currentProductData.gradient);
     }
-  }, [currentProduct, onGradientChange, currentProductData.gradient]);
+  }, [currentProduct, onGradientChange, currentProductData?.gradient]);
 
   useEffect(() => {
     if (selectedProductId !== undefined) {
