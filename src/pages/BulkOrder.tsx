@@ -32,6 +32,21 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Show bulk order popup after 2 seconds when page loads - only once per session
+  useEffect(() => {
+    const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
+    
+    if (!hasShownPopup) {
+      const timer = setTimeout(() => {
+        setShowBulkOrderPopup(true);
+        // Mark as shown in localStorage
+        localStorage.setItem('bulkOrderPopupShown', 'true');
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const { addToCart } = useCart();
   const navigate = useNavigate();
 

@@ -16,9 +16,10 @@ import { getProductImage } from "@/utils/productImages";
 interface ProductDetailProps {
   onGradientChange?: (gradient: string) => void;
   selectedProductId?: number;
+  showBulkOrderPopup?: boolean; // Control whether to show the automatic popup
 }
 
-export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDetailProps): JSX.Element => {
+export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrderPopup: enablePopup = true }: ProductDetailProps): JSX.Element => {
   
   const [currentProduct, setCurrentProduct] = useState(selectedProductId || 0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -72,7 +73,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
 
   // Show bulk order popup after 2 seconds when page becomes visible - only once per session
   useEffect(() => {
-    if (isVisible && hasInitialized) {
+    if (isVisible && hasInitialized && enablePopup) {
       // Check if popup has already been shown in this session
       const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
       
@@ -86,7 +87,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
         return () => clearTimeout(timer);
       }
     }
-  }, [isVisible, hasInitialized]);
+  }, [isVisible, hasInitialized, enablePopup]);
 
   // Listen for product change events from footer
   useEffect(() => {
