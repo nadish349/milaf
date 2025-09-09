@@ -146,17 +146,25 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
   useEffect(() => {
     // Only show popup if enabled and not already shown in this session
     if (enablePopup) {
+      // Clear localStorage for testing - remove this line after testing
+      localStorage.removeItem('bulkOrderPopupShown');
+      
       const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
       
       if (!hasShownPopup) {
         const timer = setTimeout(() => {
+          console.log('🎉 Showing bulk order popup!');
           setShowBulkOrderPopup(true);
           // Mark as shown in localStorage
           localStorage.setItem('bulkOrderPopupShown', 'true');
         }, 2000);
 
         return () => clearTimeout(timer);
+      } else {
+        console.log('🚫 Popup already shown in this session');
       }
+    } else {
+      console.log('🚫 Popup disabled for this component');
     }
   }, [enablePopup]);
 
@@ -442,6 +450,18 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
         isVisible={showBulkOrderPopup}
         onClose={() => setShowBulkOrderPopup(false)}
       />
+      
+      {/* Temporary test button - remove after testing */}
+      <button
+        onClick={() => {
+          console.log('🧪 Test button clicked - showing popup');
+          setShowBulkOrderPopup(true);
+        }}
+        className="fixed bottom-4 right-4 bg-red-500 text-white p-2 rounded-full z-50"
+        style={{ zIndex: 10000 }}
+      >
+        Test Popup
+      </button>
     </section>
   );
 };

@@ -23,6 +23,7 @@ export const BulkOrderPopup: React.FC<BulkOrderPopupProps> = ({ isVisible, onClo
 
   useEffect(() => {
     if (isVisible) {
+      console.log('🎊 BulkOrderPopup is now visible!');
       setIsAnimating(true);
       // Generate confetti items
       const confettiItems: ConfettiItem[] = Array.from({ length: 20 }, (_, i) => ({
@@ -41,7 +42,7 @@ export const BulkOrderPopup: React.FC<BulkOrderPopupProps> = ({ isVisible, onClo
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
