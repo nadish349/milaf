@@ -18,9 +18,6 @@ export const productImageMap: { [key: string]: string } = {
 
 // Function to get product image by name
 export const getProductImage = (productName: string): string => {
-  console.log('🖼️ getProductImage called with:', productName);
-  console.log('🗺️ Available product names:', Object.keys(productImageMap));
-  
   // Try exact match first
   let image = productImageMap[productName];
   
@@ -31,12 +28,8 @@ export const getProductImage = (productName: string): string => {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
     
-    console.log('🔄 Trying proper case:', properCaseName);
     image = productImageMap[properCaseName];
   }
-  
-  console.log('🔍 Product found in map:', image ? 'YES' : 'NO');
-  console.log('📸 Returning image:', image || milafcola);
   
   return image || milafcola; // fallback to milafcola if not found
 };
