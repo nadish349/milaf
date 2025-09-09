@@ -25,10 +25,6 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [quantity, setQuantity] = useState(1);
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
-  const [products, setProducts] = useState<any[]>(getDefaultProducts());
-  const [loading, setLoading] = useState(false);
-
-
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -103,6 +99,9 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       price: 274.75 // Case price for 25 units
     }
   ];
+
+  const [products, setProducts] = useState<any[]>(getDefaultProducts());
+  const [loading, setLoading] = useState(false);
 
   // Load products from database in background (non-blocking)
   useEffect(() => {
