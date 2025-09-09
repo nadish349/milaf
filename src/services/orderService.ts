@@ -14,6 +14,7 @@ import { db } from '@/firebase';
 export interface OrderItem {
   name: string;
   quantity: number;
+  cases?: number; // Optional cases field for bulk orders
   price: number;
   image?: string;
 }
