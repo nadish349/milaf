@@ -86,7 +86,7 @@ const Index = () => {
         <Page3Section />
         <Page4Section />
         <ProductInfo onProductSelect={setSelectedProductId} />
-        <ProductDetail selectedProductId={selectedProductId} />
+        <ProductDetail selectedProductId={selectedProductId} showBulkOrderPopup={true} />
         <CompanyInfoSection />
         <Footer />
       </div>

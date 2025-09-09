@@ -84,7 +84,7 @@ const Index = () => {
         <HeroProductsSection onGradientChange={setHeroGradient} />
         <Page4Section />
         <ProductInfo onProductSelect={setSelectedProductId} />
-        <ProductDetail selectedProductId={selectedProductId} showBulkOrderPopup={false} />
+        <ProductDetail selectedProductId={selectedProductId} showBulkOrderPopup={true} />
         <Page2Section />
         <Page3Section />
         <CompanyInfoSection />
