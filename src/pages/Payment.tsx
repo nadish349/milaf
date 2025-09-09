@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { MilafPaymentForm } from "../components/MilafPaymentForm";
 import { AddressAutocomplete } from "../components/AddressAutocomplete";
+import { useCart } from "@/contexts/CartContext";
+import { getProductImage } from "@/utils/productImages";
 import m1 from "@/assets/m1.png";
 import { auth, db } from "@/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -26,6 +28,7 @@ interface UserData {
 }
 
 export const Payment = (): JSX.Element => {
+  const { cartItems, getTotalPrice, getTotalItems } = useCart();
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string>("");
   const [billingInfo, setBillingInfo] = useState({
     companyName: "",
@@ -485,6 +488,20 @@ export const Payment = (): JSX.Element => {
                   <p>3/85 Alfred Street</p>
                   <p>Chipping Norton 2170 NSW Australia</p>
                 </div>
+              </div>
+
+              {/* Order Summary */}
+              <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">Order Summary</h3>
+                
+                {cartItems.length === 0 ? (
+                  <p className="text-xs text-gray-500">No items in cart</p>
+                ) : (
+                  <div className="flex justify-between text-lg font-bold text-gray-800">
+                    <span>Total</span>
+                    <span>${getTotalPrice().toFixed(2)}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

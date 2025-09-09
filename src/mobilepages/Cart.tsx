@@ -1,8 +1,4 @@
-import React from "react";
-import titledcolacandesign4 from "@/assets/titledcolacandesign4.png";
-import chocospread from "@/assets/chocospread.png";
-import datespread from "@/assets/datespread.png";
-import safawidates from "@/assets/safawidates.png";
+import React, { useState, useEffect } from "react";
 import m1 from "@/assets/m1.png";
 import { Header } from "@/mobilecomponents/Header";
 import { useCart } from "@/contexts/CartContext";
@@ -10,17 +6,18 @@ import { useNavigate } from "react-router-dom";
 import { getProductImage } from "@/utils/productImages";
 import group5 from "@/assets/Group5.png";
 import { LoginForm } from "@/components/LoginForm";
-import { useState } from "react";
+import { getUserOrders, OrderWithId } from "@/services/orderService";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Cart = (): JSX.Element => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart, loadUserCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [orderedItems, setOrderedItems] = useState<OrderWithId[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
 
-  // Debug logging
-  console.log('🛒 Mobile Cart component - cartItems:', cartItems);
-  console.log('💰 Mobile Cart component - getTotalPrice():', getTotalPrice());
-  console.log('👤 Mobile Cart component - isGuest:', isGuest);
+  // Debug logging removed for production
 
   // Function to get the correct cart image (same logic as ProductDetail)
   const getCartImage = (productName: string): string => {
@@ -28,36 +25,28 @@ export const Cart = (): JSX.Element => {
     return isMilafCola ? group5 : getProductImage(productName);
   };
 
-  // Mock ordered items data - in a real app this would come from a database or context
-  const orderedItems = [
-    {
-      id: 1,
-      name: "Milaf Cola",
-      image: titledcolacandesign4,
-      quantity: 2,
-      price: 4.99,
-      orderDate: "2024-01-15",
-      status: "Delivered"
-    },
-    {
-      id: 2,
-      name: "Choco Spread",
-      image: chocospread,
-      quantity: 1,
-      price: 6.99,
-      orderDate: "2024-01-10",
-      status: "In Transit"
-    },
-    {
-      id: 3,
-      name: "Safawi Dates",
-      image: safawidates,
-      quantity: 3,
-      price: 8.99,
-      orderDate: "2024-01-05",
-      status: "Delivered"
-    }
-  ];
+  // Load user cart and orders when component mounts
+  useEffect(() => {
+    const loadCartAndOrders = async () => {
+      if (user) {
+        // Load user cart
+        await loadUserCart();
+        
+        // Load user orders
+        setIsLoadingOrders(true);
+        try {
+          const userOrders = await getUserOrders(user.uid);
+          setOrderedItems(userOrders);
+        } catch (error) {
+          console.error('Error loading user orders:', error);
+        } finally {
+          setIsLoadingOrders(false);
+        }
+      }
+    };
+
+    loadCartAndOrders();
+  }, [user]); // Removed loadUserCart from dependencies to prevent infinite loop
 
   const handleBackToShop = () => {
     // Navigate back to the main shop page
@@ -74,8 +63,21 @@ export const Cart = (): JSX.Element => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (timestamp: any) => {
+    if (!timestamp) return 'Unknown date';
+    
+    let date;
+    if (timestamp.toDate) {
+      // Firestore timestamp
+      date = timestamp.toDate();
+    } else if (timestamp.seconds) {
+      // Firestore timestamp object
+      date = new Date(timestamp.seconds * 1000);
+    } else {
+      // Regular date string or number
+      date = new Date(timestamp);
+    }
+    
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'short', 
@@ -217,7 +219,17 @@ export const Cart = (): JSX.Element => {
                     Ordered Items
                   </h2>
                   
-                  {orderedItems.length === 0 ? (
+                  {isLoadingOrders ? (
+                    <div className="text-center py-6">
+                      <div className="text-3xl mb-2">⏳</div>
+                      <h3 className="text-lg font-semibold text-gray-600 mb-1">
+                        Loading orders...
+                      </h3>
+                      <p className="text-gray-500 text-sm">
+                        Please wait while we fetch your order history
+                      </p>
+                    </div>
+                  ) : orderedItems.length === 0 ? (
                     <div className="text-center py-6">
                       <div className="text-3xl mb-2">📦</div>
                       <h3 className="text-lg font-semibold text-gray-600 mb-1">
@@ -229,49 +241,66 @@ export const Cart = (): JSX.Element => {
                     </div>
                   ) : (
                     <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
-                      {orderedItems.map((item) => (
-                        <div 
-                          key={item.id}
-                          className="flex items-center p-3 rounded-xl border border-gray-100 hover:shadow-md transition-all duration-300"
-                        >
-                          {/* Product Image */}
-                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 mr-3">
-                            <img
-                              src={getCartImage(item.name)}
-                              alt={item.name}
-                              className="w-full h-full object-contain p-1"
-                              onLoad={() => console.log('🖼️ Mobile cart image loaded for:', item.name)}
-                              onError={() => console.log('❌ Mobile cart image failed to load for:', item.name)}
-                            />
-                          </div>
-
-                          {/* Product Info */}
-                          <div className="flex-1">
-                            <h3 className="text-base font-semibold text-gray-800 mb-1">
-                              {item.name}
-                            </h3>
-                            <div className="flex items-center space-x-4 text-sm">
-                              <span className="text-gray-600">
-                                Qty: {item.quantity}
-                              </span>
-                              <span className="text-green-600 font-semibold">
-                                ${(item.price * item.quantity).toFixed(2)}
-                              </span>
+                      {orderedItems.map((order) => (
+                        <div key={order.id} className="space-y-2">
+                          {/* Order Header */}
+                          <div className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <div className="text-sm font-semibold text-gray-700">
+                              Order #{order.id.slice(-8)}
                             </div>
-                          </div>
-
-                          {/* Order Date and Status */}
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-gray-600 mb-1">
-                              {formatDate(item.orderDate)}
-                            </p>
+                            <div className="text-sm text-gray-600">
+                              {formatDate(order.orderDate)}
+                            </div>
                             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                              item.status === 'Delivered' 
+                              order.status === 'delivered' 
                                 ? 'bg-green-100 text-green-800' 
+                                : order.status === 'cancelled'
+                                ? 'bg-red-100 text-red-800'
                                 : 'bg-blue-100 text-blue-800'
                             }`}>
-                              {item.status}
+                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                             </span>
+                          </div>
+                          
+                          {/* Order Items */}
+                          <div className="space-y-2">
+                            {order.items.map((item, index) => (
+                              <div 
+                                key={`${order.id}-${index}`}
+                                className="flex items-center p-2 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-300"
+                              >
+                                {/* Product Image */}
+                                <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 mr-3">
+                                  <img
+                                    src={getCartImage(item.name)}
+                                    alt={item.name}
+                                    className="w-full h-full object-contain p-1"
+                                    onLoad={() => {}}
+                                    onError={() => {}}
+                                  />
+                                </div>
+
+                                {/* Product Info */}
+                                <div className="flex-1">
+                                  <h4 className="text-sm font-semibold text-gray-800">
+                                    {item.name}
+                                  </h4>
+                                  <div className="flex items-center space-x-3 text-xs">
+                                    <span className="text-gray-600">
+                                      Qty: {item.quantity}
+                                    </span>
+                                    <span className="text-green-600 font-semibold">
+                                      ${(item.price * item.quantity).toFixed(2)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Order Total */}
+                          <div className="text-right text-sm font-semibold text-gray-800 border-t pt-2">
+                            Total: ${order.totalAmount.toFixed(2)}
                           </div>
                         </div>
                       ))}
@@ -294,16 +323,17 @@ export const Cart = (): JSX.Element => {
                     </div>
                     <div className="flex justify-between text-base">
                       <span className="text-gray-600">Shipping</span>
-                      <span className="font-semibold text-green-600">Free</span>
-                    </div>
-                    <div className="flex justify-between text-base">
-                      <span className="text-gray-600">Tax</span>
-                      <span className="font-semibold">${(getTotalPrice() * 0.15).toFixed(2)}</span>
+                      <span 
+                        className="text-gray-600 cursor-pointer hover:text-gray-800 underline"
+                        onClick={handleProceedToCheckout}
+                      >
+                        SELECT LOCATION
+                      </span>
                     </div>
                     <div className="border-t border-gray-200 pt-3">
                       <div className="flex justify-between text-xl font-bold text-gray-800">
-                        <span>Total</span>
-                        <span>${(getTotalPrice() * 1.15).toFixed(2)}</span>
+                        <span>Total Amount</span>
+                        <span>${getTotalPrice().toFixed(2)} <span className="text-base text-gray-600 font-normal">+ SHIPPING CHARGE</span></span>
                       </div>
                     </div>
                   </div>

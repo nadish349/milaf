@@ -70,11 +70,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const { user } = useAuth();
 
   const addToCart = async (item: Omit<CartItem, 'id'>) => {
-    console.log('🛒 addToCart called with item:', item);
-    console.log('👤 Current user:', user);
-    
     if (!user) {
-      console.log('👤 Guest user - adding to localStorage cart');
       // Add to guest cart (localStorage)
       addToGuestCart(item);
       loadGuestCart();
@@ -83,7 +79,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setIsCartLoading(true);
-      console.log('🔄 Adding item to Firestore for user:', user.uid);
       
       // Add to Firestore (store cart data with price)
       const success = await addItemToUserCart(user.uid, {
@@ -93,8 +88,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         payment: false
       });
 
-      console.log('✅ Firestore add result:', success);
-
       if (success) {
         // Update local state
         setCartItems(prev => {
@@ -102,7 +95,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           
           if (existingItem) {
             // If item already exists, increase quantity
-            console.log('📈 Updating existing item quantity');
             return prev.map(cartItem =>
               cartItem.name === item.name
                 ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
@@ -110,7 +102,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             );
           } else {
             // If item doesn't exist, add new item with unique ID
-            console.log('➕ Adding new item to local cart');
             const newItem: CartItem = {
               ...item,
               id: Date.now() // Simple unique ID generation
@@ -118,11 +109,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             return [...prev, newItem];
           }
         });
-      } else {
-        console.error('❌ Failed to add item to Firestore');
       }
     } catch (error) {
-      console.error('❌ Error adding item to cart:', error);
+      console.error('Error adding item to cart:', error);
     } finally {
       setIsCartLoading(false);
     }
@@ -146,7 +135,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const removeFromCart = async (id: number) => {
     if (!user) {
-      console.log('👤 Guest user - removing from localStorage cart');
       // For guest users, we need to find the item by name since we don't have the original ID
       const itemToRemove = cartItems.find(item => item.id === id);
       if (itemToRemove) {
@@ -182,7 +170,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const updateQuantity = async (id: number, quantity: number) => {
     if (!user) {
-      console.log('👤 Guest user - updating quantity in localStorage cart');
       // For guest users, we need to find the item by name
       const itemToUpdate = cartItems.find(item => item.id === id);
       if (itemToUpdate) {
@@ -233,7 +220,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const clearCart = async () => {
     if (!user) {
-      console.log('👤 Guest user - clearing localStorage cart');
       clearGuestCart();
       setCartItems([]);
       return;
@@ -257,21 +243,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const loadUserCart = async () => {
-    console.log('🔄 loadUserCart called');
-    console.log('👤 Current user:', user);
-    
     if (!user) {
-      console.warn('❌ User not authenticated, cannot load cart');
       return;
     }
 
     try {
       setIsCartLoading(true);
-      console.log('🔄 Loading cart with product details from Firestore for user:', user.uid);
       
       // Load from Firestore with current product details
       const cartItemsWithDetails = await getUserCartWithProductDetails(user.uid);
-      console.log('📦 Cart items with product details:', cartItemsWithDetails);
       
       // Convert to local format
       const localCartItems: CartItem[] = cartItemsWithDetails.map((item, index) => ({
@@ -285,10 +265,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         gradient: undefined // Add gradient if needed
       }));
 
-      console.log('🛒 Converted local cart items:', localCartItems);
       setCartItems(localCartItems);
     } catch (error) {
-      console.error('❌ Error loading user cart:', error);
+      console.error('Error loading user cart:', error);
     } finally {
       setIsCartLoading(false);
     }
@@ -321,8 +300,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     
     const guestCartItems = getGuestCart();
     if (guestCartItems.length > 0) {
-      console.log('🔄 Merging guest cart with user cart:', guestCartItems);
-      
       // Add each guest cart item to user's Firestore cart
       for (const guestItem of guestCartItems) {
         await addItemToUserCart(user.uid, {
