@@ -156,6 +156,8 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const currentProductData = products[currentProduct];
 
   const handleAddToCart = () => {
+    if (!currentProductData) return;
+    
     addToCart({
       name: currentProductData.name,
       image: currentProductData.image,
@@ -172,10 +174,10 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   };
 
   useEffect(() => {
-    if (onGradientChange && currentProductData.gradient) {
+    if (onGradientChange && currentProductData?.gradient) {
       onGradientChange(currentProductData.gradient);
     }
-  }, [currentProduct, onGradientChange, currentProductData.gradient]);
+  }, [currentProduct, onGradientChange, currentProductData?.gradient]);
 
   // Update currentProduct when selectedProductId changes
   useEffect(() => {
@@ -185,6 +187,20 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   }, [selectedProductId]);
 
 
+
+      // Guard clause to prevent rendering when currentProductData is undefined
+      if (!currentProductData) {
+        return (
+          <section className="bulk-order-section relative min-h-screen w-full bg-black text-white">
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-white mb-4">Loading...</h2>
+                <p className="text-gray-300">Please wait while we load the products.</p>
+              </div>
+            </div>
+          </section>
+        );
+      }
 
       return (
       <section className="bulk-order-section relative min-h-screen w-full bg-black text-white">
