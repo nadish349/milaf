@@ -40,8 +40,25 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
         setLoading(true);
         const firestoreProducts = await fetchAllProductsFromFirestore();
         
-        // Always use default products to show all products
-        setProducts(getDefaultProducts());
+        if (firestoreProducts.length > 0) {
+          // Use products from Firestore (backend) with proper formatting
+          const formattedProducts = firestoreProducts.map((product, index) => ({
+            id: index,
+            name: product.name.toLowerCase(),
+            displayName: product.name.toUpperCase().split(' '),
+            image: getProductImage(product.name),
+            description: product.description,
+            backgroundImage: product.name.toLowerCase() === 'milaf cola' ? milafframe : undefined,
+            textColor: product.name.toLowerCase() === 'milaf cola' ? "#BF7E3E" : undefined,
+            gradient: getGradientForProduct(product.name),
+            price: product.price,
+            category: product.category
+          }));
+          setProducts(formattedProducts);
+        } else {
+          // Fallback to default products only if no data in Firestore
+          setProducts(getDefaultProducts());
+        }
       } catch (error) {
         console.error('Error loading products:', error);
         setProducts(getDefaultProducts());

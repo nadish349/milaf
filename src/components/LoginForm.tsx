@@ -19,9 +19,10 @@ import { ProfileForm } from "./ProfileForm";
 interface LoginFormProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess?: () => void;
 }
 
-export const LoginForm = ({ isOpen, onClose }: LoginFormProps) => {
+export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) => {
   const [activeTab, setActiveTab] = useState("signin");
   const [formData, setFormData] = useState({
     email: "",
@@ -108,6 +109,7 @@ export const LoginForm = ({ isOpen, onClose }: LoginFormProps) => {
         setTimeout(() => {
           onClose();
           setSuccessMessage("");
+          onLoginSuccess?.();
           
           // Here you can add logic to redirect to user profile or dashboard
           console.log("Redirecting existing user to profile...");
@@ -158,6 +160,7 @@ export const LoginForm = ({ isOpen, onClose }: LoginFormProps) => {
       setTimeout(() => {
         onClose();
         setSuccessMessage("");
+        onLoginSuccess?.();
       }, 2000);
       
     } catch (error: unknown) {
@@ -186,6 +189,7 @@ export const LoginForm = ({ isOpen, onClose }: LoginFormProps) => {
       setTimeout(() => {
         onClose();
         setSuccessMessage("");
+        onLoginSuccess?.();
       }, 2000);
       
     } catch (error: unknown) {

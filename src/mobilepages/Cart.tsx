@@ -9,11 +9,11 @@ import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { getProductImage } from "@/utils/productImages";
 import group5 from "@/assets/Group5.png";
-import { LoginModal } from "@/mobilecomponents/LoginModal";
+import { LoginForm } from "@/components/LoginForm";
 import { useState } from "react";
 
 export const Cart = (): JSX.Element => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart } = useCart();
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -343,11 +343,13 @@ export const Cart = (): JSX.Element => {
         </div>
       </div>
       
-      {/* Login Modal for Guest Users */}
-      <LoginModal 
+      {/* Login Form for Guest Users */}
+      <LoginForm 
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={() => {
+        onLoginSuccess={async () => {
+          // Merge guest cart with user cart after successful login
+          await mergeGuestCart();
           // After successful login, navigate to payment
           navigate('/payment');
         }}
