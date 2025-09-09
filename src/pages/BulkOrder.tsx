@@ -29,8 +29,8 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
   const [showEntranceAnimation, setShowEntranceAnimation] = useState(true);
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>(getDefaultProducts());
+  const [loading, setLoading] = useState(false);
 
 
   const { addToCart } = useCart();
@@ -108,11 +108,10 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
     }
   ];
 
-  // Load products from database
+  // Load products from database in background (non-blocking)
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        setLoading(true);
         const firestoreProducts = await fetchAllProductsFromFirestore();
         
         if (firestoreProducts.length > 0) {
@@ -130,15 +129,11 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
             category: product.category
           }));
           setProducts(formattedProducts);
-        } else {
-          // Fallback to default products only if no data in Firestore
-          setProducts(getDefaultProducts());
         }
+        // If no Firestore products, keep using default products (already set)
       } catch (error) {
         console.error('Error loading products:', error);
-        setProducts(getDefaultProducts());
-      } finally {
-        setLoading(false);
+        // Keep using default products on error
       }
     };
 
@@ -268,8 +263,8 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
             <Header />
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">Loading...</h2>
-                <p className="text-gray-600">Please wait while we load the products.</p>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">No products available</h2>
+                <p className="text-gray-600">Please try again later.</p>
               </div>
             </div>
           </section>
