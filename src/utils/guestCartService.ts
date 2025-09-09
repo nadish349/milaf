@@ -3,6 +3,7 @@ export interface GuestCartItem {
   name: string;
   price: number;
   quantity: number;
+  cases?: number; // Optional cases field for bulk orders
   payment: boolean;
   category?: string;
   description?: string;

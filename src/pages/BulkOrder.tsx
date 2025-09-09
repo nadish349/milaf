@@ -204,6 +204,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
       image: currentProductData.image,
       price: currentProductData.price,
       quantity: quantity,
+      cases: quantity, // For bulk orders, quantity represents cases
       gradient: currentProductData.gradient
     });
     

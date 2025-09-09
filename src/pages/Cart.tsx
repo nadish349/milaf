@@ -176,6 +176,11 @@ export const Cart = (): JSX.Element => {
                             
                             <span className="text-lg font-bold text-gray-800 min-w-[2rem] text-center">
                               {item.quantity}
+                              {item.cases && (
+                                <span className="text-xs text-gray-500 block">
+                                  ({item.cases} case{item.cases > 1 ? 's' : ''})
+                                </span>
+                              )}
                             </span>
                             
                             <button
@@ -288,6 +293,11 @@ export const Cart = (): JSX.Element => {
                                   <div className="flex items-center space-x-3 text-xs">
                                     <span className="text-gray-600">
                                       Qty: {item.quantity}
+                                      {item.cases && (
+                                        <span className="text-gray-500">
+                                          {' '}({item.cases} case{item.cases > 1 ? 's' : ''})
+                                        </span>
+                                      )}
                                     </span>
                                     <span className="text-green-600 font-semibold">
                                       ${(item.price * item.quantity).toFixed(2)}

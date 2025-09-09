@@ -18,6 +18,7 @@ export interface CartItem {
   id: string;
   name: string;
   quantity: number;
+  cases?: number; // Optional cases field for bulk orders
   price: number;
   payment: boolean;
   addedAt: any; // Firestore timestamp
@@ -56,6 +57,7 @@ export const addItemToUserCart = async (userId: string, item: Omit<CartItem, 'id
       const priceToStore = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
       await updateDoc(doc(db, 'users', userId, 'cart', existingItem.id), {
         quantity: newQuantity,
+        cases: item.cases || null,
         price: priceToStore,
         lastUpdated: serverTimestamp()
       });
@@ -65,6 +67,7 @@ export const addItemToUserCart = async (userId: string, item: Omit<CartItem, 'id
       await addDoc(cartRef, {
         name: item.name,
         quantity: item.quantity,
+        cases: item.cases || null,
         price: priceToStore,
         payment: false,
         addedAt: serverTimestamp(),
