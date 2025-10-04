@@ -21,20 +21,32 @@ export const BulkOrderPopup: React.FC<BulkOrderPopupProps> = ({ isVisible, onClo
   const navigate = useNavigate();
   const [confetti, setConfetti] = useState<ConfettiItem[]>([]);
 
+  // Debug: Log when popup visibility changes
+  React.useEffect(() => {
+    console.log('Mobile BulkOrderPopup: isVisible changed to:', isVisible);
+  }, [isVisible]);
+
   useEffect(() => {
     if (isVisible) {
-      setIsAnimating(true);
-      // Generate confetti items
-      const confettiItems: ConfettiItem[] = Array.from({ length: 20 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: -20 - Math.random() * 20,
-        rotation: Math.random() * 360,
-        color: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'][Math.floor(Math.random() * 7)],
-        emoji: ['✨', '🎉', '🎊', '🎈', '💫', '⭐', '🌟', '💎', '🎁', '🍀'][Math.floor(Math.random() * 10)],
-        animationDelay: Math.random() * 0.5
-      }));
-      setConfetti(confettiItems);
+      // Small delay to ensure smooth animation
+      const timer = setTimeout(() => {
+        setIsAnimating(true);
+        // Generate confetti items
+        const confettiItems: ConfettiItem[] = Array.from({ length: 20 }, (_, i) => ({
+          id: i,
+          x: Math.random() * 100,
+          y: -20 - Math.random() * 20,
+          rotation: Math.random() * 360,
+          color: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'][Math.floor(Math.random() * 7)],
+          emoji: ['✨', '🎉', '🎊', '🎈', '💫', '⭐', '🌟', '💎', '🎁', '🍀'][Math.floor(Math.random() * 10)],
+          animationDelay: Math.random() * 0.5
+        }));
+        setConfetti(confettiItems);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsAnimating(false);
     }
   }, [isVisible]);
 

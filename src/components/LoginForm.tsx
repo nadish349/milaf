@@ -10,10 +10,12 @@ import { Separator } from "@/components/ui/separator";
 import { Mail, User } from "lucide-react";
 import { 
   GoogleAuthProvider, 
-  signInWithPopup
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/firebase";
+import { auth, db, createUserWithEmailAndPassword as createUser, signInWithEmailAndPassword as signIn } from "@/firebase";
 import { ProfileForm } from "./ProfileForm";
 
 interface LoginFormProps {
@@ -151,21 +153,65 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
       setIsLoading(true);
       setError("");
       
-      // For now, we'll use a simple approach - you can enhance this later
-      // Since we don't have passwords, we'll just check if the user exists
-      setSuccessMessage("Sign in successful! Welcome back.");
-      setError("");
+      console.log("Starting email/password sign-in process...");
       
-      // Close modal after 2 seconds to show success message
-      setTimeout(() => {
-        onClose();
-        setSuccessMessage("");
-        onLoginSuccess?.();
-      }, 2000);
+      // Create a password using phone number for flexible authentication
+      const password = formData.phone || "default123";
+      
+      const result = await signIn(auth, formData.email, password);
+      console.log("Email/password sign-in successful, user:", result.user.uid);
+      
+      // Check if user exists in Firestore
+      const userDoc = await getDoc(doc(db, "users", result.user.uid));
+      console.log("Checking if user exists in Firestore:", userDoc.exists());
+      
+      if (userDoc.exists()) {
+        // Update last login for existing users
+        console.log("Updating last login for existing user");
+        await setDoc(doc(db, "users", result.user.uid), {
+          lastLogin: new Date(),
+          isNewUser: false
+        }, { merge: true });
+        console.log("Last login updated successfully");
+        
+        setSuccessMessage("Welcome back! Redirecting to your profile...");
+        
+        // Close modal after 3 seconds to show success message
+        setTimeout(() => {
+          onClose();
+          setSuccessMessage("");
+          onLoginSuccess?.();
+        }, 3000);
+      } else {
+        // This shouldn't happen with proper flow, but handle it gracefully
+        setError("User account not found. Please sign up first.");
+      }
       
     } catch (error: unknown) {
       console.error("Sign In error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Sign in failed";
+      let errorMessage = "Sign in failed";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("user-not-found")) {
+          errorMessage = "Account doesn't exist. Please create one using the 'Sign Up' tab.";
+          // Automatically switch to signup tab when account doesn't exist
+          setTimeout(() => {
+            setActiveTab("signup");
+            setError("");
+          }, 2000);
+        } else if (error.message.includes("wrong-password")) {
+          errorMessage = "Invalid credentials. Please check your email and phone number.";
+        } else if (error.message.includes("invalid-email")) {
+          errorMessage = "Invalid email address. Please check your email format.";
+        } else if (error.message.includes("user-disabled")) {
+          errorMessage = "This account has been disabled. Please contact support.";
+        } else if (error.message.includes("too-many-requests")) {
+          errorMessage = "Too many failed attempts. Please try again later.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -180,17 +226,44 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
       
       console.log("Starting user creation process...");
       
-      // Create user with email and phone as password (since we removed password field)
-      // For now, we'll use a simple approach - you can enhance this later
-      setSuccessMessage("Account created successfully! User data stored in database.");
-      setError("");
+      // Validate required fields
+      if (!formData.email || !formData.name || !formData.phone) {
+        setError("Please fill in all required fields.");
+        return;
+      }
       
-      // Close modal after 2 seconds to show success message
-      setTimeout(() => {
-        onClose();
-        setSuccessMessage("");
-        onLoginSuccess?.();
-      }, 2000);
+      // Create a password using phone number for flexible authentication
+      const password = formData.phone || "default123";
+      
+      // Create user with Firebase Auth
+      const result = await createUser(auth, formData.email, password);
+      console.log("User created successfully, UID:", result.user.uid);
+      
+      // Create user document in Firestore
+      const userData = {
+        uid: result.user.uid,
+        email: formData.email,
+        displayName: formData.name,
+        phone: formData.phone,
+        countryCode: formData.countryCode,
+        address: "",
+        zipcode: "",
+        createdAt: new Date(),
+        lastLogin: new Date(),
+        provider: "email",
+        isNewUser: true,
+        profileComplete: false
+      };
+      
+      console.log("Creating user document in Firestore:", userData);
+      await setDoc(doc(db, "users", result.user.uid), userData);
+      console.log("User document created successfully");
+      
+      // Show profile completion form for new users
+      setNewUserId(result.user.uid);
+      setNewUserEmail(formData.email);
+      setShowProfileForm(true);
+      onClose(); // Close the login form
       
     } catch (error: unknown) {
       console.error("Sign Up error:", error);
@@ -198,7 +271,18 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
       
       if (error instanceof Error) {
         if (error.message.includes("email-already-in-use")) {
-          errorMessage = "This email is already registered. Please use the Sign In tab instead.";
+          errorMessage = "This email is already registered. Please use the 'Sign In' tab instead.";
+          // Automatically switch to signin tab when email already exists
+          setTimeout(() => {
+            setActiveTab("signin");
+            setError("");
+          }, 2000);
+        } else if (error.message.includes("invalid-email")) {
+          errorMessage = "Invalid email address. Please check your email format.";
+        } else if (error.message.includes("weak-password")) {
+          errorMessage = "Password is too weak. Please use a stronger password.";
+        } else if (error.message.includes("operation-not-allowed")) {
+          errorMessage = "Email/password accounts are not enabled. Please contact support.";
         } else {
           errorMessage = error.message;
         }
@@ -239,6 +323,16 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
             {error && (
               <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-md text-sm">
                 {error}
+                {error.includes("Account doesn't exist") && (
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs">
+                    💡 <strong>Tip:</strong> We'll automatically switch you to the Sign Up tab in a moment!
+                  </div>
+                )}
+                {error.includes("already registered") && (
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs">
+                    💡 <strong>Tip:</strong> We'll automatically switch you to the Sign In tab in a moment!
+                  </div>
+                )}
               </div>
             )}
 
@@ -282,6 +376,9 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
 
               {/* Sign In Tab */}
               <TabsContent value="signin" className="space-y-4">
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
+                  <strong>Don't have an account?</strong> Use the "Sign Up" tab to create one, or try Google sign-in above.
+                </div>
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signin-phone">Phone Number</Label>
@@ -339,6 +436,9 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
 
               {/* Sign Up Tab */}
               <TabsContent value="signup" className="space-y-4">
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+                  <strong>New to Milaf Cola?</strong> Create your account and we'll help you complete your profile.
+                </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>

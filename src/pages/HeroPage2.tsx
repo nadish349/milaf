@@ -4,7 +4,7 @@ import dates2 from "@/assets/dates2.png";
 import dates1 from "@/assets/dates1.png";
 import dates3 from "@/assets/dates3.png";
 import cutdate4 from "@/assets/CUTDATE4.png";
-import titledcolacan from "@/assets/titledcolacan.png";
+import mfhq from "@/assets/mfhq.png";
 
 export const HeroPage2 = (): JSX.Element => {
   const [showIntroduction, setShowIntroduction] = useState(true);
@@ -125,7 +125,7 @@ export const HeroPage2 = (): JSX.Element => {
       
       {/* Tilted COLA can - x=315, y=-537, w=1131.01, h=1696.52, rotation=14.77°, reduced by 30% total, moved 4.5cm down and 0.5cm right with animation */}
       <img 
-        src={titledcolacan} 
+        src={mfhq} 
         alt="Tilted COLA can" 
         className={`absolute transition-all duration-1000 ease-out ${
           showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-32'

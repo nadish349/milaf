@@ -6,13 +6,14 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useCart } from "../contexts/CartContext";
+import { useBulkCart } from "../contexts/BulkCartContext";
 import { Notification } from "../mobilecomponents/Notification";
 import { BulkOrderPopup } from "../mobilecomponents/BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../mobilecomponents/Header";
 import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
 import { getProductImage } from "@/utils/productImages";
+import { handleBulkAddToCart } from "@/services/bulkCartPlacer";
 
 interface BulkOrderProps {
   onGradientChange?: (gradient: string) => void;
@@ -25,7 +26,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [quantity, setQuantity] = useState(1);
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart } = useBulkCart();
   const navigate = useNavigate();
 
   // Helper function to get gradient for product
@@ -151,22 +152,13 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const currentProductData = products[currentProduct];
 
   const handleAddToCart = () => {
-    if (!currentProductData) return;
-    
-    addToCart({
-      name: currentProductData.name,
-      image: currentProductData.image,
-      price: currentProductData.price,
-      quantity: quantity,
-      cases: quantity, // For bulk orders, quantity represents cases
-      gradient: currentProductData.gradient || "linear-gradient(135deg, #666, #999)"
-    });
-    
-    // Show notification
-    setShowNotification(true);
-    
-    // Reset quantity to 1 after adding to cart
-    setQuantity(1);
+    handleBulkAddToCart(
+      currentProductData,
+      quantity,
+      addToCart,
+      setShowNotification,
+      setQuantity
+    );
   };
 
   useEffect(() => {
@@ -318,6 +310,33 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
             </div>
           </div>
 
+          {/* Dimensions - Only for Milaf Cola */}
+          {currentProductData.id === 0 && (
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 mb-4">
+              <h3 className="text-sm font-semibold text-black text-center mb-2">
+                Dimensions
+              </h3>
+              <div className="grid grid-cols-2 gap-2 text-center">
+                <div>
+                  <span className="text-xs text-black/70">H:</span>
+                  <span className="text-sm font-semibold text-black ml-1">14cm</span>
+                </div>
+                <div>
+                  <span className="text-xs text-black/70">W:</span>
+                  <span className="text-sm font-semibold text-black ml-1">22cm</span>
+                </div>
+                <div>
+                  <span className="text-xs text-black/70">L:</span>
+                  <span className="text-sm font-semibold text-black ml-1">32cm</span>
+                </div>
+                <div>
+                  <span className="text-xs text-black/70">Wt:</span>
+                  <span className="text-sm font-semibold text-black ml-1">6kg</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Quantity Selector */}
           <div className="text-center mb-6">
             <label className="block text-base font-medium mb-3 text-black">
@@ -353,12 +372,6 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
           </button>
         </div>
 
-        {/* Contact Info */}
-        <div className="text-center text-white/80 text-sm sm:text-base">
-          <p>Need larger quantities? Contact us directly:</p>
-          <p className="font-semibold mt-1">📧 bulk@milafarabia.com</p>
-          <p className="font-semibold">📞 +966 50 123 4567</p>
-        </div>
       </div>
 
       {/* Notification */}

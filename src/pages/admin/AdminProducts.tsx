@@ -15,6 +15,7 @@ interface Product {
   image: string;
   price: number;
   casePrice: number;
+  pricePerCase: number; // New field for storing case price
   casesInStock: number;
   casesPerCase: number;
   totalUnits: number;
@@ -53,6 +54,7 @@ export const AdminProducts = (): JSX.Element => {
       image: productImages[firestoreData.name] || milafcola, // fallback image
       price: firestoreData.price,
       casePrice: firestoreData.casePrice || 0,
+      pricePerCase: firestoreData.pricePerCase || firestoreData.casePrice || 0, // Use pricePerCase from Firestore, fallback to casePrice
       casesInStock: firestoreData.casesInStock,
       casesPerCase: firestoreData.casesPerCase,
       totalUnits: firestoreData.totalUnits,
@@ -84,6 +86,7 @@ export const AdminProducts = (): JSX.Element => {
                 image: milafcola,
                 price: 4.99,
                 casePrice: 99.80,
+                pricePerCase: 99.80,
                 casesInStock: 150,
                 casesPerCase: 20,
                 totalUnits: 3000,
@@ -97,6 +100,7 @@ export const AdminProducts = (): JSX.Element => {
                 image: chocospread,
                 price: 6.99,
                 casePrice: 167.76,
+                pricePerCase: 167.76,
                 casesInStock: 75,
                 casesPerCase: 24,
                 totalUnits: 1800,
@@ -110,6 +114,7 @@ export const AdminProducts = (): JSX.Element => {
                 image: datespread,
                 price: 7.99,
                 casePrice: 159.80,
+                pricePerCase: 159.80,
                 casesInStock: 200,
                 casesPerCase: 20,
                 totalUnits: 4000,
@@ -123,6 +128,7 @@ export const AdminProducts = (): JSX.Element => {
                 image: safawidates,
                 price: 8.99,
                 casePrice: 224.75,
+                pricePerCase: 224.75,
                 casesInStock: 0,
                 casesPerCase: 25,
                 totalUnits: 0,
@@ -136,6 +142,7 @@ export const AdminProducts = (): JSX.Element => {
                 image: khalasdates,
                 price: 9.99,
                 casePrice: 299.70,
+                pricePerCase: 299.70,
                 casesInStock: 120,
                 casesPerCase: 30,
                 totalUnits: 3600,
@@ -149,6 +156,7 @@ export const AdminProducts = (): JSX.Element => {
                 image: segaidates,
                 price: 10.99,
                 casePrice: 274.75,
+                pricePerCase: 274.75,
                 casesInStock: 80,
                 casesPerCase: 25,
                 totalUnits: 2000,
@@ -234,6 +242,8 @@ export const AdminProducts = (): JSX.Element => {
         const productData = {
           name: updatedProduct.name,
           price: updatedProduct.price,
+          casePrice: updatedProduct.casePrice,
+          pricePerCase: updatedProduct.pricePerCase, // Save the pricePerCase field
           casesInStock: updatedProduct.casesInStock,
           casesPerCase: updatedProduct.casesPerCase,
           totalUnits: updatedProduct.totalUnits,
@@ -307,6 +317,8 @@ export const AdminProducts = (): JSX.Element => {
         return {
           name: data.name,
           price: data.price,
+          casePrice: data.casePrice,
+          pricePerCase: data.pricePerCase || data.casePrice || 0,
           casesInStock: data.casesInStock,
           casesPerCase: data.casesPerCase,
           totalUnits: data.totalUnits,
@@ -454,15 +466,16 @@ export const AdminProducts = (): JSX.Element => {
                       type="number"
                       step="0.01"
                       min="0"
-                      value={editingProduct.casePrice}
+                      value={editingProduct.pricePerCase}
                       onChange={(e) => setEditingProduct({
                         ...editingProduct,
-                        casePrice: parseFloat(e.target.value) || 0
+                        pricePerCase: parseFloat(e.target.value) || 0,
+                        casePrice: parseFloat(e.target.value) || 0 // Also update casePrice for backward compatibility
                       })}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     />
                   ) : (
-                    <span className="font-semibold">${product.casePrice}</span>
+                    <span className="font-semibold">${product.pricePerCase}</span>
                   )}
                 </div>
                 <div className="flex justify-between text-sm">

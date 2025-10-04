@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Instagram, Facebook, Mail, Phone, MapPin } from "lucide-react";
 import footerframeImage from "@/assets/footerframe.png";
+import skywardforgeLogo from "@/assets/skywardforge.svg";
 import { useNavigate } from "react-router-dom";
 
 export const Footer = () => {
@@ -113,15 +114,20 @@ export const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="text-white/60 mb-4 md:mb-0 text-center md:text-left text-sm sm:text-base max-sm:text-xs">
             © 2025 Milaf Cola. All rights reserved. | Silians Paris Group
-            <div className="mt-2 text-blue-800">
+            <div className="mt-2 text-blue-800 flex items-center gap-2">
               Created by{' '}
               <a 
-                href="https://webwise-lab.web.app" 
+                href="https://skywardforgetech.web.app" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-blue-700 transition-colors underline"
+                className="hover:text-blue-700 transition-colors underline flex items-center gap-2"
               >
-                Webwise Lab
+                SkywardForge
+                <img 
+                  src={skywardforgeLogo} 
+                  alt="SkywardForge Logo" 
+                  className="h-[1.1rem] w-[1.1rem] sm:h-[1.375rem] sm:w-[1.375rem]"
+                />
               </a>
             </div>
           </div>

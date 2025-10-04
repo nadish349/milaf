@@ -18,7 +18,8 @@ export interface CartItem {
   id: string;
   name: string;
   quantity: number;
-  cases?: number; // Optional cases field for bulk orders
+  pieces?: boolean; // Flag to identify regular product orders (true for regular products)
+  cases?: boolean; // Flag to identify bulk orders (true for bulk orders)
   price: number;
   payment: boolean;
   addedAt: any; // Firestore timestamp
@@ -44,36 +45,28 @@ export const addItemToUserCart = async (userId: string, item: Omit<CartItem, 'id
   try {
     const cartRef = collection(db, 'users', userId, 'cart');
     
-    // Check if item already exists in cart
-    const existingItemQuery = query(cartRef, where('name', '==', item.name));
-    const existingItemSnap = await getDocs(existingItemQuery);
+    // Always create a new document for each cart addition
+    const priceToStore = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
     
-    if (!existingItemSnap.empty) {
-      // Update existing item quantity
-      const existingItem = existingItemSnap.docs[0];
-      const currentData = existingItem.data();
-      const newQuantity = currentData.quantity + item.quantity;
-      
-      const priceToStore = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
-      await updateDoc(doc(db, 'users', userId, 'cart', existingItem.id), {
-        quantity: newQuantity,
-        cases: item.cases || null,
-        price: priceToStore,
-        lastUpdated: serverTimestamp()
-      });
-    } else {
-      // Add new item to cart
-      const priceToStore = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
-      await addDoc(cartRef, {
-        name: item.name,
-        quantity: item.quantity,
-        cases: item.cases || null,
-        price: priceToStore,
-        payment: false,
-        addedAt: serverTimestamp(),
-        lastUpdated: serverTimestamp()
-      });
+    // Create document with only the relevant field
+    const docData: any = {
+      name: item.name,
+      quantity: item.quantity,
+      price: priceToStore,
+      payment: item.payment || false,
+      addedAt: serverTimestamp(),
+      lastUpdated: serverTimestamp()
+    };
+
+    // Add only the relevant field based on order type
+    if (item.pieces !== undefined) {
+      docData.pieces = item.pieces;
     }
+    if (item.cases !== undefined) {
+      docData.cases = item.cases;
+    }
+
+    await addDoc(cartRef, docData);
     
     // Update user's cart summary
     await updateUserCartSummary(userId);
@@ -150,14 +143,24 @@ export const getUserCart = async (userId: string): Promise<CartItem[]> => {
     cartSnap.forEach((doc) => {
       const data = doc.data();
       const price = typeof data.price === 'string' ? parseFloat(data.price) : (data.price || 0);
-      cartItems.push({
+      const cartItem: any = {
         id: doc.id,
         name: data.name,
         quantity: data.quantity,
         price: price,
         payment: data.payment || false,
         addedAt: data.addedAt
-      });
+      };
+
+      // Add only the relevant field if it exists
+      if (data.pieces !== undefined) {
+        cartItem.pieces = data.pieces;
+      }
+      if (data.cases !== undefined) {
+        cartItem.cases = data.cases;
+      }
+
+      cartItems.push(cartItem);
     });
     
     return cartItems;

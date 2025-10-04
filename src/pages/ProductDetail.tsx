@@ -6,12 +6,13 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useCart } from "@/contexts/CartContext";
+import { useProductCart } from "@/contexts/ProductCartContext";
 import { Notification } from "@/components/Notification";
 import { BulkOrderPopup } from "@/components/BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
 import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
 import { getProductImage } from "@/utils/productImages";
+import { handleProductAddToCart } from "@/services/productCartPlacer";
 
 interface ProductDetailProps {
   onGradientChange?: (gradient: string) => void;
@@ -30,7 +31,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useCart();
+  const { addToCart } = useProductCart();
   const navigate = useNavigate();
 
   // Load products from database
@@ -142,20 +143,47 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
     }
   ];
 
-  // Show bulk order popup after 2 seconds when page becomes visible - only once per session
+  // Show bulk order popup when scrolled halfway through product details page - only once per session
   useEffect(() => {
     if (isVisible && hasInitialized) {
       // Check if popup has already been shown in this session
       const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
       
       if (!hasShownPopup) {
-        const timer = setTimeout(() => {
-          setShowBulkOrderPopup(true);
-          // Mark as shown in localStorage
-          localStorage.setItem('bulkOrderPopupShown', 'true');
-        }, 2000);
+        let scrollTimeout: NodeJS.Timeout;
+        
+        const handleScroll = () => {
+          // Debounce scroll events for better performance
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            const productDetailSection = document.getElementById('product-detail-section');
+            if (productDetailSection) {
+              const rect = productDetailSection.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              
+              // Check if the product detail section is visible and scrolled at least halfway
+              const isVisible = rect.top < windowHeight && rect.bottom > 0;
+              const isHalfwayScrolled = rect.top < windowHeight / 2;
+              
+              if (isVisible && isHalfwayScrolled) {
+                setShowBulkOrderPopup(true);
+                // Mark as shown in localStorage
+                localStorage.setItem('bulkOrderPopupShown', 'true');
+                // Remove scroll listener after showing popup
+                window.removeEventListener('scroll', handleScroll);
+              }
+            }
+          }, 100); // 100ms debounce
+        };
 
-        return () => clearTimeout(timer);
+        // Add scroll listener
+        window.addEventListener('scroll', handleScroll);
+        
+        // Cleanup function
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+          clearTimeout(scrollTimeout);
+        };
       }
     }
   }, [isVisible, hasInitialized]);
@@ -200,21 +228,13 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   const currentProductData = products[currentProduct];
 
   const handleAddToCart = () => {
-    addToCart({
-      name: currentProductData.name,
-      price: currentProductData.price,
-      quantity: quantity,
-      payment: false,
-      category: currentProductData.category || 'General',
-      description: currentProductData.description || '',
-      gradient: currentProductData.gradient
-    });
-    
-    // Show notification
-    setShowNotification(true);
-    
-    // Reset quantity to 1 after adding to cart
-    setQuantity(1);
+    handleProductAddToCart(
+      currentProductData,
+      quantity,
+      addToCart,
+      setShowNotification,
+      setQuantity
+    );
   };
 
   useEffect(() => {

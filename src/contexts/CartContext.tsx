@@ -28,7 +28,7 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  cases?: number; // Optional cases field for bulk orders
+  cases?: boolean; // Flag to identify bulk vs regular orders (true for bulk, false for regular)
   payment: boolean;
   category?: string;
   description?: string;
@@ -71,6 +71,18 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const { user } = useAuth();
 
   const addToCart = async (item: Omit<CartItem, 'id'>) => {
+    // Check if we're trying to mix bulk and regular orders
+    const isBulkOrder = item.cases || false;
+    const hasExistingItems = cartItems.length > 0;
+    
+    if (hasExistingItems) {
+      const existingIsBulk = cartItems[0].cases || false;
+      if (existingIsBulk !== isBulkOrder) {
+        // Clear existing cart if trying to mix bulk and regular orders
+        await clearCart();
+      }
+    }
+
     if (!user) {
       // Add to guest cart (localStorage)
       addToGuestCart(item);
@@ -86,18 +98,22 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
-        payment: false
+        cases: item.cases,
+        payment: item.payment || false
       });
 
       if (success) {
         // Update local state
         setCartItems(prev => {
-          const existingItem = prev.find(cartItem => cartItem.name === item.name);
+          const existingItem = prev.find(cartItem => 
+            cartItem.name === item.name && 
+            (cartItem.cases || false) === isBulkOrder
+          );
           
           if (existingItem) {
-            // If item already exists, increase quantity
+            // If item already exists with same type (bulk/regular), increase quantity
             return prev.map(cartItem =>
-              cartItem.name === item.name
+              cartItem.name === item.name && (cartItem.cases || false) === isBulkOrder
                 ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
                 : cartItem
             );
@@ -105,7 +121,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             // If item doesn't exist, add new item with unique ID
             const newItem: CartItem = {
               ...item,
-              id: Date.now() // Simple unique ID generation
+              id: Date.now() + Math.random() // More unique ID generation
             };
             return [...prev, newItem];
           }
@@ -125,6 +141,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       name: item.name,
       price: item.price,
       quantity: item.quantity,
+      cases: item.cases || false,
       payment: item.payment,
       category: item.category,
       description: item.description,
@@ -260,6 +277,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
+        cases: item.cases || false,
         payment: item.payment,
         category: item.category,
         description: item.description,
@@ -306,7 +324,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         await addItemToUserCart(user.uid, {
           name: guestItem.name,
           quantity: guestItem.quantity,
-          price: guestItem.price
+          price: guestItem.price,
+          payment: false
         });
       }
       

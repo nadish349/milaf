@@ -34,6 +34,8 @@ const MobileAdminProducts = lazy(() => import("./mobilepages/admin/AdminProducts
 const MobileAdminInquiries = lazy(() => import("./mobilepages/admin/AdminInquiries").then(module => ({ default: module.AdminInquiries })));
 
 import { CartProvider } from "./contexts/CartContext";
+import { BulkCartProvider } from "./contexts/BulkCartContext";
+import { ProductCartProvider } from "./contexts/ProductCartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -104,13 +106,17 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <CartProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <HashRouter>
-                {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
-              </HashRouter>
-            </TooltipProvider>
+            <BulkCartProvider>
+              <ProductCartProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <HashRouter>
+                    {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
+                  </HashRouter>
+                </TooltipProvider>
+              </ProductCartProvider>
+            </BulkCartProvider>
           </CartProvider>
         </AuthProvider>
       </QueryClientProvider>

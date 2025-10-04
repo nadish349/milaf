@@ -5,6 +5,7 @@ export interface ProductData {
   name: string;
   price: number;
   casePrice: number;
+  pricePerCase?: number; // New field for storing case price
   casesInStock: number;
   casesPerCase: number;
   totalUnits: number;
@@ -37,6 +38,8 @@ export const fetchProductFromFirestore = async (productName: string): Promise<Pr
       return {
         name: data.name,
         price: data.price,
+        casePrice: data.casePrice || 0,
+        pricePerCase: data.pricePerCase || data.casePrice || 0,
         casesInStock: data.casesInStock,
         casesPerCase: data.casesPerCase,
         totalUnits: data.totalUnits,

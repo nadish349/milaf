@@ -6,7 +6,8 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useCart } from "@/contexts/CartContext";
+import { useProductCart } from "@/contexts/ProductCartContext";
+import { handleProductAddToCart } from "@/services/productCartPlacer";
 import { Notification } from "./Notification";
 import { BulkOrderPopup } from "./BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
@@ -30,7 +31,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useCart();
+  const { addToCart } = useProductCart();
   const navigate = useNavigate();
 
   // Load products from database
@@ -204,18 +205,13 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
     console.log('🛒 Mobile handleAddToCart called with currentProductData:', currentProductData);
     console.log('💰 Mobile Price being added to cart:', currentProductData.price, 'type:', typeof currentProductData.price);
     
-    addToCart({
-      name: currentProductData.name,
-      price: currentProductData.price,
-      quantity: quantity,
-      payment: false,
-      category: currentProductData.category || 'General',
-      description: currentProductData.description || '',
-      gradient: currentProductData.gradient
-    });
-    
-    setShowNotification(true);
-    setQuantity(1);
+    handleProductAddToCart(
+      currentProductData,
+      quantity,
+      addToCart,
+      setShowNotification,
+      setQuantity
+    );
   };
 
   useEffect(() => {

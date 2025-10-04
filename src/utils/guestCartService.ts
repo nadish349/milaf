@@ -3,7 +3,7 @@ export interface GuestCartItem {
   name: string;
   price: number;
   quantity: number;
-  cases?: number; // Optional cases field for bulk orders
+  cases?: boolean; // Flag to identify bulk vs regular orders (true for bulk, false for regular)
   payment: boolean;
   category?: string;
   description?: string;
@@ -34,22 +34,13 @@ export const saveGuestCart = (cartItems: GuestCartItem[]): void => {
 export const addToGuestCart = (item: Omit<GuestCartItem, 'id' | 'addedAt'>): void => {
   const cartItems = getGuestCart();
   
-  // Check if item already exists
-  const existingItemIndex = cartItems.findIndex(cartItem => cartItem.name === item.name);
-  
-  if (existingItemIndex >= 0) {
-    // Update existing item
-    cartItems[existingItemIndex].quantity += item.quantity;
-    cartItems[existingItemIndex].price = item.price; // Update price to latest
-  } else {
-    // Add new item
-    const newItem: GuestCartItem = {
-      ...item,
-      id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      addedAt: Date.now()
-    };
-    cartItems.push(newItem);
-  }
+  // Always create a new item for each cart addition
+  const newItem: GuestCartItem = {
+    ...item,
+    id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    addedAt: Date.now()
+  };
+  cartItems.push(newItem);
   
   saveGuestCart(cartItems);
 };

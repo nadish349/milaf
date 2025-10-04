@@ -6,13 +6,14 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useCart } from "@/contexts/CartContext";
+import { useBulkCart } from "@/contexts/BulkCartContext";
 import { Notification } from "../components/Notification";
 import { BulkOrderPopup } from "../components/BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
 import { getProductImage } from "@/utils/productImages";
+import { handleBulkAddToCart } from "@/services/bulkCartPlacer";
 
 interface BulkOrderProps {
   onGradientChange?: (gradient: string) => void;
@@ -29,7 +30,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
   const [showEntranceAnimation, setShowEntranceAnimation] = useState(true);
-  const { addToCart } = useCart();
+  const { addToCart } = useBulkCart();
   const navigate = useNavigate();
 
   // Helper function to get gradient for product
@@ -192,22 +193,13 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const currentProductData = products[currentProduct];
 
   const handleAddToCart = () => {
-    if (!currentProductData) return;
-    
-    addToCart({
-      name: currentProductData.name,
-      image: currentProductData.image,
-      price: currentProductData.price,
-      quantity: quantity,
-      cases: quantity, // For bulk orders, quantity represents cases
-      gradient: currentProductData.gradient
-    });
-    
-    // Show notification
-    setShowNotification(true);
-    
-    // Reset quantity to 1 after adding to cart
-    setQuantity(1);
+    handleBulkAddToCart(
+      currentProductData,
+      quantity,
+      addToCart,
+      setShowNotification,
+      setQuantity
+    );
   };
 
   useEffect(() => {
@@ -380,6 +372,35 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
                 </div>
               </div>
             </div>
+
+            {/* Dimensions Card - Only for Milaf Cola */}
+            {currentProductData.id === 0 && (
+              <div className={`bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-xs mx-auto mt-2 transition-all duration-700 ease-in-out ${
+                isAnimating ? 'transform -translate-x-full opacity-0' : 'transform translate-x-0 opacity-100'
+              }`}>
+                <h3 className="text-sm font-semibold text-black text-center mb-2">
+                  Dimensions
+                </h3>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-center">
+                    <span className="text-black/70">H:</span>
+                    <span className="font-semibold text-black ml-1">14cm</span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-black/70">W:</span>
+                    <span className="font-semibold text-black ml-1">22cm</span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-black/70">L:</span>
+                    <span className="font-semibold text-black ml-1">32cm</span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-black/70">Wt:</span>
+                    <span className="font-semibold text-black ml-1">6kg</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         

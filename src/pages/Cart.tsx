@@ -3,50 +3,37 @@ import m1 from "@/assets/m1.png";
 import { Header } from "@/components/Header";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
-import { getProductImage } from "@/utils/productImages";
-import group5 from "@/assets/Group5.png";
 import { LoginForm } from "@/components/LoginForm";
-import { getUserOrders, OrderWithId } from "@/services/orderService";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRegularCartFetcher } from "@/services/cartFetcher";
+import { useOrderSummary } from "@/services/orderSummaryService";
 
 export const Cart = (): JSX.Element => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart, loadUserCart } = useCart();
+  const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [orderedItems, setOrderedItems] = useState<OrderWithId[]>([]);
-  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
-
-  // Debug logging removed for production
-
-  // Function to get the correct cart image (same logic as ProductDetail)
-  const getCartImage = (productName: string): string => {
-    const isMilafCola = productName.toLowerCase() === "milaf cola";
-    return isMilafCola ? group5 : getProductImage(productName);
-  };
+  
+  // Use cartFetcher for all cart data and functionality
+  const { cartItems, orderedItems, isLoadingOrders, loadCartAndOrders, getCartImage } = useRegularCartFetcher();
+  
+  // Use integrated orderSummaryService for comprehensive order calculations
+  const { 
+    processedCartItems, 
+    orderSummary, 
+    isLoading: isOrderSummaryLoading,
+    subtotalDisplay,
+    shippingDisplay,
+    totalDisplay,
+    itemCountDisplay,
+    shippingMessage,
+    orderBreakdown
+  } = useOrderSummary(cartItems);
 
   // Load user cart and orders when component mounts
   useEffect(() => {
-    const loadCartAndOrders = async () => {
-      if (user) {
-        // Load user cart
-        await loadUserCart();
-        
-        // Load user orders
-        setIsLoadingOrders(true);
-        try {
-          const userOrders = await getUserOrders(user.uid);
-          setOrderedItems(userOrders);
-        } catch (error) {
-          console.error('Error loading user orders:', error);
-        } finally {
-          setIsLoadingOrders(false);
-        }
-      }
-    };
-
     loadCartAndOrders();
-  }, [user]); // Removed loadUserCart from dependencies to prevent infinite loop
+  }, [user]);
 
   const handleBackToShop = () => {
     // Navigate back to the main shop page
@@ -327,9 +314,21 @@ export const Cart = (): JSX.Element => {
                   </h2>
                   
                   <div className="space-y-3 mb-4">
+                    {/* Order Breakdown */}
+                    {orderBreakdown.length > 0 && (
+                      <div className="space-y-2 mb-3">
+                        {orderBreakdown.map((breakdown, index) => (
+                          <div key={index} className="flex justify-between text-sm text-gray-600">
+                            <span>{breakdown.type}</span>
+                            <span>{breakdown.display}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between text-base">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="font-semibold">${getTotalPrice().toFixed(2)}</span>
+                      <span className="font-semibold">{subtotalDisplay}</span>
                     </div>
                     <div className="flex justify-between text-base">
                       <span className="text-gray-600">Shipping</span>
@@ -337,13 +336,24 @@ export const Cart = (): JSX.Element => {
                         className="text-gray-600 cursor-pointer hover:text-gray-800 underline"
                         onClick={handleProceedToCheckout}
                       >
-                        SELECT LOCATION
+                        {shippingDisplay}
                       </span>
                     </div>
                     <div className="border-t border-gray-200 pt-3">
                       <div className="flex justify-between text-xl font-bold text-gray-800">
                         <span>Total Amount</span>
-                        <span>${getTotalPrice().toFixed(2)} <span className="text-base text-gray-600 font-normal">+ SHIPPING CHARGE</span></span>
+                        <span>{totalDisplay}</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1 text-right">
+                        + shipping charge
+                      </div>
+                      {shippingMessage && (
+                        <div className="text-sm text-gray-600 mt-1">
+                          {shippingMessage}
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500 mt-1">
+                        {itemCountDisplay}
                       </div>
                     </div>
                   </div>

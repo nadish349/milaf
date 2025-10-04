@@ -6,30 +6,59 @@
   import safawidates from "@/assets/safawidates.png";
   import segaidates from "@/assets/segaidates.png";
   import khalasdates from "@/assets/khalasdates.png";
-  import { useCart } from "@/contexts/CartContext";
+  import { useProductCart } from "@/contexts/ProductCartContext";
+import { handleProductAddToCart } from "@/services/productCartPlacer";
   import { Notification } from "@/mobilecomponents/Notification";
   import { BulkOrderPopup } from "@/mobilecomponents/BulkOrderPopup";
   import { useNavigate } from "react-router-dom";
   import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
   import { getProductImage } from "@/utils/productImages";
 
-  interface ProductDetailProps {
-    onGradientChange?: (gradient: string) => void;
-    selectedProductId?: number;
-  }
+interface ProductDetailProps {
+  onGradientChange?: (gradient: string) => void;
+  selectedProductId?: number;
+  showBulkOrderPopup?: boolean;
+}
 
-  export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDetailProps): JSX.Element => {
+  export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrderPopup: enablePopup = true }: ProductDetailProps): JSX.Element => {
     
     const [currentProduct, setCurrentProduct] = useState(selectedProductId || 0);
     const [isAnimating, setIsAnimating] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [showNotification, setShowNotification] = useState(false);
     const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
+
+  // Debug: Log when popup state changes
+  useEffect(() => {
+    console.log('Mobile ProductDetail: showBulkOrderPopup state changed to:', showBulkOrderPopup);
+  }, [showBulkOrderPopup]);
+
+  // Show bulk order popup - simplified approach
+  useEffect(() => {
+    console.log('Mobile ProductDetail: Component mounted, enablePopup:', enablePopup);
+    
+    if (enablePopup) {
+      // Check if popup has already been shown in this session
+      const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
+      console.log('Mobile ProductDetail: hasShownPopup:', hasShownPopup);
+      
+      if (!hasShownPopup) {
+        // Simple timer approach - show popup after 2 seconds
+        const timer = setTimeout(() => {
+          console.log('Mobile ProductDetail: Timer triggered - showing popup');
+          setShowBulkOrderPopup(true);
+          localStorage.setItem('bulkOrderPopupShown', 'true');
+        }, 2000);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [enablePopup]);
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useCart();
+  const { addToCart } = useProductCart();
   const navigate = useNavigate();
 
   // Load products from database
@@ -141,21 +170,52 @@
     }
   ];
 
-    // Show bulk order popup after 2 seconds when page becomes visible - only once per session
+    // Show bulk order popup when scrolled halfway through product details page - only once per session
     useEffect(() => {
-      // Check if popup has already been shown in this session
+      // Check if popup has already been shown in this session and if popup is enabled
       const hasShownPopup = localStorage.getItem('bulkOrderPopupShown');
       
-      if (!hasShownPopup) {
+      console.log('Mobile ProductDetail: Popup setup - hasShownPopup:', hasShownPopup, 'enablePopup:', enablePopup);
+      
+      if (!hasShownPopup && enablePopup) {
+        // Simple approach: Show popup after a delay when component mounts
         const timer = setTimeout(() => {
+          console.log('Mobile ProductDetail: Timer triggered - showing popup');
           setShowBulkOrderPopup(true);
-          // Mark as shown in localStorage
           localStorage.setItem('bulkOrderPopupShown', 'true');
-        }, 2000);
+        }, 1000); // Show after 1 second for testing
 
-        return () => clearTimeout(timer);
+        // Also try intersection observer as backup
+        const productDetailSection = document.getElementById('product-detail-section');
+        
+        if (productDetailSection) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                console.log('Mobile ProductDetail: Intersection Observer - isIntersecting:', entry.isIntersecting, 'ratio:', entry.intersectionRatio);
+                if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                  console.log('Mobile ProductDetail: Intersection Observer triggered popup');
+                  setShowBulkOrderPopup(true);
+                  localStorage.setItem('bulkOrderPopupShown', 'true');
+                  observer.disconnect();
+                  clearTimeout(timer);
+                }
+              });
+            },
+            { threshold: 0.3 }
+          );
+
+          observer.observe(productDetailSection);
+          
+          return () => {
+            clearTimeout(timer);
+            observer.disconnect();
+          };
+        } else {
+          return () => clearTimeout(timer);
+        }
       }
-    }, []);
+    }, [enablePopup]);
 
     // Listen for product change events from footer
     useEffect(() => {
@@ -197,18 +257,13 @@
   const visibleProducts = products.slice(safeStartIndex, safeStartIndex + 2);
 
     const handleAddToCart = () => {
-      addToCart({
-        name: currentProductData.name,
-        price: currentProductData.price,
-        quantity: quantity,
-        payment: false,
-        category: currentProductData.category || 'General',
-        description: currentProductData.description || '',
-        gradient: currentProductData.gradient
-      });
-      
-      setShowNotification(true);
-      setQuantity(1);
+      handleProductAddToCart(
+        currentProductData,
+        quantity,
+        addToCart,
+        setShowNotification,
+        setQuantity
+      );
     };
 
     useEffect(() => {
@@ -308,6 +363,7 @@
             >
               Are you retailer? Need in bulk
             </button>
+            
           </div>
 
           {/* Center: Product Image + Carousel */}
