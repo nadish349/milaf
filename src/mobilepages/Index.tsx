@@ -1,4 +1,5 @@
 import { Header } from "@/mobilecomponents/Header";
+import { HeroPage3 as Hero3 } from "@/mobilepages/HeroPage3";
 import { HeroPage2 as Hero } from "@/mobilepages/HeroPage2";
 import { HeroProductsSection } from "@/mobilecomponents/HeroProductsSection";
 import { Page2Section } from "@/mobilecomponents/Page2Section";
@@ -18,6 +19,7 @@ const Index = () => {
 
   // Define colors for each section - memoized to prevent unnecessary re-renders
   const sectionColors = React.useMemo(() => [
+    "#ffffff", // Hero3 (white background for main product display)
     "#ffffff", // Hero (white background for main product display)
     heroGradient, // HeroProductsSection (dynamic gradient from HeroProducts)
     "#8B4513", // Page4Section (brown from m1 background)
@@ -80,6 +82,7 @@ const Index = () => {
         `}
       </style>
       <div className="custom-scrollbar">
+        <Hero3 />
         <Hero />
         <HeroProductsSection onGradientChange={setHeroGradient} />
         <Page4Section />
