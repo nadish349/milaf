@@ -112,8 +112,11 @@ export const getHeroPageImages = (isMobile: boolean = false): string[] => {
   }
 };
 
+// Image cache to store loaded images
+const imageCache = new Map<string, HTMLImageElement>();
+
 /**
- * Preload hero page images with progress callback
+ * Preload hero page images with progress callback and caching
  */
 export const preloadHeroImages = (
   isMobile: boolean = false,
@@ -137,7 +140,9 @@ export const preloadHeroImages = (
       return;
     }
 
-    const handleImageLoad = (url: string) => {
+    const handleImageLoad = (url: string, img: HTMLImageElement) => {
+      // Store in cache for future use
+      imageCache.set(url, img);
       loadedImages.push(url);
       loadedCount++;
       onProgress?.(loadedCount, images.length);
@@ -169,12 +174,19 @@ export const preloadHeroImages = (
       }
     };
 
-    // Preload all images with high priority
+    // Preload all images with high priority and caching
     images.forEach(url => {
+      // Check if image is already cached
+      if (imageCache.has(url)) {
+        handleImageLoad(url, imageCache.get(url)!);
+        return;
+      }
+
       const img = new Image();
       img.loading = 'eager'; // High priority loading
       img.fetchPriority = 'high'; // Browser hint for high priority
-      img.onload = () => handleImageLoad(url);
+      img.crossOrigin = 'anonymous'; // Enable caching
+      img.onload = () => handleImageLoad(url, img);
       img.onerror = () => handleImageError(url);
       img.src = url;
     });
@@ -182,18 +194,118 @@ export const preloadHeroImages = (
 };
 
 /**
- * Fast preload for critical hero images only
+ * Fast preload for critical hero images only with caching
  */
 export const preloadCriticalHeroImages = (isMobile: boolean = false): void => {
   const criticalImages = isMobile 
     ? ['/src/assets/mobile/mobilepagehero.png', '/src/assets/mfhq.png']
     : ['/src/assets/final4.png', '/src/assets/mfhq.png'];
   
-  // Preload critical images immediately
+  // Preload critical images immediately with caching
   criticalImages.forEach(url => {
+    // Check cache first
+    if (imageCache.has(url)) {
+      return; // Already cached
+    }
+
     const img = new Image();
     img.loading = 'eager';
     img.fetchPriority = 'high';
+    img.crossOrigin = 'anonymous';
+    img.onload = () => imageCache.set(url, img);
     img.src = url;
+  });
+};
+
+/**
+ * Get cached image if available
+ */
+export const getCachedImage = (url: string): HTMLImageElement | null => {
+  return imageCache.get(url) || null;
+};
+
+/**
+ * Clear image cache (useful for memory management)
+ */
+export const clearImageCache = (): void => {
+  imageCache.clear();
+};
+
+/**
+ * Preload images with aggressive caching and optimization
+ */
+export const preloadHeroImagesOptimized = (
+  isMobile: boolean = false,
+  onProgress?: (loaded: number, total: number) => void
+): Promise<PreloadResult> => {
+  const images = getHeroPageImages(isMobile);
+  let loadedCount = 0;
+
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    const loadedImages: string[] = [];
+    const failedImages: string[] = [];
+
+    if (images.length === 0) {
+      resolve({
+        success: true,
+        loadedImages: [],
+        failedImages: [],
+        totalTime: 0
+      });
+      return;
+    }
+
+    const handleImageLoad = (url: string, img: HTMLImageElement) => {
+      // Store in cache for future use
+      imageCache.set(url, img);
+      loadedImages.push(url);
+      loadedCount++;
+      onProgress?.(loadedCount, images.length);
+      
+      if (loadedCount === images.length) {
+        const totalTime = Date.now() - startTime;
+        resolve({
+          success: failedImages.length === 0,
+          loadedImages,
+          failedImages,
+          totalTime
+        });
+      }
+    };
+
+    const handleImageError = (url: string) => {
+      failedImages.push(url);
+      loadedCount++;
+      onProgress?.(loadedCount, images.length);
+      
+      if (loadedCount === images.length) {
+        const totalTime = Date.now() - startTime;
+        resolve({
+          success: failedImages.length === 0,
+          loadedImages,
+          failedImages,
+          totalTime
+        });
+      }
+    };
+
+    // Preload all images with aggressive optimization
+    images.forEach(url => {
+      // Check if image is already cached
+      if (imageCache.has(url)) {
+        handleImageLoad(url, imageCache.get(url)!);
+        return;
+      }
+
+      const img = new Image();
+      img.loading = 'eager';
+      img.fetchPriority = 'high';
+      img.crossOrigin = 'anonymous';
+      img.decoding = 'async'; // Async decoding for better performance
+      img.onload = () => handleImageLoad(url, img);
+      img.onerror = () => handleImageError(url);
+      img.src = url;
+    });
   });
 };

@@ -6,28 +6,46 @@ import dates3 from "@/assets/browndate4.png";
 import cutdate4 from "@/assets/browndates5.png";
 import mfhq from "@/assets/mfhq.png";
 import colapowderburst from "@/assets/colapowderburst.png";
-import { preloadHeroImages, preloadCriticalHeroImages } from "@/utils/imagePreloader";
+import { preloadHeroImagesOptimized, preloadCriticalHeroImages } from "@/utils/imagePreloader";
 
 export const HeroPage3 = (): JSX.Element => {
   const [showIntroduction, setShowIntroduction] = useState(true);
   const [showMainContent, setShowMainContent] = useState(false);
+  const [backgroundLoaded, setBackgroundLoaded] = useState(false);
+  const [allImagesLoaded, setAllImagesLoaded] = useState(false);
 
+  // First: Load background image
   useEffect(() => {
-    // Start animations immediately for fast loading
-    const timer = setTimeout(() => {
-      setShowIntroduction(false);
-      setShowMainContent(true);
-    }, 800); // Very fast transition
-    
-    return () => clearTimeout(timer);
+    const bgImg = new Image();
+    bgImg.onload = () => {
+      setBackgroundLoaded(true);
+    };
+    bgImg.src = final4;
   }, []);
 
-  // Preload critical images immediately for instant loading
+  // Second: Show introduction after background loads
   useEffect(() => {
-    preloadCriticalHeroImages(false);
-    // Preload remaining images in background
-    preloadHeroImages(false).catch(console.error);
-  }, []);
+    if (backgroundLoaded) {
+      // Start preloading all images when background is ready with optimized caching
+      preloadHeroImagesOptimized(false, (loaded, total) => {
+        if (loaded === total) {
+          setAllImagesLoaded(true);
+        }
+      }).catch(console.error);
+    }
+  }, [backgroundLoaded]);
+
+  // Third: Start main content after all images are loaded
+  useEffect(() => {
+    if (allImagesLoaded) {
+      const timer = setTimeout(() => {
+        setShowIntroduction(false);
+        setShowMainContent(true);
+      }, 1000); // Give a moment for smooth transition
+      
+      return () => clearTimeout(timer);
+    }
+  }, [allImagesLoaded]);
 
   return (
     <main 
