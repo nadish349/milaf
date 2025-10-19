@@ -56,7 +56,7 @@ const MobileRoutes = () => (
     <Routes>
       <Route path="/" element={<MobileIndex />} />
       <Route path="/cart" element={<MobileCart />} />
-      <Route path="/myshop" element={<MobileMyShop />} />
+      <Route path="/my-orders" element={<MobileMyShop />} />
       <Route path="/bulk-order" element={<MobileBulkOrder />} />
       <Route path="/payment" element={<MobilePayment />} />
       <Route path="/business-inquiry" element={<MobileBusinessInquiry />} />
@@ -80,7 +80,7 @@ const DesktopRoutes = () => (
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/cart" element={<Cart />} />
-      <Route path="/myshop" element={<MyShop />} />
+      <Route path="/my-orders" element={<MyShop />} />
       <Route path="/bulk-order" element={<BulkOrder />} />
       <Route path="/payment" element={<Payment />} />
       <Route path="/business-inquiry" element={<BusinessInquiry />} />

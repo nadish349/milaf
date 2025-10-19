@@ -330,28 +330,14 @@ export const Cart = (): JSX.Element => {
                       <span className="text-gray-600">Subtotal</span>
                       <span className="font-semibold">{subtotalDisplay}</span>
                     </div>
-                    <div className="flex justify-between text-base">
-                      <span className="text-gray-600">Shipping</span>
-                      <span 
-                        className="text-gray-600 cursor-pointer hover:text-gray-800 underline"
-                        onClick={handleProceedToCheckout}
-                      >
-                        {shippingDisplay}
-                      </span>
-                    </div>
                     <div className="border-t border-gray-200 pt-3">
                       <div className="flex justify-between text-xl font-bold text-gray-800">
-                        <span>Total Amount</span>
-                        <span>{totalDisplay}</span>
+                        <span>Subtotal</span>
+                        <span>{subtotalDisplay}</span>
                       </div>
                       <div className="text-xs text-gray-500 mt-1 text-right">
                         + shipping charge
                       </div>
-                      {shippingMessage && (
-                        <div className="text-sm text-gray-600 mt-1">
-                          {shippingMessage}
-                        </div>
-                      )}
                       <div className="text-xs text-gray-500 mt-1">
                         {itemCountDisplay}
                       </div>

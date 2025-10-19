@@ -381,7 +381,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
             
             {/* Product Cards Container */}
             <div className="flex gap-2 overflow-hidden">
-              {products.slice(0, 4).map((product, index) => (
+              {products.slice(currentProduct, currentProduct + 4).map((product, index) => (
                 <div
                   key={product.id}
                   className={`cursor-pointer transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
@@ -399,7 +399,12 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
                   <div 
                     className="rounded-lg p-2 hover:opacity-80 transition-all duration-300"
                     style={{
-                      background: product.gradient || 'linear-gradient(135deg, #666, #999)'
+                      background: currentProductData.id === 0 && product.id === 0
+                        ? `url(${currentProductData.backgroundImage})`
+                        : product.gradient || 'linear-gradient(135deg, #666, #999)',
+                      backgroundSize: currentProductData.id === 0 && product.id === 0 ? 'cover' : 'auto',
+                      backgroundPosition: currentProductData.id === 0 && product.id === 0 ? 'center' : 'auto',
+                      backgroundRepeat: currentProductData.id === 0 && product.id === 0 ? 'no-repeat' : 'auto'
                     }}
                   >
                     <img

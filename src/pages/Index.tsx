@@ -17,6 +17,20 @@ const Index = () => {
   const [selectedProductId, setSelectedProductId] = useState<number | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Handle Order Now click from HeroProductsSection
+  const handleOrderNow = (productId: number) => {
+    setSelectedProductId(productId);
+    // Scroll to ProductDetail section (index 7)
+    if (containerRef.current) {
+      const targetSection = 7; // ProductDetail is at index 7
+      const windowHeight = window.innerHeight;
+      containerRef.current.scrollTo({
+        top: targetSection * windowHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   // Define colors for each section - memoized to prevent unnecessary re-renders
   const sectionColors = React.useMemo(() => [
     "#ffffff", // Hero3 (white background for main product display)
@@ -84,7 +98,7 @@ const Index = () => {
       <div className="custom-scrollbar">
         <Hero3 />
         <Hero />
-        <HeroProductsSection onGradientChange={setHeroGradient} />
+        <HeroProductsSection onGradientChange={setHeroGradient} onOrderNow={handleOrderNow} />
         <Page2Section />
         <Page3Section />
         <Page4Section />

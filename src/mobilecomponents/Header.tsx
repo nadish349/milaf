@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import milaflogo from "@/assets/milaflogo.png";
 import { useCart } from "@/contexts/CartContext";
 import { User } from "lucide-react";
 import { LoginForm } from "../components/LoginForm";
+import { auth, db } from "@/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { User as FirebaseUser } from "firebase/auth";
 
 interface HeaderProps {
   showOnlyLogo?: boolean;
@@ -15,6 +18,15 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
   const { getTotalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleCartClick = () => {
     navigate('/cart');
@@ -25,7 +37,13 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
   };
 
   const handleShopClick = () => {
-    setIsLoginOpen(true);
+    if (currentUser) {
+      // User is logged in - navigate to MyShop page
+      navigate('/my-orders');
+    } else {
+      // User is not logged in - show login form
+      setIsLoginOpen(true);
+    }
   };
 
   const handleLoginClose = () => {
@@ -145,7 +163,7 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
               }}
             >
               <User className="w-4 h-4" />
-              <span>Shop</span>
+              <span>{currentUser ? 'MY ORDERS' : 'Shop'}</span>
             </button>
           </div>
         )}
@@ -186,7 +204,7 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
               }}
             >
               <User className="w-5 h-5" />
-              <span>Shop</span>
+              <span>{currentUser ? 'MY ORDERS' : 'Shop'}</span>
             </button>
           </nav>
         </div>

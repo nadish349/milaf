@@ -27,7 +27,6 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
   const [quantity, setQuantity] = useState(1);
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
-  const [visibleStartIndex, setVisibleStartIndex] = useState(0);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -185,21 +184,25 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
 
   // Navigation functions for mobile carousel
   const handlePrevious = () => {
-    if (visibleStartIndex > 0) {
-      setVisibleStartIndex(visibleStartIndex - 1);
-    }
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentProduct((prev) => (prev - 1 + products.length) % products.length);
+      setTimeout(() => setIsAnimating(false), 50);
+    }, 350);
   };
 
   const handleNext = () => {
-    if (visibleStartIndex < products.length - 2) {
-      setVisibleStartIndex(visibleStartIndex + 1);
-    }
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentProduct((prev) => (prev + 1) % products.length);
+      setTimeout(() => setIsAnimating(false), 50);
+    }, 350);
   };
 
-  // Get visible products (2 at a time, but ensure we don't go out of bounds)
-  const maxStartIndex = Math.max(0, products.length - 2);
-  const safeStartIndex = Math.min(visibleStartIndex, maxStartIndex);
-  const visibleProducts = products.slice(safeStartIndex, safeStartIndex + 2);
+  // Get visible products (current + next 3, but ensure we don't go out of bounds)
+  const visibleProducts = products.slice(currentProduct, currentProduct + 4);
 
   const handleAddToCart = () => {
     console.log('🛒 Mobile handleAddToCart called with currentProductData:', currentProductData);
@@ -226,13 +229,6 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
     }
   }, [selectedProductId]);
 
-  // Auto-adjust visible range when current product changes
-  useEffect(() => {
-    const newStartIndex = Math.floor(currentProduct / 2) * 2;
-    const maxStartIndex = Math.max(0, products.length - 2);
-    const safeNewStartIndex = Math.min(newStartIndex, maxStartIndex);
-    setVisibleStartIndex(safeNewStartIndex);
-  }, [currentProduct, products.length]);
 
   // Don't render main content if no current product data (after all hooks)
   if (!currentProductData) {
@@ -321,18 +317,13 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
             className="max-h-[40vh] sm:max-h-[60vh] object-contain transition-all duration-700"
           />
 
-          {/* Mobile Carousel with Navigation - Show 2 products at a time */}
+          {/* Mobile Carousel with Navigation - Show current + next 3 products */}
           <div className="mt-6 w-full px-2">
             <div className="flex items-center justify-between gap-2">
               {/* Left Navigation Button */}
               <button
                 onClick={handlePrevious}
-                disabled={safeStartIndex === 0}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                  safeStartIndex === 0 
-                    ? 'bg-white/20 text-white/50 cursor-not-allowed' 
-                    : 'bg-white/80 text-gray-800 hover:bg-white hover:scale-105'
-                }`}
+                className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center hover:bg-white/30 transition-all duration-300 text-white"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -341,14 +332,28 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
 
               {/* Visible Products Container */}
               <div className="flex-1 flex items-center gap-2 justify-center min-w-0 overflow-hidden">
-                {visibleProducts.map((product) => (
+                {visibleProducts.map((product, index) => (
                   <div
                     key={product.id}
-                    onClick={() => !isAnimating && setCurrentProduct(product.id)}
+                    onClick={() => {
+                      if (isAnimating) return;
+                      setIsAnimating(true);
+                      setTimeout(() => {
+                        setCurrentProduct(product.id);
+                        setTimeout(() => setIsAnimating(false), 50);
+                      }, 350);
+                    }}
                     className={`cursor-pointer flex-shrink-0 p-2 rounded-lg transition-all duration-300 hover:scale-105 min-w-0 ${
                       currentProduct === product.id ? "ring-2 ring-blue-500 ring-offset-2" : "ring-1 ring-white/30"
                     }`}
-                    style={{ background: product.gradient }}
+                    style={{ 
+                      background: currentProductData.id === 0 && product.id === 0
+                        ? `url(${currentProductData.backgroundImage})`
+                        : product.gradient,
+                      backgroundSize: currentProductData.id === 0 && product.id === 0 ? 'cover' : 'auto',
+                      backgroundPosition: currentProductData.id === 0 && product.id === 0 ? 'center' : 'auto',
+                      backgroundRepeat: currentProductData.id === 0 && product.id === 0 ? 'no-repeat' : 'auto'
+                    }}
                   >
                     <img 
                       src={product.image as string} 
@@ -365,12 +370,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
               {/* Right Navigation Button */}
               <button
                 onClick={handleNext}
-                disabled={safeStartIndex >= maxStartIndex}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                  safeStartIndex >= maxStartIndex 
-                    ? 'bg-white/20 text-white/50 cursor-not-allowed' 
-                    : 'bg-white/80 text-gray-800 hover:bg-white hover:scale-105'
-                }`}
+                className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center hover:bg-white/30 transition-all duration-300 text-white"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -380,11 +380,11 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
 
             {/* Page Indicators */}
             <div className="flex justify-center mt-3 gap-1">
-              {Array.from({ length: Math.ceil(products.length / 2) }).map((_, index) => (
+              {Array.from({ length: products.length }).map((_, index) => (
                 <div
                   key={index}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    Math.floor(safeStartIndex / 2) === index 
+                    currentProduct === index 
                       ? 'bg-white' 
                       : 'bg-white/30'
                   }`}

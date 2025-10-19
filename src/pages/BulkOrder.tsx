@@ -431,7 +431,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
             
             {/* Product Cards Container */}
             <div className="flex gap-2 overflow-hidden">
-              {products.slice(0, 4).map((product, index) => (
+              {products.slice(currentProduct, currentProduct + 4).map((product, index) => (
                 <div
                   key={product.id}
                   className={`cursor-pointer transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
@@ -441,7 +441,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
                     if (isAnimating) return;
                     setIsAnimating(true);
                     setTimeout(() => {
-                      setCurrentProduct(product.id);
+                      setCurrentProduct(currentProduct + index);
                       setTimeout(() => setIsAnimating(false), 50);
                     }, 350);
                   }}
@@ -449,7 +449,12 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
                   <div 
                     className="rounded-lg p-2 hover:opacity-80 transition-all duration-300"
                     style={{
-                      background: product.gradient || 'linear-gradient(135deg, #666, #999)'
+                      background: currentProductData.id === 0 && product.id === 0
+                        ? `url(${currentProductData.backgroundImage})`
+                        : product.gradient || 'linear-gradient(135deg, #666, #999)',
+                      backgroundSize: currentProductData.id === 0 && product.id === 0 ? 'cover' : 'auto',
+                      backgroundPosition: currentProductData.id === 0 && product.id === 0 ? 'center' : 'auto',
+                      backgroundRepeat: currentProductData.id === 0 && product.id === 0 ? 'no-repeat' : 'auto'
                     }}
                   >
                     <img

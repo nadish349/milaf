@@ -120,7 +120,7 @@ export const MyShop = () => {
               >
                 ← Back to Home
               </Button>
-              <h1 className="text-2xl font-bold text-gray-900">My Shop</h1>
+              <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
             </div>
 
             {/* Right - Profile Button with User Info */}
@@ -150,19 +150,19 @@ export const MyShop = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Order History Section */}
+        {/* Orders Section */}
         <div className="space-y-6">
           <Card className="bg-white/95 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Order History</CardTitle>
-              <CardDescription>View your previous orders and their status</CardDescription>
+              <CardTitle>Your Orders</CardTitle>
+              <CardDescription>Track your orders and view their current status</CardDescription>
             </CardHeader>
             <CardContent>
               {orders.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                   <p>No orders yet</p>
-                  <p className="text-sm">Start shopping to see your order history here</p>
+                  <p className="text-sm">Place your first order to see it here</p>
                 </div>
               ) : (
                 <div className="space-y-4">

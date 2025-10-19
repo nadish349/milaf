@@ -45,7 +45,7 @@ export const Footer = () => {
           </h2>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-[280px] sm:max-w-2xl mx-auto max-sm:text-xs">
             Join thousands of customers already enjoying the premium taste and quality 
-            of Milaf Cola across Australia, New Zealand, UAE, and Saudi Arabia.
+            of Milaf Cola across Australia and New Zealand.
           </p>
         </div>
 
@@ -66,8 +66,6 @@ export const Footer = () => {
             <ul className="space-y-1 sm:space-y-2 text-sm sm:text-base text-white/80 max-sm:text-xs">
               <li>Australia</li>
               <li>New Zealand</li>
-              <li>UAE</li>
-              <li>Saudi Arabia</li>
             </ul>
           </div>
           <div className="text-center sm:text-left">

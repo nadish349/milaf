@@ -34,7 +34,7 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
   const handleShopClick = () => {
     if (currentUser) {
       // User is logged in - navigate to MyShop page
-      navigate('/myshop');
+      navigate('/my-orders');
     } else {
       // User is not logged in - show login form
       setIsLoginOpen(true);
@@ -142,7 +142,7 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
                 }}
               >
                 <User className="w-4 h-4" />
-                <span>{currentUser ? 'MY SHOP' : 'Shop'}</span>
+                <span>{currentUser ? 'MY ORDERS' : 'Shop'}</span>
               </button>
             </div>
           </div>

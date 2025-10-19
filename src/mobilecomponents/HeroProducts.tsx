@@ -9,9 +9,10 @@ import khalasdates from "@/assets/khalasdates.png";
 
 interface HeroProductsProps {
   onGradientChange?: (gradient: string) => void;
+  onOrderNow?: (productId: number) => void;
 }
 
-export const HeroProducts = ({ onGradientChange }: HeroProductsProps): JSX.Element => {
+export const HeroProducts = ({ onGradientChange, onOrderNow }: HeroProductsProps): JSX.Element => {
   const [currentProduct, setCurrentProduct] = useState(0); // Start with milaf cola (id: 0)
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -279,6 +280,7 @@ export const HeroProducts = ({ onGradientChange }: HeroProductsProps): JSX.Eleme
               borderColor: currentProductData.id === 0 && currentProductData.textColor ? currentProductData.textColor : 'white',
               color: currentProductData.id === 0 && currentProductData.textColor ? currentProductData.textColor : 'white'
             }}
+            onClick={() => onOrderNow?.(currentProductData.id)}
           >
             Order Now
           </button>
