@@ -169,12 +169,31 @@ export const preloadHeroImages = (
       }
     };
 
-    // Preload all images
+    // Preload all images with high priority
     images.forEach(url => {
       const img = new Image();
+      img.loading = 'eager'; // High priority loading
+      img.fetchPriority = 'high'; // Browser hint for high priority
       img.onload = () => handleImageLoad(url);
       img.onerror = () => handleImageError(url);
       img.src = url;
     });
+  });
+};
+
+/**
+ * Fast preload for critical hero images only
+ */
+export const preloadCriticalHeroImages = (isMobile: boolean = false): void => {
+  const criticalImages = isMobile 
+    ? ['/src/assets/mobile/mobilepagehero.png', '/src/assets/mfhq.png']
+    : ['/src/assets/final4.png', '/src/assets/mfhq.png'];
+  
+  // Preload critical images immediately
+  criticalImages.forEach(url => {
+    const img = new Image();
+    img.loading = 'eager';
+    img.fetchPriority = 'high';
+    img.src = url;
   });
 };

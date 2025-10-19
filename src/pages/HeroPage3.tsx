@@ -6,44 +6,27 @@ import dates3 from "@/assets/browndate4.png";
 import cutdate4 from "@/assets/browndates5.png";
 import mfhq from "@/assets/mfhq.png";
 import colapowderburst from "@/assets/colapowderburst.png";
-import { preloadHeroImages } from "@/utils/imagePreloader";
+import { preloadHeroImages, preloadCriticalHeroImages } from "@/utils/imagePreloader";
 
 export const HeroPage3 = (): JSX.Element => {
   const [showIntroduction, setShowIntroduction] = useState(true);
   const [showMainContent, setShowMainContent] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
 
   useEffect(() => {
-    // Preload all hero images before starting animations
-    const preloadImages = async () => {
-      try {
-        const result = await preloadHeroImages(false, (loaded, total) => {
-          setLoadingProgress(Math.round((loaded / total) * 100));
-        });
-        
-        console.log('Hero images preloaded:', result);
-        setImagesLoaded(true);
-        
-        // Only start the introduction animation after images are loaded
-        const timer = setTimeout(() => {
-          setShowIntroduction(false);
-          setShowMainContent(true);
-        }, 1000); // Reduced delay since images are already loaded
-        
-        return () => clearTimeout(timer);
-      } catch (error) {
-        console.error('Error preloading images:', error);
-        // Fallback: start animation anyway after 3 seconds
-        const timer = setTimeout(() => {
-          setShowIntroduction(false);
-          setShowMainContent(true);
-        }, 3000);
-        return () => clearTimeout(timer);
-      }
-    };
+    // Start animations immediately for fast loading
+    const timer = setTimeout(() => {
+      setShowIntroduction(false);
+      setShowMainContent(true);
+    }, 800); // Very fast transition
+    
+    return () => clearTimeout(timer);
+  }, []);
 
-    preloadImages();
+  // Preload critical images immediately for instant loading
+  useEffect(() => {
+    preloadCriticalHeroImages(false);
+    // Preload remaining images in background
+    preloadHeroImages(false).catch(console.error);
   }, []);
 
   return (
@@ -60,17 +43,6 @@ export const HeroPage3 = (): JSX.Element => {
             <p className="text-white font-poppins text-2xl md:text-4xl leading-relaxed max-w-4xl animate-fade-in">
               THE FIRST EVER DATE'S COLA
             </p>
-            {!imagesLoaded && (
-              <div className="mt-8">
-                <div className="w-64 bg-gray-700 rounded-full h-2 mx-auto">
-                  <div 
-                    className="bg-white h-2 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${loadingProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-white text-sm mt-2">Loading images... {loadingProgress}%</p>
-              </div>
-            )}
           </div>
         </div>
       )}
