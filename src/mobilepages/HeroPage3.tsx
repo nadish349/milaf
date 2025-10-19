@@ -131,7 +131,7 @@ export const HeroPage3 = (): JSX.Element => {
       {/* Date Elements - Mobile and tablet optimized positioning */}
       <div className={`absolute inset-0 pointer-events-none transition-all duration-1000 ease-in-out ${
         showMainContent ? 'opacity-100' : 'opacity-0'
-      }`} style={{ zIndex: 999999, transitionDelay: showMainContent ? '0.5s' : '0s' }}>
+      }`} style={{ zIndex: 999999, transitionDelay: showMainContent ? '1.5s' : '0s' }}>
         
         
         {/* CUTDATE4 - Mobile and tablet optimized */}
@@ -162,7 +162,7 @@ export const HeroPage3 = (): JSX.Element => {
           width: isTablet ? 'calc(6rem * 1.2 * 1.15 * 0.7 * 0.9)' : 'calc(4.95rem * 1.2 * 1.15 * 0.7 * 0.9)', // Tablet: larger + 20% + 15% - 30% - 10%
           height: isTablet ? 'calc(5.28rem * 1.2 * 1.15 * 0.7 * 0.9)' : 'calc(4.4rem * 1.2 * 1.15 * 0.7 * 0.9)', // Tablet: larger + 20% + 15% - 30% - 10%
           zIndex: 1,
-          transitionDelay: showMainContent ? '0.5s' : '0s'
+          transitionDelay: showMainContent ? '1.5s' : '0s'
         }}
       />
       
@@ -180,7 +180,7 @@ export const HeroPage3 = (): JSX.Element => {
           height: isTablet ? 'calc(30rem * 1.2 * 1.3)' : 'calc(25.74rem * 1.2 * 1.3)', // Tablet: larger + 20% + 30%
           transform: 'rotate(14.77deg)',
           zIndex: 0,
-          transitionDelay: showMainContent ? '0.5s' : '0s'
+          transitionDelay: showMainContent ? '2.5s' : '0s'
         }}
       />
       
@@ -197,7 +197,7 @@ export const HeroPage3 = (): JSX.Element => {
           width: isTablet ? 'calc(7.5rem * 0.7)' : 'calc(6.325rem * 0.7)', // Tablet: larger - 30%
           height: isTablet ? 'calc(6rem * 0.7)' : 'calc(5.06rem * 0.7)', // Tablet: larger - 30%
           zIndex: 1,
-          transitionDelay: showMainContent ? '0.5s' : '0s'
+          transitionDelay: showMainContent ? '1.5s' : '0s'
         }}
       />
       
@@ -214,7 +214,7 @@ export const HeroPage3 = (): JSX.Element => {
           width: isTablet ? 'calc(5rem * 1.15 * 1.2 * 1.15)' : 'calc(4rem * 1.15 * 1.2 * 1.15)', // Tablet: larger + 15% + 20% + 15%
           height: isTablet ? 'calc(4.375rem * 1.15 * 1.2 * 1.15)' : 'calc(3.5rem * 1.15 * 1.2 * 1.15)', // Tablet: larger + 15% + 20% + 15%
           zIndex: 10,
-          transitionDelay: showMainContent ? '0.5s' : '0s'
+          transitionDelay: showMainContent ? '1.5s' : '0s'
         }}
       />
       
@@ -353,7 +353,7 @@ export const HeroPage3 = (): JSX.Element => {
            }
          }
          .cola-powder-reveal {
-           animation: circularReveal 1.5s ease-out 2s forwards; /* 2s delay - after dates appear */
+           animation: circularReveal 1.5s ease-out 3s forwards; /* 3s delay - after dates appear */
          }
        `}</style>
     </main>
