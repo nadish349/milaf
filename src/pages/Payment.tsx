@@ -34,11 +34,18 @@ export const Payment = (): JSX.Element => {
     companyName: "",
     buyerName: "",
     contact: "",
+    streetAddress: "",
     address: "",
     zipcode: ""
   });
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isLoadingShipping, setIsLoadingShipping] = useState(false);
+  const [shippingError, setShippingError] = useState<string>("");
+  const [auspostServices, setAuspostServices] = useState<any[]>([]);
+  const [auspostQuote, setAuspostQuote] = useState<any | null>(null);
+  const [isPaying, setIsPaying] = useState(false);
+  const [paymentError, setPaymentError] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -58,6 +65,7 @@ export const Payment = (): JSX.Element => {
           ...prev,
           buyerName: userData.displayName || "",
           contact: userData.phone || "",
+          streetAddress: userData.streetAddress || "",
           address: userData.address || "",
           zipcode: userData.zipcode || ""
         }));
@@ -77,6 +85,68 @@ export const Payment = (): JSX.Element => {
       [field]: value
     }));
   };
+
+  // Auto-fetch Australia Post services and quote when selected and zipcode is available
+  useEffect(() => {
+    const fetchShipping = async () => {
+      if (selectedDeliveryOption !== 'australian-post') {
+        setAuspostServices([]);
+        setAuspostQuote(null);
+        setShippingError("");
+        return;
+      }
+      if (!billingInfo.zipcode) return;
+
+      try {
+        setIsLoadingShipping(true);
+        setShippingError("");
+
+        // Fetch services using user's zipcode as to_postcode; server uses 2170 as from_postcode and fixed parcel dims
+        const servicesRes = await fetch(`http://localhost:4000/api/parcel/services?to_postcode=${encodeURIComponent(billingInfo.zipcode)}`);
+        const servicesJson = await servicesRes.json();
+        const services = servicesJson?.services?.service || [];
+        setAuspostServices(services);
+
+        if (!Array.isArray(services) || services.length === 0) {
+          setAuspostQuote(null);
+          setShippingError('No Australia Post services available for this postcode.');
+          return;
+        }
+
+        // Pick cheapest service by price
+        let cheapest = services[0];
+        for (const s of services) {
+          const p = Number(s.price);
+          const pc = Number(cheapest.price);
+          if (!isNaN(p) && (isNaN(pc) || p < pc)) cheapest = s;
+        }
+
+        // Calculate quote for selected service
+        const calcRes = await fetch(`http://localhost:4000/api/parcel/calc?to_postcode=${encodeURIComponent(billingInfo.zipcode)}&service_code=${encodeURIComponent(cheapest.code)}`);
+        const calcJson = await calcRes.json();
+        if (calcJson?.error) {
+          setAuspostQuote(null);
+          setShippingError(calcJson.error);
+        } else {
+          setAuspostQuote(calcJson?.postage_result || null);
+          // Save shipping cost and delivery time to localStorage for use in Checkpoint page
+          if (calcJson?.postage_result?.total_cost) {
+            localStorage.setItem('lastShippingCost', calcJson.postage_result.total_cost);
+          }
+          if (calcJson?.postage_result?.delivery_time) {
+            localStorage.setItem('deliveryTime', calcJson.postage_result.delivery_time);
+          }
+        }
+      } catch (e: any) {
+        setShippingError(e?.message || 'Failed to fetch Australia Post quote.');
+        setAuspostQuote(null);
+      } finally {
+        setIsLoadingShipping(false);
+      }
+    };
+
+    fetchShipping();
+  }, [selectedDeliveryOption, billingInfo.zipcode]);
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -238,57 +308,69 @@ export const Payment = (): JSX.Element => {
       id: "australian-post",
       name: "Australian Post",
       description: "Standard domestic shipping",
-      estimatedDays: "5-7 business days"
+      estimatedDays: ""
     }
   ];
 
-  const handleProceedToPayment = () => {
-    setShowPaymentForm(true);
+  const handleProceedToPayment = async () => {
+    try {
+      setIsPaying(true);
+      setPaymentError("");
+      const baseUrl = 'http://localhost:4000';
+      // Get Firebase auth token
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) {
+        setPaymentError('Please log in to continue with payment');
+        return;
+      }
+
+      // Save billing address and shipping mode to localStorage
+      localStorage.setItem('billingAddress', JSON.stringify(billingInfo));
+      localStorage.setItem('shippingMode', selectedDeliveryOption);
+
+      // Load public key and create order on backend (server recomputes totals)
+      const { loadRazorpay, getPublicKey, createOrder, verifyPayment } = await import('../services/paymentService');
+      await loadRazorpay();
+      const key = await getPublicKey(baseUrl);
+      const order = await createOrder(baseUrl, token, { cartItems, zipcode: billingInfo.zipcode });
+
+      // @ts-ignore
+      const rzp = new window.Razorpay({
+        key,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.orderId,
+        name: 'Milaf Cola Australia & NZ',
+        description: 'Order Payment',
+        handler: async function (response: any) {
+          try {
+            await verifyPayment(baseUrl, token, response);
+            alert('Payment successful!');
+            // Navigate to checkpoint/confirmation page
+            navigate('/checkpoint');
+          } catch (e: any) {
+            setPaymentError(e?.message || 'Verification failed');
+          }
+        },
+        prefill: {
+          name: billingInfo.buyerName,
+          contact: billingInfo.contact,
+        },
+        notes: { zipcode: billingInfo.zipcode },
+        theme: { color: '#10B981' },
+      });
+      rzp.open();
+    } catch (e: any) {
+      setPaymentError(e?.message || 'Payment initialization failed');
+    } finally {
+      setIsPaying(false);
+    }
   };
 
   const handleBackToForm = () => {
     setShowPaymentForm(false);
   };
 
-  // If showing payment form, display only the payment form
-  if (showPaymentForm) {
-    return (
-      <div 
-        className="min-h-screen"
-        style={{
-          backgroundImage: `url(${m1})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
-        <Header />
-        
-        <div className="pt-12 pb-4 px-4">
-          <div className="max-w-6xl mx-auto">
-            {/* Back Button */}
-            <button
-              onClick={handleBackToForm}
-              className="mb-2 w-8 h-8 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            {/* Page Title */}
-            <div className="text-center mb-4">
-              <h1 className="text-3xl font-bold text-white mb-1">Payment Method</h1>
-              <p className="text-white text-sm">Choose your preferred payment option</p>
-            </div>
-
-            {/* Payment Form */}
-            <MilafPaymentForm />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Show the billing and delivery form
   return (
@@ -333,15 +415,14 @@ export const Payment = (): JSX.Element => {
               <div className="space-y-2">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Company Name *
+                    Company Name
                   </label>
                   <input
                     type="text"
                     value={billingInfo.companyName}
                     onChange={(e) => handleInputChange("companyName", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Enter company name"
-                    required
+                    placeholder="Enter company name (optional)"
                   />
                 </div>
 
@@ -369,6 +450,20 @@ export const Payment = (): JSX.Element => {
                     onChange={(e) => handleInputChange("contact", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                     placeholder="Enter contact number"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Street Address *
+                  </label>
+                  <input
+                    type="text"
+                    value={billingInfo.streetAddress}
+                    onChange={(e) => handleInputChange("streetAddress", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                    placeholder="Enter street address"
                     required
                   />
                 </div>
@@ -470,11 +565,41 @@ export const Payment = (): JSX.Element => {
                           <div>
                             <h3 className="font-semibold text-gray-800 text-sm">{option.name}</h3>
                             <p className="text-xs text-gray-600">{option.description}</p>
-                            <p className="text-xs text-green-600 font-medium">Estimated: {option.estimatedDays}</p>
+                            {option.estimatedDays && (
+                              <p className="text-xs text-green-600 font-medium">Estimated: {option.estimatedDays}</p>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
+                    {option.id === 'australian-post' && selectedDeliveryOption === 'australian-post' && (
+                      <div className="mt-2 p-2 rounded bg-white border border-dashed border-gray-300">
+                        {isLoadingShipping ? (
+                          <p className="text-xs text-gray-600">Fetching Australia Post rates…</p>
+                        ) : shippingError ? (
+                          <p className="text-xs text-red-600">{shippingError}</p>
+                        ) : auspostQuote ? (
+                          <div className="text-xs text-gray-700">
+                            <div className="flex justify-between">
+                              <span>Service</span>
+                              <span className="font-semibold">{auspostQuote.service}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Shipping</span>
+                              <span className="font-semibold">${auspostQuote.total_cost}</span>
+                            </div>
+                            {auspostQuote.delivery_time && (
+                              <div className="flex justify-between">
+                                <span>Delivery Time</span>
+                                <span className="font-semibold">{auspostQuote.delivery_time}</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-gray-500">Enter your zip code to see shipping rates.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -497,9 +622,26 @@ export const Payment = (): JSX.Element => {
                 {cartItems.length === 0 ? (
                   <p className="text-xs text-gray-500">No items in cart</p>
                 ) : (
-                  <div className="flex justify-between text-lg font-bold text-gray-800">
-                    <span>Total</span>
-                    <span>${getTotalPrice().toFixed(2)}</span>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm text-gray-700">
+                      <span>Items</span>
+                      <span>${getTotalPrice().toFixed(2)}</span>
+                    </div>
+                    {selectedDeliveryOption === 'australian-post' && auspostQuote && (
+                      <div className="flex justify-between text-sm text-gray-700">
+                        <span>Shipping</span>
+                        <span>${auspostQuote.total_cost}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-lg font-bold text-gray-800 border-t pt-2">
+                      <span>Total</span>
+                      <span>${(
+                        getTotalPrice() + (selectedDeliveryOption === 'australian-post' && auspostQuote ? Number(auspostQuote.total_cost) || 0 : 0)
+                      ).toFixed(2)}</span>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 text-right">
+                      * Final amount will be calculated with shipping at checkout
+                    </div>
                   </div>
                 )}
               </div>
@@ -507,14 +649,17 @@ export const Payment = (): JSX.Element => {
           </div>
 
           {/* Proceed to Payment Button */}
-          <div className="flex justify-end">
+          <div className="flex flex-col items-end space-y-2">
             <button
               onClick={handleProceedToPayment}
-              disabled={!billingInfo.companyName || !billingInfo.buyerName || !billingInfo.contact || !billingInfo.address || !billingInfo.zipcode || !selectedDeliveryOption}
+              disabled={!billingInfo.buyerName || !billingInfo.contact || !billingInfo.streetAddress || !billingInfo.address || !billingInfo.zipcode || !selectedDeliveryOption || isPaying}
               className="bg-green-400 hover:bg-green-300 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-black font-bold text-base py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-full lg:w-auto"
             >
-              Proceed to Payment
+              {isPaying ? 'Processing Payment...' : 'Pay with Razorpay'}
             </button>
+            {paymentError && (
+              <div className="text-sm text-red-600 text-right">{paymentError}</div>
+            )}
           </div>
         </div>
       </div>

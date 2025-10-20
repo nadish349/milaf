@@ -2,20 +2,24 @@ import React, { useState, useEffect } from "react";
 import m1 from "@/assets/m1.png";
 import { Header } from "@/components/Header";
 import { useCart } from "@/contexts/CartContext";
+import { useProductCart } from "@/contexts/ProductCartContext";
+import { useBulkCart } from "@/contexts/BulkCartContext";
 import { useNavigate } from "react-router-dom";
 import { LoginForm } from "@/components/LoginForm";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRegularCartFetcher } from "@/services/cartFetcher";
+import { useCartFetcher } from "@/services/cartFetcher";
 import { useOrderSummary } from "@/services/orderSummaryService";
 
 export const Cart = (): JSX.Element => {
-  const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart } = useCart();
+  const { updateQuantity: updateRegularQuantity, removeFromCart: removeFromRegularCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart } = useCart();
+  const { updateQuantity: updateProductQuantity, removeFromCart: removeFromProductCart, mergeGuestCart: mergeProductGuestCart } = useProductCart();
+  const { updateQuantity: updateBulkQuantity, removeFromCart: removeFromBulkCart, mergeGuestCart: mergeBulkGuestCart } = useBulkCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
   
-  // Use cartFetcher for all cart data and functionality
-  const { cartItems, orderedItems, isLoadingOrders, loadCartAndOrders, getCartImage } = useRegularCartFetcher();
+  // Use cartFetcher for all cart data and functionality (includes regular, product, and bulk carts)
+  const { cartItems, orderedItems, isLoadingOrders, loadCartAndOrders, getCartImage } = useCartFetcher();
   
   // Use integrated orderSummaryService for comprehensive order calculations
   const { 
@@ -38,6 +42,44 @@ export const Cart = (): JSX.Element => {
   const handleBackToShop = () => {
     // Navigate back to the main shop page
     window.history.back();
+  };
+
+  // Unified cart operations that work with all cart types
+  const handleUpdateQuantity = async (item: any, newQuantity: number) => {
+    if (newQuantity < 1) {
+      await handleRemoveFromCart(item);
+      return;
+    }
+
+    switch (item.cartType) {
+      case 'regular':
+        await updateRegularQuantity(item.id, newQuantity);
+        break;
+      case 'product':
+        await updateProductQuantity(item.id, newQuantity);
+        break;
+      case 'bulk':
+        await updateBulkQuantity(item.id, newQuantity);
+        break;
+      default:
+        console.error('Unknown cart type:', item.cartType);
+    }
+  };
+
+  const handleRemoveFromCart = async (item: any) => {
+    switch (item.cartType) {
+      case 'regular':
+        await removeFromRegularCart(item.id);
+        break;
+      case 'product':
+        await removeFromProductCart(item.id);
+        break;
+      case 'bulk':
+        await removeFromBulkCart(item.id);
+        break;
+      default:
+        console.error('Unknown cart type:', item.cartType);
+    }
   };
 
   const handleProceedToCheckout = () => {
@@ -153,7 +195,7 @@ export const Cart = (): JSX.Element => {
                           {/* Quantity Controls */}
                           <div className="flex items-center space-x-2 mr-4">
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                               className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,7 +213,7 @@ export const Cart = (): JSX.Element => {
                             </span>
                             
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                               className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +234,7 @@ export const Cart = (): JSX.Element => {
 
                           {/* Remove Button */}
                           <button
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => handleRemoveFromCart(item)}
                             className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 transition-colors flex items-center justify-center text-red-600 hover:text-red-800"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,6 +428,8 @@ export const Cart = (): JSX.Element => {
         onLoginSuccess={async () => {
           // Merge guest cart with user cart after successful login
           await mergeGuestCart();
+          await mergeProductGuestCart();
+          await mergeBulkGuestCart();
           // After successful login, navigate to payment
           navigate('/payment');
         }}

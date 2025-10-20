@@ -3,6 +3,8 @@ import { X } from 'lucide-react';
 import { LoginForm } from '../components/LoginForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { useProductCart } from '@/contexts/ProductCartContext';
+import { useBulkCart } from '@/contexts/BulkCartContext';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -17,10 +19,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 }) => {
   const { user } = useAuth();
   const { mergeGuestCart } = useCart();
+  const { mergeGuestCart: mergeProductGuestCart } = useProductCart();
+  const { mergeGuestCart: mergeBulkGuestCart } = useBulkCart();
 
   const handleLoginSuccess = async () => {
     // Merge guest cart with user cart after successful login
     await mergeGuestCart();
+    await mergeProductGuestCart();
+    await mergeBulkGuestCart();
     onLoginSuccess?.();
     onClose();
   };

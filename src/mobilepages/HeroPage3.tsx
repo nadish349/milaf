@@ -91,7 +91,8 @@ export const HeroPage3 = (): JSX.Element => {
               showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-32'
             }`} style={{ 
               fontSize: isTablet ? 'clamp(4rem, 12vw, 7rem)' : 'clamp(3rem, 15vw, 6rem)', // Larger for tablet
-              opacity: showMainContent ? 0.7 : 0 
+              opacity: showMainContent ? 0.7 : 0,
+              marginTop: isTablet ? '-40px' : '-40px' // Move MILAF up by 40px to match COLA
             }}>M I L A F</h1>
           </div>
           <div className="flex justify-center">
@@ -100,7 +101,7 @@ export const HeroPage3 = (): JSX.Element => {
             }`} style={{ 
               fontSize: isTablet ? 'clamp(4rem, 12vw, 7rem)' : 'clamp(3rem, 15vw, 6rem)', // Larger for tablet
               opacity: showMainContent ? 0.7 : 0, 
-              marginTop: isTablet ? '-1.5rem' : '-1.2rem' // Tablet: -1.5rem, Mobile: -1.2rem
+              marginTop: isTablet ? 'calc(-1.5rem - 40px + 10px + 15px)' : 'calc(-1.2rem - 40px + 10px + 15px)' // Tablet: -1.5rem - 40px + 10px + 15px, Mobile: -1.2rem - 40px + 10px + 15px
             }}>C O L A</h1>
           </div>
         </div>
@@ -111,7 +112,7 @@ export const HeroPage3 = (): JSX.Element => {
         showMainContent ? 'opacity-100' : 'opacity-0'
       }`} style={{ 
         zIndex: 9999999, 
-        marginTop: isTablet ? '-7rem' : '-10.4rem' // Tablet: -7rem, Mobile: -10.4rem
+        marginTop: isTablet ? 'calc(-7rem - 30px - 30px)' : 'calc(-10.4rem - 30px - 30px)' // Tablet: -7rem - 60px, Mobile: -10.4rem - 60px
       }}>
         <p className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out ${
           showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-8'

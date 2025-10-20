@@ -296,7 +296,7 @@ export const MilafLandingPage = () => {
           <div>
             <h4 className="font-semibold">Get in Touch</h4>
             <ul className="mt-2 space-y-2 text-white/80">
-              <li><a href="mailto:hello@milafcola.com" className="hover:underline">hello@milafcola.com</a></li>
+              <li><a href="mailto:info@milafcola.com.au" className="hover:underline">info@milafcola.com.au</a></li>
               <li><a href="#" className="hover:underline">Instagram</a></li>
               <li><a href="#" className="hover:underline">X (Twitter)</a></li>
             </ul>

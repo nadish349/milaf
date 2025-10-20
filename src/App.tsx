@@ -13,6 +13,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Cart = lazy(() => import("./pages/Cart").then(module => ({ default: module.Cart })));
 const BulkOrder = lazy(() => import("./pages/BulkOrder").then(module => ({ default: module.BulkOrder })));
 const Payment = lazy(() => import("./pages/Payment").then(module => ({ default: module.Payment })));
+const Checkpoint = lazy(() => import("./pages/Checkpoint").then(module => ({ default: module.Checkpoint })));
 const MyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
 const BusinessInquiry = lazy(() => import("./pages/BusinessInquiry").then(module => ({ default: module.BusinessInquiry })));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout").then(module => ({ default: module.AdminLayout })));
@@ -26,6 +27,7 @@ const MobileNotFound = lazy(() => import("./mobilepages/NotFound"));
 const MobileCart = lazy(() => import("./mobilepages/Cart").then(module => ({ default: module.Cart })));
 const MobileBulkOrder = lazy(() => import("./mobilepages/BulkOrder").then(module => ({ default: module.BulkOrder })));
 const MobilePayment = lazy(() => import("./mobilepages/Payment").then(module => ({ default: module.Payment })));
+const MobileCheckpoint = lazy(() => import("./mobilepages/Checkpoint").then(module => ({ default: module.Checkpoint })));
 const MobileMyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
 const MobileBusinessInquiry = lazy(() => import("./mobilepages/BusinessInquiry").then(module => ({ default: module.BusinessInquiry })));
 const MobileAdminLayout = lazy(() => import("./mobilepages/admin/AdminLayout").then(module => ({ default: module.AdminLayout })));
@@ -59,6 +61,7 @@ const MobileRoutes = () => (
       <Route path="/my-orders" element={<MobileMyShop />} />
       <Route path="/bulk-order" element={<MobileBulkOrder />} />
       <Route path="/payment" element={<MobilePayment />} />
+      <Route path="/checkpoint" element={<MobileCheckpoint />} />
       <Route path="/business-inquiry" element={<MobileBusinessInquiry />} />
       
       {/* Admin Routes */}
@@ -83,6 +86,7 @@ const DesktopRoutes = () => (
       <Route path="/my-orders" element={<MyShop />} />
       <Route path="/bulk-order" element={<BulkOrder />} />
       <Route path="/payment" element={<Payment />} />
+      <Route path="/checkpoint" element={<Checkpoint />} />
       <Route path="/business-inquiry" element={<BusinessInquiry />} />
       
       {/* Admin Routes */}

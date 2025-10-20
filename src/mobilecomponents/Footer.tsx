@@ -99,7 +99,7 @@ export const Footer = () => {
             </div>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
-              <span className="text-sm sm:text-base">Mark@milafcola.com.au</span>
+              <span className="text-sm sm:text-base">info@milafcola.com.au</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
