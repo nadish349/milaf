@@ -9,6 +9,7 @@ import m1 from "@/assets/m1.png";
 import { auth, db } from "@/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { PostalCodeSuggestion } from "@/utils/postalCodeService";
+import { getAusPostServicesUrl, getAusPostCalcUrl, API_CONFIG, isBackendAvailable } from "../config/api";
 
 interface DeliveryOption {
   id: string;
@@ -101,8 +102,14 @@ export const Payment = (): JSX.Element => {
         setIsLoadingShipping(true);
         setShippingError("");
 
+        // Check if backend is available
+        if (!isBackendAvailable()) {
+          setShippingError("Backend service is not available. Please contact support or try again later.");
+          return;
+        }
+
         // Fetch services using user's zipcode as to_postcode; server uses 2170 as from_postcode and fixed parcel dims
-        const servicesRes = await fetch(`http://localhost:4000/api/parcel/services?to_postcode=${encodeURIComponent(billingInfo.zipcode)}`);
+        const servicesRes = await fetch(getAusPostServicesUrl(billingInfo.zipcode));
         const servicesJson = await servicesRes.json();
         const services = servicesJson?.services?.service || [];
         setAuspostServices(services);
@@ -122,7 +129,7 @@ export const Payment = (): JSX.Element => {
         }
 
         // Calculate quote for selected service
-        const calcRes = await fetch(`http://localhost:4000/api/parcel/calc?to_postcode=${encodeURIComponent(billingInfo.zipcode)}&service_code=${encodeURIComponent(cheapest.code)}`);
+        const calcRes = await fetch(getAusPostCalcUrl(billingInfo.zipcode, cheapest.code));
         const calcJson = await calcRes.json();
         if (calcJson?.error) {
           setAuspostQuote(null);
@@ -316,7 +323,14 @@ export const Payment = (): JSX.Element => {
     try {
       setIsPaying(true);
       setPaymentError("");
-      const baseUrl = 'http://localhost:4000';
+      
+      // Check if backend is available
+      if (!isBackendAvailable()) {
+        setPaymentError("Payment service is not available. Please contact support or try again later.");
+        return;
+      }
+      
+      const baseUrl = API_CONFIG.BASE_URL;
       // Get Firebase auth token
       const token = await auth.currentUser?.getIdToken();
       if (!token) {
