@@ -1,28 +1,45 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: join(__dirname, '.env') });
+
+// Debug environment variables
+console.log('🔍 Environment check:', {
+  AUSPOST_API_KEY: process.env.AUSPOST_API_KEY ? 'SET' : 'MISSING',
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID ? 'SET' : 'MISSING',
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET ? 'SET' : 'MISSING'
+});
 
 const app = express();
-const PORT = process.env.PORT || 8054;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 
-const API_KEY = process.env.AUSPOST_API_KEY;
+const API_KEY = process.env.AUSPOST_API_KEY || 'aad38b44-e83f-4b79-8dfa-861f9761a495';
 const BASE = 'https://digitalapi.auspost.com.au/postage/parcel/domestic';
 
 // Debug
 console.log("🔑 Loaded API Key:", API_KEY ? API_KEY.substring(0, 8) + "... (hidden)" : "❌ Not found");
 
-// Helper using native fetch
+// Helper using native fetch with robust content checks
 async function fetchAusPost(url) {
-  const result = await fetch(url, { headers: { 'auth-key': API_KEY } });
+  const result = await fetch(url, { headers: { 'auth-key': API_KEY, 'Accept': 'application/json' } });
+  const contentType = result.headers.get('content-type') || '';
   const text = await result.text();
+  if (!contentType.includes('application/json')) {
+    const snippet = text.slice(0, 300);
+    throw new Error(`AusPost returned non-JSON (status ${result.status}). First bytes: ${snippet}`);
+  }
   let data;
-  try { data = JSON.parse(text); } 
-  catch { throw new Error(`Invalid JSON from AusPost: ${text}`); }
-  if (!result.ok) throw new Error(data?.error?.errorMessage || "Unknown AusPost error");
+  try { data = JSON.parse(text); }
+  catch { throw new Error(`Invalid JSON from AusPost: ${text.slice(0, 300)}`); }
+  if (!result.ok) throw new Error(data?.error?.errorMessage || `AusPost HTTP ${result.status}`);
   return data;
 }
 
@@ -60,5 +77,13 @@ app.get('/api/auspost/calc', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Routes
+import parcelController from './controllers/parcelController.js';
+app.use('/api/parcel', parcelController);
+
+// Payment routes
+import paymentController from './controllers/paymentController.js';
+app.use('/api/payment', paymentController);
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
