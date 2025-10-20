@@ -2,46 +2,215 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Milaf Cola - Premium Beverage Experience</title>
-    <meta name="description" content="Experience the perfect blend of tradition and innovation with Milaf Cola. Crafted with premium ingredients and uncompromising quality." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Milaf Cola — Official Distributor | Australia & New Zealand | UAE & Saudi Arabia</title>
+    <meta name="description" content="Milaf Cola — Official Australian & New Zealand distributor (Silians Paris Group). Wholesale, bulk orders, and authorised supply for Australia, New Zealand, UAE & Saudi Arabia." />
     <meta name="author" content="Milaf Cola" />
+    <meta name="keywords" content="milaf cola, milafcola, milaf-cola, milaf cola australia, milaf cola new zealand, milaf cola uae, milaf cola dubai, milaf cola saudi, milafcola australia, milafcola new zealand, buy milaf cola, milaf cola buy online, milaf cola distributor, milaf cola distributor australia, milaf cola distributor nz, milaf cola wholesaler, milaf cola wholesale, milaf cola bulk, milaf cola bulk orders, milaf cola supplier, milaf cola exporter, milafcola distributor, milafcola wholesale, milaf cola authorised distributor, milaf cola official distributor, milafcola near me, milaf cola near me, milaf cola stockists australia, milaf cola stockists nz, milaf cola retailers, where to buy milaf cola, milaf cola online order, order milaf cola bulk, milaf cola australia online, milaf cola nz online, milaf cola dubai buy, milaf cola saudi buy, milafcola uae, milafcola saudi arabia, milaf cola middle east, milaf cola gulf region, official milaf cola, genuine milaf cola, authentic milaf cola, milaf cola official site, milaf cola contact, milaf cola customer service, milaf cola authorised, milaf cola trademark, buy milaf cola online, milafcola wholesale supplier, milaf cola bulk supplier, buy milaf cola wholesale, milaf cola distributor contact, milaf cola exports, milaf cola importers, milaf cola international distributor, milaf cola shipping, milaf cola deliveries, book milaf cola, milafcola booking" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://milaf.ae.vercel.app/" />
+    
+    <!-- Performance Optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com">
+    <link rel="preconnect" href="https://firebase.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+    
+    <!-- Preload critical resources - only preload images used on main page -->
+    <!-- Removed image preloads to avoid warnings on admin pages -->
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Andada+Pro:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andada+Pro:wght@400;500;600;700&display=swap"></noscript>
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="author" content="Milaf Cola Australia & NZ Pty Ltd" />
+    <meta name="copyright" content="Milaf Cola Australia & NZ Pty Ltd" />
+    <meta name="language" content="en" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="distribution" content="global" />
+    <meta name="rating" content="general" />
+    <meta name="coverage" content="worldwide" />
+    <meta name="target" content="all" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="width" />
+    <meta name="apple-mobile-web-app-title" content="Milaf Cola" />
+    <meta name="application-name" content="Milaf Cola" />
+    <meta name="msapplication-TileImage" content="https://milaf.ae.vercel.app/assets/milafcola.png" />
+    <meta name="msapplication-config" content="none" />
+    
+    <!-- Business Information Meta Tags -->
+    <meta name="business:contact:phone" content="+61 401 855 965" />
+    <meta name="business:contact:email" content="Mark@milafcola.com.au" />
+    <meta name="business:contact:country" content="Australia" />
+    <meta name="business:contact:region" content="New South Wales" />
+    <meta name="business:contact:city" content="Sydney" />
+    
+    <!-- Product Meta Tags -->
+    <meta name="product:name" content="Milaf Cola" />
+    <meta name="product:category" content="Beverages" />
+    <meta name="product:brand" content="Milaf Cola" />
+    <meta name="product:availability" content="in stock" />
+    <meta name="product:condition" content="new" />
+    
+    <!-- Geographic Meta Tags -->
+    <meta name="geo.region" content="AU" />
+    <meta name="geo.placename" content="Sydney, Australia" />
+    <meta name="geo.position" content="-33.8688;151.2093" />
+    <meta name="ICBM" content="-33.8688, 151.2093" />
+    
+    <!-- Social Media Meta Tags -->
+    <meta name="twitter:creator" content="@milafcola" />
+    <meta name="twitter:label1" content="Contact" />
+    <meta name="twitter:data1" content="Mark@milafcola.com.au" />
+    <meta name="twitter:label2" content="Phone" />
+    <meta name="twitter:data2" content="+61 401 855 965" />
+    
+    <!-- Additional Open Graph Meta Tags -->
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Milaf Cola - Premium Beverage Brand" />
+    <meta property="og:site_name" content="Milaf Cola Australia & NZ Pty Ltd" />
+    <meta property="og:locale:alternate" content="ar_SA" />
+    <meta property="og:locale:alternate" content="en_AU" />
+    <meta property="og:locale:alternate" content="en_NZ" />
+    
+    <!-- Business Schema Meta Tags -->
+    <meta name="business:contact:website" content="https://milaf.ae.vercel.app" />
+    <meta name="business:contact:social:instagram" content="https://www.instagram.com/milafcola_australia" />
+    <meta name="business:contact:social:facebook" content="https://www.facebook.com/people/MilafCola-Australia/61576722392140/" />
+    <meta name="business:contact:social:tiktok" content="https://www.tiktok.com/@milafcolaaustralia?lang=en" />
+    <meta name="business:contact:social:linkedin" content="https://www.linkedin.com/company/milafcola-australia-nz" />
 
-    <meta property="og:title" content="Milaf Cola - Premium Beverage Experience" />
-    <meta property="og:description" content="Experience the perfect blend of tradition and innovation with Milaf Cola. Crafted with premium ingredients and uncompromising quality." />
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Milaf Cola — Official Distributor | Australia & New Zealand | UAE & Saudi Arabia" />
+    <meta property="og:description" content="Milaf Cola — Official Australian & New Zealand distributor (Silians Paris Group). Wholesale, bulk orders, and authorised supply for Australia, New Zealand, UAE & Saudi Arabia." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://nadish349.github.io/milaf/src/assets/milafcola.png" />
+    <meta property="og:url" content="https://milaf.ae.vercel.app/" />
+    <meta property="og:image" content="https://milaf.ae.vercel.app/assets/milafcola.png" />
+    <meta property="og:site_name" content="Milaf Cola" />
+    <meta property="og:locale" content="en_US" />
 
+    <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@milafcola" />
-    <meta name="twitter:image" content="https://nadish349.github.io/milaf/src/assets/milafcola.png" />
-    <script type="module" crossorigin src="/milaf/assets/index-BT4rTgZ8.js"></script>
-    <link rel="stylesheet" crossorigin href="/milaf/assets/index-CRpACoAG.css">
+    <meta name="twitter:title" content="Milaf Cola — Official Distributor | Australia & New Zealand | UAE & Saudi Arabia" />
+    <meta name="twitter:description" content="Milaf Cola — Official Australian & New Zealand distributor (Silians Paris Group). Wholesale, bulk orders, and authorised supply for Australia, New Zealand, UAE & Saudi Arabia." />
+    <meta name="twitter:image" content="https://milaf.ae.vercel.app/assets/milafcola.png" />
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="msapplication-TileColor" content="#000000" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/milafico.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="/milafico.ico" />
+    <link rel="apple-touch-icon" href="/milafico.ico" />
+    
+    <!-- Structured Data (JSON-LD) for Google Knowledge Graph -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Milaf Cola Australia & NZ Pty Ltd",
+      "alternateName": ["Milaf Cola", "MilafCola Australia", "MilafCola New Zealand"],
+      "url": "https://milaf.ae.vercel.app",
+      "email": "Mark@milafcola.com.au",
+      "telephone": "+61 401 855 965",
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "Silians Paris Group Pty Ltd"
+      },
+      "sameAs": [
+        "https://www.instagram.com/milafcola_australia",
+        "https://www.facebook.com/people/MilafCola-Australia/61576722392140/",
+        "https://www.tiktok.com/@milafcolaaustralia?lang=en",
+        "https://www.linkedin.com/company/milafcola-australia-nz"
+      ],
+      "logo": "https://milaf.ae.vercel.app/assets/milafcola.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "AU"
+      }
+    }
+    </script>
+    
+    <!-- Additional Product Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Milaf Cola",
+      "brand": {
+        "@type": "Brand",
+        "name": "Milaf Cola"
+      },
+      "manufacturer": {
+        "@type": "Organization",
+        "name": "Milaf Cola Australia & NZ Pty Ltd"
+      },
+      "category": "Beverages",
+      "description": "Premium quality cola beverage distributed across Australia, New Zealand, UAE, and Saudi Arabia",
+      "image": "https://milaf.ae.vercel.app/assets/milafcola.png",
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/InStock",
+        "priceCurrency": "AUD",
+        "seller": {
+          "@type": "Organization",
+          "name": "Milaf Cola Australia & NZ Pty Ltd"
+        }
+      }
+    }
+    </script>
+    
+    <!-- Local Business Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Milaf Cola Australia & NZ Pty Ltd",
+      "image": "https://milaf.ae.vercel.app/assets/milafcola.png",
+      "telephone": "+61 401 855 965",
+      "email": "Mark@milafcola.com.au",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "AU",
+        "addressRegion": "New South Wales",
+        "addressLocality": "Sydney"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -33.8688,
+        "longitude": 151.2093
+      },
+      "openingHours": "Mo-Fr 09:00-17:00",
+      "priceRange": "$$",
+      "currenciesAccepted": "AUD, USD, EUR",
+      "paymentAccepted": "Cash, Credit Card, Bank Transfer"
+    }
+    </script>
+    <script type="module" crossorigin src="/assets/js/index-jHmpFEMT.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/js/vendor-CyyySG0f.js">
+    <link rel="modulepreload" crossorigin href="/assets/js/ui-D10HkiTw.js">
+    <link rel="modulepreload" crossorigin href="/assets/js/router-Dpy7eVzN.js">
+    <link rel="modulepreload" crossorigin href="/assets/js/firebase-rYhY7HPw.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-fwboWhQe.css">
   </head>
 
   <body>
     <div id="root"></div>
-    <script type="text/javascript">
-      // Single Page Apps for GitHub Pages
-      // MIT License
-      // https://github.com/rafgraph/spa-github-pages
-      // This script checks to see if a redirect is present in the query string,
-      // converts it back into the correct url and adds it to the
-      // browser's history using window.history.replaceState(...),
-      // which won't cause the browser to attempt to load the new url.
-      // When the single page app is loaded further down in this file,
-      // the correct url will be waiting in the browser's history for
-      // the single page app to route accordingly.
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded + l.hash
-          );
-        }
-      }(window.location))
-    </script>
+
   </body>
 </html>

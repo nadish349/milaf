@@ -1,0 +1,1 @@
+import{m as a,c as s,d as e,s as t,k as o,a as r}from"./milafcola-BJYXYRQ2.js";const i={"Milaf Cola":a,"Choco Spread":s,"Date Spread":e,"Safawi Dates":t,"Khalas Dates":o,"Segai Dates":r},l=s=>{let e=i[s];if(!e){const a=s.split(" ").map(a=>a.charAt(0).toUpperCase()+a.slice(1).toLowerCase()).join(" ");e=i[a]}return e||a};export{l as g};
