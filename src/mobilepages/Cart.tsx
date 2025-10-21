@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import m1 from "@/assets/m1.png";
 import { Header } from "@/mobilecomponents/Header";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/mobilecontexts/CartContext";
 import { useProductCart } from "@/contexts/ProductCartContext";
 import { useBulkCart } from "@/contexts/BulkCartContext";
 import { useNavigate } from "react-router-dom";

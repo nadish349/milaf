@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import milaflogo from "@/assets/milaflogo.png";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/mobilecontexts/CartContext";
 import { User } from "lucide-react";
 import { LoginForm } from "../components/LoginForm";
 import { auth, db } from "@/firebase";

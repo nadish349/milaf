@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "../mobilecomponents/Header";
 import { MilafPaymentForm } from "../mobilecomponents/MilafPaymentForm";
 import { AddressAutocomplete } from "../mobilecomponents/AddressAutocomplete";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/mobilecontexts/CartContext";
 import { getProductImage } from "@/utils/productImages";
 import m1 from "@/assets/m1.png";
 import { auth, db } from "@/firebase";

@@ -2,7 +2,7 @@ import React from 'react';
 import { X } from 'lucide-react';
 import { LoginForm } from '../components/LoginForm';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/contexts/CartContext';
+import { useCart } from '@/mobilecontexts/CartContext';
 import { useProductCart } from '@/contexts/ProductCartContext';
 import { useBulkCart } from '@/contexts/BulkCartContext';
 
