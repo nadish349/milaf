@@ -35,29 +35,19 @@ export const HeroPage3 = (): JSX.Element => {
     bgImg.src = mobilepagehero;
   }, []);
 
-  // Second: Show introduction after background loads
+  // Second: Show content immediately after background loads (no image preloading dependency)
   useEffect(() => {
     if (backgroundLoaded) {
-      // Start preloading all images when background is ready with optimized caching
-      preloadHeroImagesOptimized(true, (loaded, total) => {
-        if (loaded === total) {
-          setAllImagesLoaded(true);
-        }
-      }).catch(console.error);
-    }
-  }, [backgroundLoaded]);
-
-  // Third: Start main content after all images are loaded
-  useEffect(() => {
-    if (allImagesLoaded) {
       const timer = setTimeout(() => {
         setShowIntroduction(false);
         setShowMainContent(true);
-      }, 1000); // Give a moment for smooth transition
+        // Load other images in background after main content is visible
+        preloadHeroImagesOptimized(true, () => {}).catch(console.error);
+      }, 300); // Reduced from 1000ms for faster landing
       
       return () => clearTimeout(timer);
     }
-  }, [allImagesLoaded]);
+  }, [backgroundLoaded]);
 
   return (
     <main 
@@ -81,7 +71,7 @@ export const HeroPage3 = (): JSX.Element => {
       <div className={`flex items-center justify-center h-full transition-all duration-1000 ease-in-out ${
         showMainContent ? 'blur-none opacity-100' : 'blur-md opacity-30'
       }`} style={{ 
-        zIndex: 9999999, 
+        zIndex: 10, 
         position: 'relative', 
         marginTop: isTablet ? '-8rem' : '-11.2rem' // Tablet: -8rem, Mobile: -11.2rem
       }}>
@@ -111,7 +101,7 @@ export const HeroPage3 = (): JSX.Element => {
       <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out ${
         showMainContent ? 'opacity-100' : 'opacity-0'
       }`} style={{ 
-        zIndex: 9999999, 
+        zIndex: 5, 
         marginTop: isTablet ? 'calc(-7rem - 30px - 30px)' : 'calc(-10.4rem - 30px - 30px)' // Tablet: -7rem - 60px, Mobile: -10.4rem - 60px
       }}>
         <p className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out ${
@@ -132,48 +122,57 @@ export const HeroPage3 = (): JSX.Element => {
       {/* Date Elements - Mobile and tablet optimized positioning */}
       <div className={`absolute inset-0 pointer-events-none transition-all duration-1000 ease-in-out ${
         showMainContent ? 'opacity-100' : 'opacity-0'
-      }`} style={{ zIndex: 999999, transitionDelay: showMainContent ? '1.5s' : '0s' }}>
+      }`} style={{ zIndex: 3, transitionDelay: showMainContent ? '1.5s' : '0s' }}>
         
         
-        {/* CUTDATE4 - Mobile and tablet optimized */}
+        {/* CUTDATE4 - Mobile and tablet optimized with hardware acceleration */}
         <img 
           src={cutdate4} 
           alt="Cut Date 4" 
-          className="absolute animate-float"
+          className="absolute animate-float-optimized"
+          loading="lazy"
           style={{
             left: isTablet ? 'calc(50% - 1.5rem - 70px - 20px)' : 'calc(50% - 1rem - 70px - 20px)', // Tablet: moved left - 70px - 20px
             top: isTablet ? 'calc(25% + 10rem - 70px - 25px)' : 'calc(25% + 12.6rem - 70px - 25px)', // Tablet: moved up - 70px - 25px
             width: isTablet ? 'calc(4.5rem * 1.2 * 1.1 * 0.9 * 1.1)' : 'calc(3.85rem * 1.2 * 1.1 * 0.9 * 1.1)', // Tablet: larger + 20% + 10% - 10% + 10%
-            height: isTablet ? 'calc(4.5rem * 1.2 * 1.1 * 0.9 * 1.1)' : 'calc(3.85rem * 1.2 * 1.1 * 0.9 * 1.1)' // Tablet: larger + 20% + 10% - 10% + 10%
+            height: isTablet ? 'calc(4.5rem * 1.2 * 1.1 * 0.9 * 1.1)' : 'calc(3.85rem * 1.2 * 1.1 * 0.9 * 1.1)', // Tablet: larger + 20% + 10% - 10% + 10%
+            willChange: 'transform',
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden'
           }}
         />
         
       </div>
       
-      {/* DATES2 - Moved outside high z-index container to appear behind mfhq - Mobile and tablet optimized */}
+      {/* DATES2 - Lazy loaded with optimized animation - Mobile and tablet optimized */}
       <img 
         src={dates2} 
         alt="Dates 2" 
-        className={`absolute animate-sway-rotated transition-all duration-1000 ease-in-out ${
+        className={`absolute animate-sway-optimized transition-all duration-1000 ease-in-out ${
           showMainContent ? 'opacity-100' : 'opacity-0'
         }`}
+        loading="lazy"
         style={{
           left: isTablet ? 'calc(50% + 5rem - 40px + 40px + 40px - 50px + 10px)' : 'calc(50% + 4rem - 40px + 40px + 40px - 50px + 10px)', // Tablet: moved right - 40px + 40px + 40px - 50px + 10px
           top: isTablet ? 'calc(45% + 8rem - 200px + 20px + 20px + 10px)' : 'calc(45% + 10rem - 200px + 20px + 20px + 10px)', // Tablet: moved up - 200px + 20px + 20px + 10px
           width: isTablet ? 'calc(6rem * 1.2 * 1.15 * 0.7 * 0.9)' : 'calc(4.95rem * 1.2 * 1.15 * 0.7 * 0.9)', // Tablet: larger + 20% + 15% - 30% - 10%
           height: isTablet ? 'calc(5.28rem * 1.2 * 1.15 * 0.7 * 0.9)' : 'calc(4.4rem * 1.2 * 1.15 * 0.7 * 0.9)', // Tablet: larger + 20% + 15% - 30% - 10%
           zIndex: 1,
-          transitionDelay: showMainContent ? '1.5s' : '0s'
+          transitionDelay: showMainContent ? '1.5s' : '0s',
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
         }}
       />
       
-       {/* Cola Powder Burst - Circular reveal animation - Mobile and tablet optimized */}
+       {/* Cola Powder Burst - Lazy loaded circular reveal animation - Mobile and tablet optimized */}
        <img 
          src={colapowderburst} 
          alt="Cola Powder Burst" 
          className={`absolute cola-powder-reveal transition-all duration-1000 ease-in-out ${
            showMainContent ? 'opacity-100' : 'opacity-0'
          }`}
+         loading="lazy"
          style={{
            left: isTablet ? 'calc(50% - 10rem - 50px - 40px + 10px)' : 'calc(50% - 8rem - 50px - 40px + 10px)', // Tablet: moved left + 50px + 40px + 10px
           top: isTablet ? 'calc(50% - 2rem - 50px - 60px - 50px)' : 'calc(50% - 1.2rem - 50px - 60px - 50px)', // Tablet: moved up + 50px + 60px + 50px
@@ -181,75 +180,91 @@ export const HeroPage3 = (): JSX.Element => {
           height: isTablet ? 'calc(30rem * 1.2 * 1.3)' : 'calc(25.74rem * 1.2 * 1.3)', // Tablet: larger + 20% + 30%
           transform: 'rotate(14.77deg)',
           zIndex: 0,
-          transitionDelay: showMainContent ? '2.5s' : '0s'
+          transitionDelay: showMainContent ? '2.5s' : '0s',
+          willChange: 'transform',
+          backfaceVisibility: 'hidden'
         }}
       />
       
-      {/* DATES1 - Browndate2 image positioned behind mfhq can - Mobile and tablet optimized */}
+      {/* DATES1 - Lazy loaded Browndate2 image positioned behind mfhq can - Mobile and tablet optimized */}
       <img 
         src={dates1} 
         alt="Dates 1" 
-        className={`absolute animate-float-dates1 transition-all duration-1000 ease-in-out ${
+        className={`absolute animate-float-optimized transition-all duration-1000 ease-in-out ${
           showMainContent ? 'opacity-100' : 'opacity-0'
         }`}
+        loading="lazy"
         style={{
           left: isTablet ? 'calc(50% - 1.5rem + 60px + 40px + 20px - 50px - 30px - 20px + 20px - 10px)' : 'calc(50% - 1rem + 60px + 40px + 20px - 50px - 30px - 20px + 20px - 10px)', // Tablet: moved left + 60px + 40px + 20px - 50px - 30px - 20px + 20px - 10px
           top: isTablet ? 'calc(55% + 8rem - 250px - 20px - 30px - 40px + 30px + 50px + 25px + 150px + 70px)' : 'calc(55% + 10.2rem - 250px - 20px - 30px - 40px + 30px + 50px + 25px + 150px + 70px)', // Tablet: moved up - 250px - 20px - 30px - 40px + 30px + 50px + 25px + 150px + 70px
           width: isTablet ? 'calc(7.5rem * 0.7)' : 'calc(6.325rem * 0.7)', // Tablet: larger - 30%
           height: isTablet ? 'calc(6rem * 0.7)' : 'calc(5.06rem * 0.7)', // Tablet: larger - 30%
           zIndex: 1,
-          transitionDelay: showMainContent ? '1.5s' : '0s'
+          transitionDelay: showMainContent ? '1.5s' : '0s',
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
         }}
       />
       
-      {/* DATES3 - Browndate4 image positioned in front of mfhq can - Mobile and tablet optimized */}
+      {/* DATES3 - Lazy loaded Browndate4 image positioned in front of mfhq can - Mobile and tablet optimized */}
       <img 
         src={dates3} 
         alt="Dates 3" 
-        className={`absolute animate-sway-dates2 transition-all duration-1000 ease-in-out ${
+        className={`absolute animate-sway-optimized transition-all duration-1000 ease-in-out ${
           showMainContent ? 'opacity-100' : 'opacity-0'
         }`}
+        loading="lazy"
         style={{
           left: isTablet ? 'calc(50% - 10rem)' : 'calc(50% - 8.4rem)', // Tablet: moved left
           top: isTablet ? 'calc(60% + 8rem)' : 'calc(60% + 10rem)', // Tablet: moved up
           width: isTablet ? 'calc(5rem * 1.15 * 1.2 * 1.15)' : 'calc(4rem * 1.15 * 1.2 * 1.15)', // Tablet: larger + 15% + 20% + 15%
           height: isTablet ? 'calc(4.375rem * 1.15 * 1.2 * 1.15)' : 'calc(3.5rem * 1.15 * 1.2 * 1.15)', // Tablet: larger + 15% + 20% + 15%
           zIndex: 10,
-          transitionDelay: showMainContent ? '1.5s' : '0s'
+          transitionDelay: showMainContent ? '1.5s' : '0s',
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
         }}
       />
       
-       {/* Tilted COLA can - Mobile and tablet optimized positioning */}
+       {/* Tilted COLA can - Lazy loaded with mobile and tablet optimized positioning */}
        <img 
          src={mfhq} 
          alt="Tilted COLA can" 
          className={`absolute transition-all duration-1000 ease-out ${
            showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-32'
          }`}
+         loading="lazy"
          style={{
           left: isTablet ? 'calc(50% - 10rem + 20px + 20px - 40px)' : 'calc(50% - 8rem + 20px + 20px - 40px)', // Tablet: moved left + 20px + 20px - 40px
           top: isTablet ? 'calc(50% - 2rem - 40px - 10px)' : 'calc(50% - 1.2rem - 40px - 10px)', // Tablet: moved up - 40px - 10px
            width: isTablet ? 'calc(20rem * 0.9)' : 'calc(17.16rem * 0.9)', // Tablet: larger - 10%
            height: isTablet ? 'calc(30rem * 0.9)' : 'calc(25.74rem * 0.9)', // Tablet: larger - 10%
           transform: showMainContent ? 'rotate(-0.23deg)' : 'rotate(-0.23deg) translateY(-8rem)',
-          zIndex: 5
+          zIndex: 5,
+          willChange: 'transform',
+          backfaceVisibility: 'hidden'
          }}
        />
        
-       {/* Bottom Tilted COLA can - Opposite side rotation - Mobile and tablet optimized */}
+       {/* Bottom Tilted COLA can - Lazy loaded with opposite side rotation - Mobile and tablet optimized */}
        <img 
          src={mfhq} 
          alt="Bottom Tilted COLA can" 
          className={`absolute transition-all duration-1000 ease-out ${
            showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-32'
          }`}
+         loading="lazy"
          style={{
           left: isTablet ? 'calc(50% + 8rem - 20px - 60px - 70px + 70px)' : 'calc(50% + 6rem - 20px - 60px - 70px + 70px)', // Tablet: moved right - 20px - 60px - 70px + 70px
           top: isTablet ? 'calc(100vh - 12rem + 40px + 20px)' : 'calc(100vh - 10rem + 40px + 20px)', // Tablet: moved up from bottom + 40px + 20px
            width: isTablet ? 'calc(20rem * 0.9 * 0.6 * 1.1 * 1.2)' : 'calc(17.16rem * 0.9 * 0.6 * 1.1 * 1.2)', // Tablet: larger - 10% - 40% + 10% + 20%
            height: isTablet ? 'calc(30rem * 0.9 * 0.6 * 1.1 * 1.2)' : 'calc(25.74rem * 0.9 * 0.6 * 1.1 * 1.2)', // Tablet: larger - 10% - 40% + 10% + 20%
            transform: showMainContent ? 'rotate(-50deg)' : 'rotate(-50deg) translateY(8rem)',
-           zIndex: 6
+           zIndex: 6,
+           willChange: 'transform',
+           backfaceVisibility: 'hidden'
          }}
        />
        
@@ -268,65 +283,32 @@ export const HeroPage3 = (): JSX.Element => {
            animation: fadeIn 1s ease-out forwards;
          }
          
-         @keyframes float {
-           0%, 100% {
-             transform: translateY(0px);
-           }
-           50% {
-             transform: translateY(-10px);
-           }
-         }
-         .animate-float {
-           animation: float 1.5s ease-in-out infinite;
-         }
-         
-         @keyframes sway {
-           0%, 100% {
-             transform: translateX(0px);
-           }
-           50% {
-             transform: translateX(-8px);
-           }
-         }
-         .animate-sway {
-           animation: sway 2s ease-in-out infinite;
-         }
-         
-         @keyframes swayRotated {
-           0%, 100% {
-             transform: rotate(80deg) translateX(0px);
-           }
-           50% {
-             transform: rotate(80deg) translateX(-8px);
-           }
-         }
-         .animate-sway-rotated {
-           animation: swayRotated 2s ease-in-out infinite;
-         }
-         
-         @keyframes floatDates1 {
-           0%, 100% {
-             transform: translateY(0px);
-           }
-           50% {
-             transform: translateY(-12px);
-           }
-         }
-         .animate-float-dates1 {
-           animation: floatDates1 2.5s ease-in-out infinite;
-         }
-         
-         @keyframes swayDates2 {
-           0%, 100% {
-             transform: translateX(0px);
-           }
-           50% {
-             transform: translateX(-6px);
-           }
-         }
-         .animate-sway-dates2 {
-           animation: swayDates2 2.2s ease-in-out infinite;
-         }
+        /* Optimized animations with hardware acceleration */
+        @keyframes floatOptimized {
+          0%, 100% {
+            transform: translate3d(0, 0, 0);
+          }
+          50% {
+            transform: translate3d(0, -8px, 0);
+          }
+        }
+        .animate-float-optimized {
+          animation: floatOptimized 3s ease-in-out infinite;
+          will-change: transform;
+        }
+        
+        @keyframes swayOptimized {
+          0%, 100% {
+            transform: translate3d(0, 0, 0);
+          }
+          50% {
+            transform: translate3d(-4px, 0, 0);
+          }
+        }
+        .animate-sway-optimized {
+          animation: swayOptimized 4s ease-in-out infinite;
+          will-change: transform;
+        }
          
          @keyframes colaDrop {
            0% {
