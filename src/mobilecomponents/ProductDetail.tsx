@@ -6,7 +6,7 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useProductCart } from "@/contexts/ProductCartContext";
+import { useCart } from "@/mobilecontexts/CartContext";
 import { handleProductAddToCart } from "@/services/productCartPlacer";
 import { Notification } from "./Notification";
 import { BulkOrderPopup } from "./BulkOrderPopup";
@@ -30,7 +30,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useProductCart();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   // Load products from database

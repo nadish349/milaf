@@ -30,6 +30,7 @@ const MobileBusinessInquiry = lazy(() => import("./mobilepages/BusinessInquiry")
 import { CartProvider } from "./contexts/CartContext";
 import { BulkCartProvider } from "./contexts/BulkCartContext";
 import { ProductCartProvider } from "./contexts/ProductCartContext";
+import { CartProvider as MobileCartProvider } from "./mobilecontexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -46,20 +47,22 @@ const LoadingSpinner = () => (
 
 // Mobile breakpoint component
 const MobileRoutes = () => (
-  <Suspense fallback={<LoadingSpinner />}>
-    <Routes>
-      <Route path="/" element={<MobileIndex />} />
-      <Route path="/cart" element={<MobileCart />} />
-      <Route path="/my-orders" element={<MobileMyShop />} />
-      <Route path="/bulk-order" element={<MobileBulkOrder />} />
-      <Route path="/payment" element={<MobilePayment />} />
-      <Route path="/checkpoint" element={<MobileCheckpoint />} />
-      <Route path="/business-inquiry" element={<MobileBusinessInquiry />} />
-      
-      
-      <Route path="*" element={<MobileNotFound />} />
-    </Routes>
-  </Suspense>
+  <MobileCartProvider>
+    <Suspense fallback={<LoadingSpinner />}>
+      <Routes>
+        <Route path="/" element={<MobileIndex />} />
+        <Route path="/cart" element={<MobileCart />} />
+        <Route path="/my-orders" element={<MobileMyShop />} />
+        <Route path="/bulk-order" element={<MobileBulkOrder />} />
+        <Route path="/payment" element={<MobilePayment />} />
+        <Route path="/checkpoint" element={<MobileCheckpoint />} />
+        <Route path="/business-inquiry" element={<MobileBusinessInquiry />} />
+        
+        
+        <Route path="*" element={<MobileNotFound />} />
+      </Routes>
+    </Suspense>
+  </MobileCartProvider>
 );
 
 // Desktop breakpoint component

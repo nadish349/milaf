@@ -15,9 +15,11 @@ interface HeaderProps {
 
 export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false }: HeaderProps): JSX.Element => {
   const navigate = useNavigate();
-  const { getTotalItems } = useCart();
+  const { getTotalItems, cartItems } = useCart();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [cartUpdateTrigger, setCartUpdateTrigger] = useState(0);
+  const [tempCartCount, setTempCartCount] = useState(0);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -25,6 +27,25 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // Force re-render when cart items change
+  useEffect(() => {
+    // This will trigger a re-render when cartItems change
+    console.log('🛒 Desktop Header: Cart items changed:', cartItems.length, 'total items:', getTotalItems());
+    setCartUpdateTrigger(prev => prev + 1);
+  }, [cartItems, getTotalItems]);
+
+  // Listen for custom guest cart update events
+  useEffect(() => {
+    const handleGuestCartUpdate = (e: CustomEvent) => {
+      const { totalItems } = e.detail;
+      console.log('🛒 Desktop: Guest cart update event detected, updating temp cart count to:', totalItems);
+      setTempCartCount(totalItems);
+    };
+
+    window.addEventListener('guestCartUpdated', handleGuestCartUpdate as EventListener);
+    return () => window.removeEventListener('guestCartUpdated', handleGuestCartUpdate as EventListener);
   }, []);
 
   const handleCartClick = () => {
@@ -123,9 +144,9 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
                 <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
               </svg>
               {/* Cart Badge - shows real item count */}
-              {getTotalItems() > 0 && (
+              {(getTotalItems() > 0 || tempCartCount > 0) && (
                 <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                  {getTotalItems()}
+                  {tempCartCount > 0 ? tempCartCount : getTotalItems()}
                 </div>
               )}
             </div>

@@ -103,11 +103,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           if (existingItem) {
             // If item already exists, increase quantity
             console.log('📈 Updating existing item quantity');
-            return prev.map(cartItem =>
+            const updated = prev.map(cartItem =>
               cartItem.name === item.name
                 ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
                 : cartItem
             );
+            console.log('🛒 Mobile cart updated (existing):', updated);
+            return updated;
           } else {
             // If item doesn't exist, add new item with unique ID
             console.log('➕ Adding new item to local cart');
@@ -115,7 +117,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
               ...item,
               id: Date.now() // Simple unique ID generation
             };
-            return [...prev, newItem];
+            const updated = [...prev, newItem];
+            console.log('🛒 Mobile cart updated (new):', updated);
+            return updated;
           }
         });
       } else {
@@ -129,7 +133,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const loadGuestCart = () => {
+    console.log('🔄 Mobile loadGuestCart called');
     const guestCartItems = getGuestCart();
+    console.log('🛒 Guest cart items from localStorage:', guestCartItems);
     const localCartItems: CartItem[] = guestCartItems.map((item, index) => ({
       id: Date.now() + index, // Generate unique ID
       name: item.name,
@@ -140,8 +146,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       description: item.description,
       gradient: item.gradient
     }));
+    console.log('🛒 Mobile cart items being set:', localCartItems);
     setCartItems(localCartItems);
     setIsGuest(true);
+    console.log('✅ Mobile guest cart loaded, items count:', localCartItems.length);
   };
 
   const removeFromCart = async (id: number) => {
@@ -224,7 +232,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const getTotalItems = () => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
+    const total = cartItems.reduce((total, item) => total + item.quantity, 0);
+    console.log('🛒 Mobile getTotalItems called:', total, 'cartItems:', cartItems.length);
+    return total;
   };
 
   const getTotalPrice = () => {
@@ -342,6 +352,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Load user's cart when they log in, or load guest cart when not logged in
   useEffect(() => {
+    console.log('🔄 Mobile cart useEffect triggered, user:', user?.uid);
     if (user) {
       setIsGuest(false);
       loadUserCart();
@@ -350,6 +361,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       loadGuestCart();
     }
   }, [user]);
+
+  // Debug cart items changes
+  useEffect(() => {
+    console.log('🛒 Mobile cart items changed:', cartItems);
+  }, [cartItems]);
 
   // Note: Removed automatic price updates to preserve cart prices
   // Cart prices should be locked in when items are added, not updated from current product prices

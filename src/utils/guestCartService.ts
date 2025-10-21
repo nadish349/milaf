@@ -32,7 +32,9 @@ export const saveGuestCart = (cartItems: GuestCartItem[]): void => {
 };
 
 export const addToGuestCart = (item: Omit<GuestCartItem, 'id' | 'addedAt'>): void => {
+  console.log('🛒 addToGuestCart called with item:', item);
   const cartItems = getGuestCart();
+  console.log('🛒 Current guest cart items:', cartItems);
   
   // Always create a new item for each cart addition
   const newItem: GuestCartItem = {
@@ -41,8 +43,17 @@ export const addToGuestCart = (item: Omit<GuestCartItem, 'id' | 'addedAt'>): voi
     addedAt: Date.now()
   };
   cartItems.push(newItem);
+  console.log('🛒 Updated guest cart items:', cartItems);
   
   saveGuestCart(cartItems);
+  console.log('✅ Guest cart saved to localStorage');
+  
+  // Trigger custom event for immediate cart count update
+  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+  console.log('🛒 Triggering cart update event with total items:', totalItems);
+  window.dispatchEvent(new CustomEvent('guestCartUpdated', { 
+    detail: { totalItems, cartItems } 
+  }));
 };
 
 export const removeFromGuestCart = (itemId: string): void => {
