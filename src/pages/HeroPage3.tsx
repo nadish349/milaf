@@ -23,29 +23,19 @@ export const HeroPage3 = (): JSX.Element => {
     bgImg.src = final4;
   }, []);
 
-  // Second: Show introduction after background loads
+  // Second: Show content immediately after background loads (no image preloading dependency)
   useEffect(() => {
     if (backgroundLoaded) {
-      // Start preloading all images when background is ready with optimized caching
-      preloadHeroImagesOptimized(false, (loaded, total) => {
-        if (loaded === total) {
-          setAllImagesLoaded(true);
-        }
-      }).catch(console.error);
-    }
-  }, [backgroundLoaded]);
-
-  // Third: Start main content after all images are loaded
-  useEffect(() => {
-    if (allImagesLoaded) {
       const timer = setTimeout(() => {
         setShowIntroduction(false);
         setShowMainContent(true);
-      }, 1000); // Give a moment for smooth transition
+        // Load other images in background after main content is visible
+        preloadHeroImagesOptimized(false, () => {}).catch(console.error);
+      }, 300); // Reduced from 1000ms for faster landing
       
       return () => clearTimeout(timer);
     }
-  }, [allImagesLoaded]);
+  }, [backgroundLoaded]);
 
   return (
     <main 
@@ -67,7 +57,7 @@ export const HeroPage3 = (): JSX.Element => {
       
       <div className={`flex items-center justify-center h-full pt-20 transition-all duration-1000 ease-in-out ${
         showMainContent ? 'blur-none opacity-100' : 'blur-md opacity-30'
-      }`} style={{ zIndex: 9999999, position: 'relative' }}>
+      }`} style={{ zIndex: 10, position: 'relative' }}>
         <div className="flex items-center justify-center w-full px-6 space-x-16">
           <div className="flex justify-center">
             <h1 className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out ${
@@ -85,7 +75,7 @@ export const HeroPage3 = (): JSX.Element => {
       {/* ENRICHED . SMOOTH . text */}
       <div className={`absolute inset-0 flex flex-col items-start justify-end pb-48 pl-[21.7cm] transition-all duration-1000 ease-in-out ${
         showMainContent ? 'opacity-100' : 'opacity-0'
-      }`} style={{ zIndex: 9999999 }}>
+      }`} style={{ zIndex: 5 }}>
         <p className={`text-black font-bold font-poppins uppercase transition-all duration-1000 ease-out ${
           showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-8'
         }`} style={{ fontSize: '30px', opacity: showMainContent ? 0.3 : 0 }}>ENRICHED . SMOOTH .</p>
@@ -97,46 +87,55 @@ export const HeroPage3 = (): JSX.Element => {
       {/* Date Elements positioned according to Figma design */}
       <div className={`absolute inset-0 pointer-events-none transition-all duration-1000 ease-in-out ${
         showMainContent ? 'opacity-100' : 'opacity-0'
-      }`} style={{ zIndex: 999999, transitionDelay: showMainContent ? '0.5s' : '0s' }}>
-        {/* CUTDATE4 - x=778, y=194, w=144, h=150 - moved 7cm left and 3cm up with animation, reduced by 30% total */}
+      }`} style={{ zIndex: 3, transitionDelay: showMainContent ? '0.5s' : '0s' }}>
+        {/* CUTDATE4 - Lazy loaded with optimized positioning and animation */}
         <img 
           src={cutdate4} 
           alt="Cut Date 4" 
-          className="absolute animate-float"
+          className="absolute animate-float-optimized"
+          loading="lazy"
           style={{
             left: 'calc(778px - 7cm - 70px)',
             top: 'calc(194px - 3cm)',
             width: 'calc(144px * 0.9 * 0.9 * 0.9 * 1.2 * 1.1 * 0.9 * 1.1)',
-            height: 'calc(150px * 0.9 * 0.9 * 0.9 * 1.2 * 1.1 * 0.9 * 1.1)'
+            height: 'calc(150px * 0.9 * 0.9 * 0.9 * 1.2 * 1.1 * 0.9 * 1.1)',
+            willChange: 'transform',
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden'
           }}
         />
         
       </div>
       
-      {/* DATES2 - Moved outside high z-index container to appear behind mfhq */}
+      {/* DATES2 - Lazy loaded with optimized animation and positioning */}
       <img 
         src={dates2} 
         alt="Dates 2" 
-        className={`absolute animate-sway-rotated transition-all duration-1000 ease-in-out ${
+        className={`absolute animate-sway-optimized transition-all duration-1000 ease-in-out ${
           showMainContent ? 'opacity-100' : 'opacity-0'
         }`}
+        loading="lazy"
         style={{
           left: 'calc(976px - 7.5cm - 40px + 40px + 40px)',
           top: 'calc(552px - 5.5cm - 200px + 20px + 20px + 10px)',
           width: 'calc(170.45px * 0.7 * 1.1 * 1.2 * 1.15 * 0.7 * 0.9)',
           height: 'calc(149.9px * 0.7 * 1.1 * 1.2 * 1.15 * 0.7 * 0.9)',
           zIndex: 1,
-          transitionDelay: showMainContent ? '0.5s' : '0s'
+          transitionDelay: showMainContent ? '0.5s' : '0s',
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
         }}
       />
       
-       {/* Cola Powder Burst - Circular reveal animation */}
+       {/* Cola Powder Burst - Lazy loaded circular reveal animation */}
        <img 
          src={colapowderburst} 
          alt="Cola Powder Burst" 
          className={`absolute cola-powder-reveal transition-all duration-1000 ease-in-out ${
            showMainContent ? 'opacity-100' : 'opacity-0'
          }`}
+         loading="lazy"
          style={{
            left: 'calc(315px + 0.5cm - 50px - 40px)',
            top: 'calc(-537px + 16.5cm - 50px - 60px - 50px)',
@@ -144,75 +143,91 @@ export const HeroPage3 = (): JSX.Element => {
            height: 'calc(1696.52px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1 * 1.2 * 1.3 - 10px)',
            transform: 'rotate(14.77deg)',
            zIndex: 0,
-           transitionDelay: showMainContent ? '0.5s' : '0s'
+           transitionDelay: showMainContent ? '0.5s' : '0s',
+           willChange: 'transform',
+           backfaceVisibility: 'hidden'
          }}
        />
       
-      {/* DATES1 - Browndate2 image positioned behind mfhq can */}
+      {/* DATES1 - Lazy loaded Browndate2 image positioned behind mfhq can */}
       <img 
         src={dates1} 
         alt="Dates 1" 
-        className={`absolute animate-float-dates1 transition-all duration-1000 ease-in-out ${
+        className={`absolute animate-float-optimized transition-all duration-1000 ease-in-out ${
           showMainContent ? 'opacity-100' : 'opacity-0'
         }`}
+        loading="lazy"
         style={{
           left: 'calc(824px - 8cm + 60px + 40px + 20px + 30px)',
           top: 'calc(743px - 8cm - 250px - 20px - 30px - 40px + 30px)',
           width: 'calc(237px * 0.9 * 0.9 * 0.7 * 0.5)',
           height: 'calc(188px * 0.9 * 0.9 * 0.7 * 0.5)',
           zIndex: 1,
-          transitionDelay: showMainContent ? '0.5s' : '0s'
+          transitionDelay: showMainContent ? '0.5s' : '0s',
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
         }}
       />
       
-      {/* DATES3 - Browndate4 image positioned in front of mfhq can */}
+      {/* DATES3 - Lazy loaded Browndate4 image positioned in front of mfhq can */}
       <img 
         src={dates3} 
         alt="Dates 3" 
-        className={`absolute animate-sway-dates2 transition-all duration-1000 ease-in-out ${
+        className={`absolute animate-sway-optimized transition-all duration-1000 ease-in-out ${
           showMainContent ? 'opacity-100' : 'opacity-0'
         }`}
+        loading="lazy"
         style={{
           left: 'calc(439px - 4cm)',
           top: 'calc(813px - 8cm)',
           width: 'calc(156px * 0.8 * 1.15 * 1.2 * 1.15)',
           height: 'calc(135px * 0.8 * 1.15 * 1.2 * 1.15)',
           zIndex: 10,
-          transitionDelay: showMainContent ? '0.5s' : '0s'
+          transitionDelay: showMainContent ? '0.5s' : '0s',
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
         }}
       />
       
-       {/* Tilted COLA can - x=315, y=-537, w=1131.01, h=1696.52, rotation=14.77°, reduced by 30% total, moved 4.5cm down and 0.5cm right with animation */}
+       {/* Tilted COLA can - Lazy loaded with optimized animation */}
        <img 
          src={mfhq} 
          alt="Tilted COLA can" 
          className={`absolute transition-all duration-1000 ease-out ${
            showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-32'
          }`}
+         loading="lazy"
          style={{
            left: 'calc(315px + 0.5cm + 20px + 20px)',
            top: 'calc(-537px + 16.5cm)',
            width: 'calc(1131.01px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1 * 0.9 - 10px)',
            height: 'calc(1696.52px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1 * 0.9 - 10px)',
-                      transform: showMainContent ? 'rotate(14.77deg)' : 'rotate(14.77deg) translateY(-8rem)',
-            zIndex: 5
-        }}
-      />
+           transform: showMainContent ? 'rotate(14.77deg)' : 'rotate(14.77deg) translateY(-8rem)',
+           zIndex: 5,
+           willChange: 'transform',
+           backfaceVisibility: 'hidden'
+         }}
+       />
       
-      {/* Bottom Tilted COLA can - Opposite side rotation */}
+      {/* Bottom Tilted COLA can - Lazy loaded with opposite side rotation */}
       <img 
         src={mfhq} 
         alt="Bottom Tilted COLA can" 
         className={`absolute transition-all duration-1000 ease-out ${
           showMainContent ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-32'
         }`}
+        loading="lazy"
         style={{
           left: 'calc(50% + 200px - 20px - 60px - 70px)',
           top: 'calc(100vh - 200px)',
           width: 'calc(1131.01px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1 * 0.9 * 0.6 * 1.1 * 1.2 - 10px)',
           height: 'calc(1696.52px * 0.9 * 0.9 * 0.9 * 0.5 * 1.1 * 0.9 * 0.6 * 1.1 * 1.2 - 10px)',
           transform: showMainContent ? 'rotate(-50deg)' : 'rotate(-50deg) translateY(8rem)',
-          zIndex: 6
+          zIndex: 6,
+          willChange: 'transform',
+          backfaceVisibility: 'hidden'
         }}
       />
       
@@ -231,64 +246,31 @@ export const HeroPage3 = (): JSX.Element => {
           animation: fadeIn 1s ease-out forwards;
         }
         
-        @keyframes float {
+        /* Optimized animations with hardware acceleration */
+        @keyframes floatOptimized {
           0%, 100% {
-            transform: translateY(0px);
+            transform: translate3d(0, 0, 0);
           }
           50% {
-            transform: translateY(-10px);
+            transform: translate3d(0, -8px, 0);
           }
         }
-        .animate-float {
-          animation: float 1.5s ease-in-out infinite;
+        .animate-float-optimized {
+          animation: floatOptimized 3s ease-in-out infinite;
+          will-change: transform;
         }
         
-        @keyframes sway {
+        @keyframes swayOptimized {
           0%, 100% {
-            transform: translateX(0px);
+            transform: translate3d(0, 0, 0);
           }
           50% {
-            transform: translateX(-8px);
+            transform: translate3d(-4px, 0, 0);
           }
         }
-        .animate-sway {
-          animation: sway 2s ease-in-out infinite;
-        }
-        
-        @keyframes swayRotated {
-          0%, 100% {
-            transform: rotate(80deg) translateX(0px);
-          }
-          50% {
-            transform: rotate(80deg) translateX(-8px);
-          }
-        }
-        .animate-sway-rotated {
-          animation: swayRotated 2s ease-in-out infinite;
-        }
-        
-        @keyframes floatDates1 {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-12px);
-          }
-        }
-        .animate-float-dates1 {
-          animation: floatDates1 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes swayDates2 {
-          0%, 100% {
-            transform: translateX(0px);
-          }
-          50% {
-            transform: translateX(-6px);
-          }
-        }
-        .animate-sway-dates2 {
-          animation: swayDates2 2.2s ease-in-out infinite;
+        .animate-sway-optimized {
+          animation: swayOptimized 4s ease-in-out infinite;
+          will-change: transform;
         }
         
         @keyframes colaDrop {

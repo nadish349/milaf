@@ -16,10 +16,6 @@ const Payment = lazy(() => import("./pages/Payment").then(module => ({ default: 
 const Checkpoint = lazy(() => import("./pages/Checkpoint").then(module => ({ default: module.Checkpoint })));
 const MyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
 const BusinessInquiry = lazy(() => import("./pages/BusinessInquiry").then(module => ({ default: module.BusinessInquiry })));
-const AdminLayout = lazy(() => import("./pages/admin/AdminLayout").then(module => ({ default: module.AdminLayout })));
-const AdminOrders = lazy(() => import("./pages/admin/AdminOrders").then(module => ({ default: module.AdminOrders })));
-const AdminProducts = lazy(() => import("./pages/admin/AdminProducts").then(module => ({ default: module.AdminProducts })));
-const AdminInquiries = lazy(() => import("./pages/admin/AdminInquiries").then(module => ({ default: module.AdminInquiries })));
 
 // Mobile Components
 const MobileIndex = lazy(() => import("./mobilepages/Index"));
@@ -30,10 +26,6 @@ const MobilePayment = lazy(() => import("./mobilepages/Payment").then(module => 
 const MobileCheckpoint = lazy(() => import("./mobilepages/Checkpoint").then(module => ({ default: module.Checkpoint })));
 const MobileMyShop = lazy(() => import("./pages/MyShop").then(module => ({ default: module.MyShop })));
 const MobileBusinessInquiry = lazy(() => import("./mobilepages/BusinessInquiry").then(module => ({ default: module.BusinessInquiry })));
-const MobileAdminLayout = lazy(() => import("./mobilepages/admin/AdminLayout").then(module => ({ default: module.AdminLayout })));
-const MobileAdminOrders = lazy(() => import("./mobilepages/admin/AdminOrders").then(module => ({ default: module.AdminOrders })));
-const MobileAdminProducts = lazy(() => import("./mobilepages/admin/AdminProducts").then(module => ({ default: module.AdminProducts })));
-const MobileAdminInquiries = lazy(() => import("./mobilepages/admin/AdminInquiries").then(module => ({ default: module.AdminInquiries })));
 
 import { CartProvider } from "./contexts/CartContext";
 import { BulkCartProvider } from "./contexts/BulkCartContext";
@@ -64,13 +56,6 @@ const MobileRoutes = () => (
       <Route path="/checkpoint" element={<MobileCheckpoint />} />
       <Route path="/business-inquiry" element={<MobileBusinessInquiry />} />
       
-      {/* Admin Routes */}
-      <Route path="/admin" element={<MobileAdminLayout />}>
-        <Route index element={<MobileAdminProducts />} />
-        <Route path="orders" element={<MobileAdminOrders />} />
-        <Route path="products" element={<MobileAdminProducts />} />
-        <Route path="inquiries" element={<MobileAdminInquiries />} />
-      </Route>
       
       <Route path="*" element={<MobileNotFound />} />
     </Routes>
@@ -89,13 +74,6 @@ const DesktopRoutes = () => (
       <Route path="/checkpoint" element={<Checkpoint />} />
       <Route path="/business-inquiry" element={<BusinessInquiry />} />
       
-      {/* Admin Routes */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminProducts />} />
-        <Route path="orders" element={<AdminOrders />} />
-        <Route path="products" element={<AdminProducts />} />
-        <Route path="inquiries" element={<AdminInquiries />} />
-      </Route>
       
       <Route path="*" element={<NotFound />} />
     </Routes>

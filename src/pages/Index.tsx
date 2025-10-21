@@ -97,7 +97,7 @@ const Index = () => {
       </style>
       <div className="custom-scrollbar">
         <Hero3 />
-        <Hero />
+        {/* <Hero /> */}
         <HeroProductsSection onGradientChange={setHeroGradient} onOrderNow={handleOrderNow} />
         <Page2Section />
         <Page3Section />
