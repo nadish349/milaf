@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Suspense, lazy } from "react";
@@ -32,7 +31,6 @@ import { CartProvider } from "./contexts/CartContext";
 import { CartProvider as MobileCartProvider } from "./mobilecontexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 
-const queryClient = new QueryClient();
 
 // Loading component
 const LoadingSpinner = () => (
@@ -127,19 +125,17 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <CartProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
-              </BrowserRouter>
-            </TooltipProvider>
-          </CartProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
+            </BrowserRouter>
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 };
