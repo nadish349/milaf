@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { useProductCart } from "@/contexts/ProductCartContext";
-import { useBulkCart } from "@/contexts/BulkCartContext";
-import { useRegularCartFetcher } from "@/services/cartFetcher";
+import { useCartFetcher } from "@/services/cartFetcher";
 
 export interface OrderSummaryData {
   subtotal: number;

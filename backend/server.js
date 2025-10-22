@@ -7,7 +7,13 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Load environment variables first
 dotenv.config({ path: join(__dirname, '.env') });
+
+// Set environment variables explicitly for all modules
+process.env.RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_hR7AnaghyZb2Kx';
+process.env.RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'dz3eMDJg0x2BBacee9U9tbQI';
+process.env.AUSPOST_API_KEY = process.env.AUSPOST_API_KEY || 'aad38b44-e83f-4b79-8dfa-861f9761a495';
 
 // Debug environment variables
 console.log('🔍 Environment check:', {

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Suspense, lazy } from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Lazy load components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -28,8 +29,6 @@ const MobileMyShop = lazy(() => import("./pages/MyShop").then(module => ({ defau
 const MobileBusinessInquiry = lazy(() => import("./mobilepages/BusinessInquiry").then(module => ({ default: module.BusinessInquiry })));
 
 import { CartProvider } from "./contexts/CartContext";
-import { BulkCartProvider } from "./contexts/BulkCartContext";
-import { ProductCartProvider } from "./contexts/ProductCartContext";
 import { CartProvider as MobileCartProvider } from "./mobilecontexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -51,11 +50,31 @@ const MobileRoutes = () => (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
         <Route path="/" element={<MobileIndex />} />
-        <Route path="/cart" element={<MobileCart />} />
-        <Route path="/my-orders" element={<MobileMyShop />} />
-        <Route path="/bulk-order" element={<MobileBulkOrder />} />
-        <Route path="/payment" element={<MobilePayment />} />
-        <Route path="/checkpoint" element={<MobileCheckpoint />} />
+        <Route path="/cart" element={
+          <ProtectedRoute>
+            <MobileCart />
+          </ProtectedRoute>
+        } />
+        <Route path="/my-orders" element={
+          <ProtectedRoute>
+            <MobileMyShop />
+          </ProtectedRoute>
+        } />
+        <Route path="/bulk-order" element={
+          <ProtectedRoute>
+            <MobileBulkOrder />
+          </ProtectedRoute>
+        } />
+        <Route path="/payment" element={
+          <ProtectedRoute>
+            <MobilePayment />
+          </ProtectedRoute>
+        } />
+        <Route path="/checkpoint" element={
+          <ProtectedRoute>
+            <MobileCheckpoint />
+          </ProtectedRoute>
+        } />
         <Route path="/business-inquiry" element={<MobileBusinessInquiry />} />
         
         
@@ -70,11 +89,31 @@ const DesktopRoutes = () => (
   <Suspense fallback={<LoadingSpinner />}>
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="/my-orders" element={<MyShop />} />
-      <Route path="/bulk-order" element={<BulkOrder />} />
-      <Route path="/payment" element={<Payment />} />
-      <Route path="/checkpoint" element={<Checkpoint />} />
+      <Route path="/cart" element={
+        <ProtectedRoute>
+          <Cart />
+        </ProtectedRoute>
+      } />
+      <Route path="/my-orders" element={
+        <ProtectedRoute>
+          <MyShop />
+        </ProtectedRoute>
+      } />
+      <Route path="/bulk-order" element={
+        <ProtectedRoute>
+          <BulkOrder />
+        </ProtectedRoute>
+      } />
+      <Route path="/payment" element={
+        <ProtectedRoute>
+          <Payment />
+        </ProtectedRoute>
+      } />
+      <Route path="/checkpoint" element={
+        <ProtectedRoute>
+          <Checkpoint />
+        </ProtectedRoute>
+      } />
       <Route path="/business-inquiry" element={<BusinessInquiry />} />
       
       
@@ -91,17 +130,13 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <CartProvider>
-            <BulkCartProvider>
-              <ProductCartProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
-                  </BrowserRouter>
-                </TooltipProvider>
-              </ProductCartProvider>
-            </BulkCartProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                {isMobile ? <MobileRoutes /> : <DesktopRoutes />}
+              </BrowserRouter>
+            </TooltipProvider>
           </CartProvider>
         </AuthProvider>
       </QueryClientProvider>

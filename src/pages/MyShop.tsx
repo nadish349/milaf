@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Edit3, Package, Calendar, DollarSign } from "lucide-react";
+import { User, Edit3, Package, Calendar, DollarSign, CheckCircle } from "lucide-react";
 import { auth, db } from "@/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import { ProfileEditPopup } from "@/components/ProfileEditPopup";
+import { getOrderedItems } from "@/services/cartService";
 import m1Image from "@/assets/m1.png";
 
 interface UserData {
@@ -21,11 +22,17 @@ interface UserData {
 
 interface OrderItem {
   id: string;
-  productName: string;
+  name: string;
   quantity: number;
   price: number;
-  orderDate: Date;
-  status: string;
+  cases?: boolean;
+  pieces?: boolean;
+  payment: boolean;
+  paidAt?: Date;
+  category?: string;
+  description?: string;
+  itemTotal: number;
+  itemType: string;
 }
 
 export const MyShop = () => {
@@ -58,26 +65,28 @@ export const MyShop = () => {
 
   const loadOrders = async () => {
     try {
-      // Mock orders for now - replace with actual order collection query
-      const mockOrders: OrderItem[] = [
-        {
-          id: "1",
-          productName: "Milaf Cola Classic",
-          quantity: 2,
-          price: 4.99,
-          orderDate: new Date("2024-01-15"),
-          status: "Delivered"
-        },
-        {
-          id: "2",
-          productName: "Milaf Cola Zero",
-          quantity: 1,
-          price: 4.99,
-          orderDate: new Date("2024-01-10"),
-          status: "In Transit"
-        }
-      ];
-      setOrders(mockOrders);
+      if (!auth.currentUser) return;
+      
+      // Fetch ordered items from cart (paid items)
+      const orderedItems = await getOrderedItems(auth.currentUser.uid);
+      
+      // Transform cart items to order items format
+      const orderItems: OrderItem[] = orderedItems.map((item, index) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        cases: item.cases,
+        pieces: item.pieces,
+        payment: item.payment,
+        paidAt: item.paidAt,
+        category: item.category,
+        description: item.description,
+        itemTotal: item.price * item.quantity,
+        itemType: item.cases ? 'cases' : (item.pieces ? 'pieces' : 'units')
+      }));
+      
+      setOrders(orderItems);
     } catch (error) {
       console.error("Error loading orders:", error);
     }
@@ -96,6 +105,19 @@ export const MyShop = () => {
   const truncateAddress = (address: string) => {
     if (address.length <= 15) return address;
     return address.substring(0, 15) + "...";
+  };
+
+  // Function to safely format date
+  const formatDate = (date: any) => {
+    if (!date) return '';
+    try {
+      // Handle Firestore timestamp or Date object
+      const dateObj = date.toDate ? date.toDate() : new Date(date);
+      return dateObj.toLocaleDateString();
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Date unavailable';
+    }
   };
 
   if (!auth.currentUser) {
@@ -170,41 +192,77 @@ export const MyShop = () => {
                     <div key={order.id} className="border border-gray-200 rounded-lg p-4 bg-white/80">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
-                          <Package className="h-5 w-5 text-blue-600" />
+                          <CheckCircle className="h-5 w-5 text-green-600" />
                           <div>
-                            <h4 className="font-medium text-gray-900">{order.productName}</h4>
-                            <p className="text-sm text-gray-500">Order #{order.id}</p>
+                            <h4 className="font-medium text-gray-900">{order.name}</h4>
+                            <p className="text-sm text-gray-500">Order #{order.id.slice(-8)}</p>
                           </div>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          order.status === 'Delivered' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {order.status}
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Paid
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-600">
-                            {order.orderDate.toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-gray-400">Qty:</span>
-                          <span className="text-gray-600">{order.quantity}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <DollarSign className="h-4 w-4 text-gray-400" />
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-gray-600">Quantity:</span>
+                            <span className="font-medium">{order.quantity}</span>
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                              {order.cases ? 'Cases' : 'Units'}
+                            </span>
+                          </div>
                           <span className="text-gray-600 font-medium">
-                            ${(order.price * order.quantity).toFixed(2)}
+                            ${order.itemTotal.toFixed(2)}
                           </span>
                         </div>
+                        
+                        {order.paidAt && (
+                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <Calendar className="h-4 w-4" />
+                            <span>Paid on: {formatDate(order.paidAt)}</span>
+                          </div>
+                        )}
+                        
+                        {order.category && (
+                          <div className="text-sm text-gray-500">
+                            <span className="font-medium">Category:</span> {order.category}
+                          </div>
+                        )}
+                        
+                        {order.description && (
+                          <div className="text-sm text-gray-500">
+                            <span className="font-medium">Description:</span> {order.description}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Order Summary */}
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <h4 className="text-sm font-semibold text-blue-800 mb-3">Order Summary</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-blue-700">Total Items:</span>
+                        <span className="font-medium">{orders.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-blue-700">Cases:</span>
+                        <span className="font-medium">{orders.filter(item => item.cases).length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-blue-700">Units:</span>
+                        <span className="font-medium">{orders.filter(item => !item.cases).length}</span>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-blue-200">
+                      <div className="flex justify-between text-lg font-bold text-blue-800">
+                        <span>Total Value:</span>
+                        <span>${orders.reduce((sum, item) => sum + item.itemTotal, 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>

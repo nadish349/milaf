@@ -6,8 +6,7 @@
   import safawidates from "@/assets/safawidates.png";
   import segaidates from "@/assets/segaidates.png";
   import khalasdates from "@/assets/khalasdates.png";
-  import { useProductCart } from "@/contexts/ProductCartContext";
-import { handleProductAddToCart } from "@/services/productCartPlacer";
+  import { useCart } from "@/contexts/CartContext";
   import { Notification } from "@/mobilecomponents/Notification";
   import { BulkOrderPopup } from "@/mobilecomponents/BulkOrderPopup";
   import { useNavigate } from "react-router-dom";
@@ -58,7 +57,7 @@ interface ProductDetailProps {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useProductCart();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   // Load products from database
@@ -220,17 +219,13 @@ interface ProductDetailProps {
     // Listen for product change events from footer
     useEffect(() => {
       const handleProductChange = (event: CustomEvent) => {
-        console.log('Mobile ProductDetail received changeProduct event:', event.detail);
         const { productId } = event.detail;
-        console.log('Setting current product to:', productId);
         setCurrentProduct(productId);
       };
 
-      console.log('Mobile ProductDetail: Adding changeProduct event listener');
       window.addEventListener('changeProduct', handleProductChange as EventListener);
       
       return () => {
-        console.log('Mobile ProductDetail: Removing changeProduct event listener');
         window.removeEventListener('changeProduct', handleProductChange as EventListener);
       };
     }, []);
@@ -257,13 +252,33 @@ interface ProductDetailProps {
   const visibleProducts = products.slice(safeStartIndex, safeStartIndex + 2);
 
     const handleAddToCart = () => {
-      handleProductAddToCart(
-        currentProductData,
-        quantity,
-        addToCart,
-        setShowNotification,
-        setQuantity
-      );
+      if (!currentProductData) {
+        console.error('Product data is missing');
+        return;
+      }
+
+      try {
+        // Add product to cart with proper flags
+        addToCart({
+          name: currentProductData.name,
+          price: currentProductData.price,
+          quantity: quantity,
+          cases: false, // Regular products are not bulk orders
+          pieces: true, // Regular products are pieces
+          payment: false,
+          category: currentProductData.category,
+          description: currentProductData.description,
+          gradient: currentProductData.gradient
+        });
+        
+        // Show notification
+        setShowNotification(true);
+        
+        // Reset quantity to 1 after adding to cart
+        setQuantity(1);
+      } catch (error) {
+        console.error('Error adding product to cart:', error);
+      }
     };
 
     useEffect(() => {

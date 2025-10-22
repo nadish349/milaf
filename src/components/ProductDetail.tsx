@@ -6,8 +6,7 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useProductCart } from "@/contexts/ProductCartContext";
-import { handleProductAddToCart } from "@/services/productCartPlacer";
+import { useCart } from "@/contexts/CartContext";
 import { Notification } from "./Notification";
 import { BulkOrderPopup } from "./BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +31,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useProductCart();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   // Load products from database
@@ -202,16 +201,33 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
   const currentProductData = products[currentProduct];
 
   const handleAddToCart = () => {
-    console.log('🛒 handleAddToCart called with currentProductData:', currentProductData);
-    console.log('💰 Price being added to cart:', currentProductData.price, 'type:', typeof currentProductData.price);
-    
-    handleProductAddToCart(
-      currentProductData,
-      quantity,
-      addToCart,
-      setShowNotification,
-      setQuantity
-    );
+    if (!currentProductData) {
+      console.error('Product data is missing');
+      return;
+    }
+
+    try {
+      // Add product to cart with proper flags
+      addToCart({
+        name: currentProductData.name,
+        price: currentProductData.price,
+        quantity: quantity,
+        cases: false, // Regular products are not bulk orders
+        pieces: true, // Regular products are pieces
+        payment: false,
+        category: currentProductData.category,
+        description: currentProductData.description,
+        gradient: currentProductData.gradient
+      });
+      
+      // Show notification
+      setShowNotification(true);
+      
+      // Reset quantity to 1 after adding to cart
+      setQuantity(1);
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+    }
   };
 
   useEffect(() => {

@@ -32,28 +32,66 @@ export const saveGuestCart = (cartItems: GuestCartItem[]): void => {
 };
 
 export const addToGuestCart = (item: Omit<GuestCartItem, 'id' | 'addedAt'>): void => {
-  console.log('🛒 addToGuestCart called with item:', item);
-  const cartItems = getGuestCart();
-  console.log('🛒 Current guest cart items:', cartItems);
-  
-  // Always create a new item for each cart addition
-  const newItem: GuestCartItem = {
-    ...item,
-    id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    addedAt: Date.now()
-  };
-  cartItems.push(newItem);
-  console.log('🛒 Updated guest cart items:', cartItems);
-  
-  saveGuestCart(cartItems);
-  console.log('✅ Guest cart saved to localStorage');
-  
-  // Trigger custom event for immediate cart count update
-  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-  console.log('🛒 Triggering cart update event with total items:', totalItems);
-  window.dispatchEvent(new CustomEvent('guestCartUpdated', { 
-    detail: { totalItems, cartItems } 
-  }));
+  try {
+    console.log('🛒 addToGuestCart called with item:', item);
+    const cartItems = getGuestCart();
+    console.log('🛒 Current guest cart items:', cartItems);
+    
+    // Find existing item by name
+    const existingIndex = cartItems.findIndex(i => i.name === item.name);
+    
+    if (existingIndex >= 0) {
+      const existing = cartItems[existingIndex];
+      console.log('🛒 Found existing item:', existing);
+      
+      // Check cart type match (cases flag)
+      if (existing.cases === item.cases) {
+        // Merge quantities
+        cartItems[existingIndex].quantity += item.quantity;
+        console.log('🛒 Merged quantities, new quantity:', cartItems[existingIndex].quantity);
+        saveGuestCart(cartItems);
+        
+        // Trigger custom event for immediate cart count update
+        const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+        console.log('🛒 Triggering cart update event with total items:', totalItems);
+        window.dispatchEvent(new CustomEvent('guestCartUpdated', { 
+          detail: { totalItems, cartItems } 
+        }));
+        return;
+      } else {
+        // Different cart type - show error
+        console.error('❌ Cannot mix bulk and regular items in cart');
+        window.dispatchEvent(new CustomEvent('cartError', { 
+          detail: { message: "Cannot mix bulk and regular items in cart" } 
+        }));
+        return;
+      }
+    }
+    
+    // Add new item
+    const newItem: GuestCartItem = {
+      ...item,
+      id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      addedAt: Date.now()
+    };
+    cartItems.push(newItem);
+    console.log('🛒 Added new item to cart:', newItem);
+    
+    saveGuestCart(cartItems);
+    console.log('✅ Guest cart saved to localStorage');
+    
+    // Trigger custom event for immediate cart count update
+    const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+    console.log('🛒 Triggering cart update event with total items:', totalItems);
+    window.dispatchEvent(new CustomEvent('guestCartUpdated', { 
+      detail: { totalItems, cartItems } 
+    }));
+  } catch (error) {
+    console.error('❌ Error adding item to guest cart:', error);
+    window.dispatchEvent(new CustomEvent('cartError', { 
+      detail: { message: "Failed to add item to cart. Please try again." } 
+    }));
+  }
 };
 
 export const removeFromGuestCart = (itemId: string): void => {

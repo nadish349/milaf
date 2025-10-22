@@ -24,7 +24,6 @@ export const Page2Section = () => {
           audioContext.resume();
         }
       } catch (e) {
-        console.log('Audio context creation failed:', e);
       }
     }
   }, []);
@@ -52,7 +51,6 @@ export const Page2Section = () => {
                   // Ensure video is muted for autoplay
                   videoRef.current.muted = true;
                   videoRef.current.play().catch((error) => {
-                    console.log('Video autoplay attempt:', error);
                     // iPhone: Try multiple times with different intervals
                     if (isIPhone) {
                       setTimeout(playVideo, 50); // Faster retry for iPhone
@@ -120,7 +118,6 @@ export const Page2Section = () => {
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            console.log('Mobile video started after user interaction');
             setUserInteracted(true);
           })
           .catch((error) => {
@@ -200,16 +197,12 @@ export const Page2Section = () => {
               }}
               onError={handleVideoError}
               onLoadStart={() => {
-                console.log('Mobile video loading started');
               }}
               onPlay={() => {
-                console.log('Mobile video started playing');
               }}
               onWaiting={() => {
-                console.log('Mobile video waiting for data');
               }}
               onStalled={() => {
-                console.log('Mobile video stalled');
               }}
             >
               <source src={goldenringWebm} type="video/webm" />

@@ -252,7 +252,7 @@ export const Checkpoint = (): JSX.Element => {
             <thead>
               <tr>
                 <th>Item</th>
-                <th>Quantity</th>
+                <th>Quantity & Type</th>
                 <th>Price</th>
                 <th>Total</th>
               </tr>
@@ -261,7 +261,7 @@ export const Checkpoint = (): JSX.Element => {
               ${cartItems.map(item => `
                 <tr>
                   <td>${item.name}</td>
-                  <td>${item.quantity}</td>
+                  <td>${item.quantity} ${item.cases ? 'Cases' : 'Units'}</td>
                   <td>$${item.price.toFixed(2)}</td>
                   <td>$${(item.price * item.quantity).toFixed(2)}</td>
                 </tr>
@@ -281,6 +281,22 @@ export const Checkpoint = (): JSX.Element => {
             <div class="detail-row final-total">
               <span class="detail-label">Total Amount:</span>
               <span class="detail-value">$${orderDetails.totalAmount.toFixed(2)}</span>
+            </div>
+          </div>
+          
+          <div class="section">
+            <div class="section-title">Order Summary</div>
+            <div class="detail-row">
+              <span class="detail-label">Total Items:</span>
+              <span class="detail-value">${cartItems.length}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Cases:</span>
+              <span class="detail-value">${cartItems.filter(item => item.cases).length}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Units:</span>
+              <span class="detail-value">${cartItems.filter(item => !item.cases).length}</span>
             </div>
           </div>
         </div>
@@ -482,7 +498,12 @@ export const Checkpoint = (): JSX.Element => {
                     <div key={item.id} className="flex justify-between items-center">
                       <div>
                         <span className="font-medium">{item.name}</span>
-                        <span className="text-gray-500 ml-2">x{item.quantity}</span>
+                        <div className="text-gray-500 text-sm">
+                          <span className="mr-2">x{item.quantity}</span>
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            {item.cases ? 'Cases' : 'Units'}
+                          </span>
+                        </div>
                       </div>
                       <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
@@ -491,6 +512,25 @@ export const Checkpoint = (): JSX.Element => {
                     <div className="flex justify-between text-lg font-bold">
                       <span>Total:</span>
                       <span>${getTotalPrice().toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Order Summary by Type */}
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="text-sm font-semibold text-blue-800 mb-2">Order Summary</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Total Items:</span>
+                      <span className="font-medium">{cartItems.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Cases:</span>
+                      <span className="font-medium">{cartItems.filter(item => item.cases).length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Units:</span>
+                      <span className="font-medium">{cartItems.filter(item => !item.cases).length}</span>
                     </div>
                   </div>
                 </div>

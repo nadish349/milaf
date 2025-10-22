@@ -2,21 +2,15 @@ import React, { useState, useEffect } from "react";
 import m1 from "@/assets/m1.png";
 import { Header } from "@/mobilecomponents/Header";
 import { useCart } from "@/mobilecontexts/CartContext";
-import { useProductCart } from "@/contexts/ProductCartContext";
-import { useBulkCart } from "@/contexts/BulkCartContext";
 import { useNavigate } from "react-router-dom";
-import { LoginForm } from "@/components/LoginForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCartFetcher } from "@/services/cartFetcher";
 import { useOrderSummary } from "@/services/orderSummaryService";
 
 export const Cart = (): JSX.Element => {
-  const { updateQuantity: updateRegularQuantity, removeFromCart: removeFromRegularCart, getTotalPrice, getTotalItems, isGuest, mergeGuestCart } = useCart();
-  const { updateQuantity: updateProductQuantity, removeFromCart: removeFromProductCart, mergeGuestCart: mergeProductGuestCart } = useProductCart();
-  const { updateQuantity: updateBulkQuantity, removeFromCart: removeFromBulkCart, mergeGuestCart: mergeBulkGuestCart } = useBulkCart();
+  const { updateQuantity: updateRegularQuantity, removeFromCart: removeFromRegularCart, getTotalPrice, getTotalItems } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showLoginModal, setShowLoginModal] = useState(false);
   
   // Use cartFetcher for all cart data and functionality (includes regular, product, and bulk carts)
   const { cartItems, orderedItems, isLoadingOrders, loadCartAndOrders, getCartImage } = useCartFetcher();
@@ -38,6 +32,20 @@ export const Cart = (): JSX.Element => {
   useEffect(() => {
     loadCartAndOrders();
   }, [user]);
+
+  // Listen for cart update events (e.g., after login merge)
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      console.log('🔄 Mobile Cart page: Received cart update event, refreshing cart...');
+      loadCartAndOrders();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, []);
 
   const handleBackToShop = () => {
     // Navigate back to the main shop page
@@ -83,13 +91,8 @@ export const Cart = (): JSX.Element => {
   };
 
   const handleProceedToCheckout = () => {
-    if (isGuest) {
-      // Show login modal for guest users
-      setShowLoginModal(true);
-    } else {
-      // Navigate to payment for authenticated users
-      navigate('/payment');
-    }
+    // Navigate to payment (user must be logged in to access cart)
+    navigate('/payment');
   };
 
   const formatDate = (timestamp: any) => {
@@ -421,19 +424,6 @@ export const Cart = (): JSX.Element => {
         </div>
       </div>
       
-      {/* Login Form for Guest Users */}
-      <LoginForm 
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={async () => {
-          // Merge guest cart with user cart after successful login
-          await mergeGuestCart();
-          await mergeProductGuestCart();
-          await mergeBulkGuestCart();
-          // After successful login, navigate to payment
-          navigate('/payment');
-        }}
-      />
     </div>
   );
 };

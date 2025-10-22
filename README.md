@@ -1,151 +1,244 @@
-# Milaf Cola Website
+# 🥤 **Milaf Cola Australia & NZ**
 
-A modern, responsive website showcasing the Milaf Cola brand with smooth animations and interactive elements.
+A modern e-commerce platform for Milaf Cola beverages, dates, and spreads with secure payment processing and order management.
 
-## 🚀 Live Demo
+## 🚀 **Features**
 
-Visit the live website: [https://milaf.ae.vercel.app](https://milaf.ae.vercel.app)
+- **🛒 E-commerce Platform** - Complete shopping experience
+- **💳 Secure Payments** - Razorpay integration with server-side validation
+- **📦 Order Management** - Real-time order tracking and history
+- **🚚 Shipping Integration** - Australian Post API for shipping calculations
+- **🔥 Firebase Backend** - Real-time database and authentication
+- **📱 Responsive Design** - Mobile-first approach
+- **🔐 Secure Authentication** - Firebase Auth with JWT tokens
 
-## ✨ Features
+## 🛠 **Tech Stack**
 
-- **Animated Hero Section**: Smooth transition from PAGE1.PNG to PAGE3.PNG
-- **Static Header**: Professional header panel with 30% opacity
-- **Multiple Pages**: PAGE5.PNG and PAGE6.PNG background sections
-- **Milaf Cola Brand Pages**: 3 dedicated pages showcasing the brand
-- **Responsive Design**: Works perfectly on all devices
-- **Modern UI**: Built with React, TypeScript, and Tailwind CSS
+### **Frontend:**
+- **React 18** - Modern React with hooks
+- **TypeScript** - Type-safe development
+- **Vite** - Fast build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Router** - Client-side routing
+- **Firebase Client SDK** - Real-time database and auth
 
-## 🛠️ Tech Stack
+### **Backend:**
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **Firebase Admin SDK** - Server-side database operations
+- **Razorpay** - Payment gateway integration
+- **Australian Post API** - Shipping calculations
 
-- **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: Shadcn/ui
-- **Build Tool**: Vite
-- **Deployment**: Vercel
+## 🚀 **Quick Start**
 
-## 📦 Installation
+### **Prerequisites:**
+- Node.js 18+ 
+- npm or yarn
+- Firebase project
+- Razorpay account
+- Australian Post API key
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repository-url>
-   cd milaf
-   ```
+### **Installation:**
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/milaf-cola-australia.git
+cd milaf-cola-australia
 
-3. **Start development server**
-   ```bash
-   npm run dev
-   ```
+# Install frontend dependencies
+npm install
 
-4. **Open your browser**
-   Navigate to `http://localhost:8080`
+# Install backend dependencies
+cd backend
+npm install
+cd ..
 
-## 🚀 Deployment to Vercel
+# Start development server
+npm run dev
 
-### Automatic Deployment (Recommended)
-
-1. **Connect to Vercel**
-   - Push your code to GitHub
-   - Go to [vercel.com](https://vercel.com) and sign in
-   - Click "New Project" and import your GitHub repository
-
-2. **Configure Domain**
-   - Set your custom domain to `milaf.ae.vercel.app`
-   - Vercel will automatically handle SSL certificates
-
-3. **Automatic Deployments**
-   - Every push to your main branch will trigger a new deployment
-   - Vercel provides preview deployments for pull requests
-
-### Manual Deployment
-
-1. **Install Vercel CLI**
-   ```bash
-   npm i -g vercel
-   ```
-
-2. **Deploy**
-   ```bash
-   vercel
-   ```
-
-3. **Follow the prompts** to configure your project
-
-## 📁 Project Structure
-
-```
-milaf/
-├── src/
-│   ├── components/
-│   │   ├── Hero.tsx              # Animated hero section
-│   │   ├── Header.tsx            # Static header
-│   │   ├── Page5Section.tsx      # PAGE5.PNG background
-│   │   ├── Page6Section.tsx      # PAGE6.PNG background
-│   │   ├── MilafColaPage1.tsx    # Brand introduction
-│   │   ├── MilafColaPage2.tsx    # Features & benefits
-│   │   ├── MilafColaPage3.tsx    # Call-to-action
-│   │   └── Footer.tsx            # Footer section
-│   ├── assets/
-│   │   ├── PAGE1.png
-│   │   ├── PAGE3.png
-│   │   ├── PAGE5.png
-│   │   ├── PAGE6.png
-│   │   └── milafcola.png
-│   └── pages/
-│       └── Index.tsx             # Main page layout
-
-└── package.json
+# Start backend server (in separate terminal)
+npm run backend:dev
 ```
 
-## 🎨 Customization
+### **Environment Setup:**
 
-### Changing Images
-Replace the PNG files in `src/assets/` with your own images:
-- `PAGE1.png` - Initial hero background
-- `PAGE3.png` - Final hero background
-- `PAGE5.png` - Fifth section background
-- `PAGE6.png` - Sixth section background
-- `milafcola.png` - Milaf Cola can image
+#### **Frontend (.env):**
+```env
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_AUSPOST_API_KEY=your_auspost_api_key
+```
 
-### Updating Content
-Edit the text content in the respective component files:
-- `MilafColaPage1.tsx` - Brand introduction
-- `MilafColaPage2.tsx` - Features and statistics
-- `MilafColaPage3.tsx` - Contact information
+#### **Backend (.env):**
+```env
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+FIREBASE_PROJECT_ID=your_firebase_project_id
+AUSPOST_API_KEY=your_auspost_api_key
+```
 
-### Styling
-The project uses Tailwind CSS. You can customize colors, spacing, and other styles by modifying the className attributes in the component files.
+## 🏗 **Project Structure**
 
-## 🔧 Available Scripts
+```
+milaf-cola-australia/
+├── src/                          # Frontend source code
+│   ├── components/               # Reusable React components
+│   ├── pages/                    # Page components
+│   ├── contexts/                 # React contexts (Auth, Cart)
+│   ├── services/                 # API services and utilities
+│   ├── utils/                    # Helper functions
+│   └── assets/                   # Static assets
+├── backend/                      # Backend server
+│   ├── server.js                 # Express server
+│   ├── controllers/              # Route controllers
+│   ├── firebase-admin.js         # Firebase Admin SDK
+│   └── package.json              # Backend dependencies
+├── public/                       # Static files
+├── dist/                         # Build output
+└── vercel.json                   # Vercel deployment config
+```
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `vercel` - Deploy to Vercel
+## 🔧 **Development**
 
-## 📱 Browser Support
+### **Available Scripts:**
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+```bash
+# Frontend development
+npm run dev              # Start Vite dev server
+npm run build           # Build for production
+npm run preview         # Preview production build
 
-## 🤝 Contributing
+# Backend development
+npm run backend:dev     # Start backend server
+npm run backend:start   # Start backend in production
+```
+
+### **Key Features:**
+
+#### **🛒 Shopping Cart:**
+- Add/remove items
+- Quantity management
+- Price calculations
+- Persistent cart state
+
+#### **💳 Payment Processing:**
+- Razorpay integration
+- Server-side validation
+- Secure order creation
+- Payment verification
+
+#### **📦 Order Management:**
+- Order history
+- Order tracking
+- Item type classification (Cases/Units)
+- PDF order generation
+
+#### **🚚 Shipping:**
+- Australian Post integration
+- Real-time shipping rates
+- Address validation
+- Delivery time estimates
+
+## 🚀 **Deployment**
+
+### **Vercel Deployment:**
+
+1. **Connect to GitHub:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin https://github.com/yourusername/milaf-cola-australia.git
+   git push -u origin main
+   ```
+
+2. **Deploy to Vercel:**
+   - Connect GitHub repository to Vercel
+   - Configure environment variables
+   - Deploy automatically
+
+### **Environment Variables for Vercel:**
+
+```
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+FIREBASE_PROJECT_ID=your_firebase_project_id
+AUSPOST_API_KEY=your_auspost_api_key
+NODE_ENV=production
+```
+
+## 🔐 **Security Features**
+
+- **Server-side Validation** - All calculations done on server
+- **Payment Verification** - Razorpay signature verification
+- **Firebase Security Rules** - Database access control
+- **Environment Variables** - Secure configuration
+- **HTTPS Only** - Secure connections
+
+## 📱 **Responsive Design**
+
+- **Mobile First** - Optimized for mobile devices
+- **Tablet Support** - Responsive tablet layouts
+- **Desktop Enhanced** - Full desktop experience
+- **Touch Friendly** - Mobile-optimized interactions
+
+## 🧪 **Testing**
+
+### **Manual Testing:**
+1. **Cart Functionality** - Add/remove items
+2. **Payment Flow** - Complete payment process
+3. **Order Management** - Check order history
+4. **Shipping** - Test shipping calculations
+
+### **API Testing:**
+```bash
+# Test payment creation
+curl -X POST http://localhost:4000/api/payment/create \
+  -H "Content-Type: application/json" \
+  -d '{"cartItems": [], "zipcode": "4000", "userId": "test"}'
+
+# Test shipping calculation
+curl -X GET "http://localhost:4000/api/parcel/services?to_postcode=4000"
+```
+
+## 📊 **Performance**
+
+- **Vite Build** - Fast development and optimized builds
+- **Code Splitting** - Lazy loading for better performance
+- **CDN Distribution** - Global content delivery
+- **Image Optimization** - Optimized asset delivery
+
+## 🤝 **Contributing**
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-## 📄 License
+## 📄 **License**
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 📞 Support
+## 🆘 **Support**
 
-For support, email support@milafcola.com or create an issue in this repository.
+For support and questions:
+- Create an issue on GitHub
+- Contact the development team
+- Check the documentation
+
+## 🎉 **Acknowledgments**
+
+- **Razorpay** - Payment processing
+- **Firebase** - Backend services
+- **Australian Post** - Shipping calculations
+- **Vercel** - Deployment platform
+- **React** - Frontend framework
+
+---
+
+**Built with ❤️ for Milaf Cola Australia & NZ** 🥤

@@ -6,13 +6,12 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useProductCart } from "@/contexts/ProductCartContext";
+import { useCart } from "@/contexts/CartContext";
 import { Notification } from "@/components/Notification";
 import { BulkOrderPopup } from "@/components/BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
 import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
 import { getProductImage } from "@/utils/productImages";
-import { handleProductAddToCart } from "@/services/productCartPlacer";
 
 interface ProductDetailProps {
   onGradientChange?: (gradient: string) => void;
@@ -31,7 +30,7 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { addToCart } = useProductCart();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   // Load products from database
@@ -191,17 +190,13 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   // Listen for product change events from footer
   useEffect(() => {
     const handleProductChange = (event: CustomEvent) => {
-      console.log('ProductDetail received changeProduct event:', event.detail);
       const { productId } = event.detail;
-      console.log('Setting current product to:', productId);
       setCurrentProduct(productId);
     };
 
-    console.log('ProductDetail: Adding changeProduct event listener');
     window.addEventListener('changeProduct', handleProductChange as EventListener);
     
     return () => {
-      console.log('ProductDetail: Removing changeProduct event listener');
       window.removeEventListener('changeProduct', handleProductChange as EventListener);
     };
   }, []);
@@ -228,13 +223,33 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
   const currentProductData = products[currentProduct];
 
   const handleAddToCart = () => {
-    handleProductAddToCart(
-      currentProductData,
-      quantity,
-      addToCart,
-      setShowNotification,
-      setQuantity
-    );
+    if (!currentProductData) {
+      console.error('Product data is missing');
+      return;
+    }
+
+    try {
+      // Add product to cart with proper flags
+      addToCart({
+        name: currentProductData.name,
+        price: currentProductData.price,
+        quantity: quantity,
+        cases: false, // Regular products are not bulk orders
+        pieces: true, // Regular products are pieces
+        payment: false,
+        category: currentProductData.category,
+        description: currentProductData.description,
+        gradient: currentProductData.gradient
+      });
+      
+      // Show notification
+      setShowNotification(true);
+      
+      // Reset quantity to 1 after adding to cart
+      setQuantity(1);
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+    }
   };
 
   useEffect(() => {

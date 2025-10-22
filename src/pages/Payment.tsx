@@ -46,6 +46,7 @@ export const Payment = (): JSX.Element => {
   const [auspostServices, setAuspostServices] = useState<any[]>([]);
   const [auspostQuote, setAuspostQuote] = useState<any | null>(null);
   const [isPaying, setIsPaying] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
 
   const navigate = useNavigate();
@@ -346,7 +347,12 @@ export const Payment = (): JSX.Element => {
       const { loadRazorpay, getPublicKey, createOrder, verifyPayment } = await import('../services/paymentService');
       await loadRazorpay();
       const key = await getPublicKey(baseUrl);
-      const order = await createOrder(baseUrl, token, { cartItems, zipcode: billingInfo.zipcode });
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        setPaymentError('User authentication required');
+        return;
+      }
+      const order = await createOrder(baseUrl, token, { cartItems, zipcode: billingInfo.zipcode, userId });
 
       // @ts-ignore
       const rzp = new window.Razorpay({
@@ -358,12 +364,22 @@ export const Payment = (): JSX.Element => {
         description: 'Order Payment',
         handler: async function (response: any) {
           try {
-            await verifyPayment(baseUrl, token, response);
+            setIsVerifying(true);
+            setPaymentError("");
+            
+            const userId = auth.currentUser?.uid;
+            if (!userId) {
+              setPaymentError('User authentication required');
+              return;
+            }
+            await verifyPayment(baseUrl, token, { ...response, userId });
             alert('Payment successful!');
             // Navigate to checkpoint/confirmation page
             navigate('/checkpoint');
           } catch (e: any) {
             setPaymentError(e?.message || 'Verification failed');
+          } finally {
+            setIsVerifying(false);
           }
         },
         prefill: {
@@ -400,6 +416,22 @@ export const Payment = (): JSX.Element => {
       {/* Header */}
       <Header />
       
+      {/* Payment Verification Overlay */}
+      {isVerifying && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center shadow-2xl">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Validating Payment</h3>
+            <p className="text-gray-600 text-sm">Please wait while we verify your payment...</p>
+            <div className="mt-4 flex justify-center space-x-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="pt-12 pb-4 px-4">
         <div className="max-w-6xl mx-auto">
@@ -666,10 +698,22 @@ export const Payment = (): JSX.Element => {
           <div className="flex flex-col items-end space-y-2">
             <button
               onClick={handleProceedToPayment}
-              disabled={!billingInfo.buyerName || !billingInfo.contact || !billingInfo.streetAddress || !billingInfo.address || !billingInfo.zipcode || !selectedDeliveryOption || isPaying}
+              disabled={!billingInfo.buyerName || !billingInfo.contact || !billingInfo.streetAddress || !billingInfo.address || !billingInfo.zipcode || !selectedDeliveryOption || isPaying || isVerifying}
               className="bg-green-400 hover:bg-green-300 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-black font-bold text-base py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-full lg:w-auto"
             >
-              {isPaying ? 'Processing Payment...' : 'Pay with Razorpay'}
+              {isPaying ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                  <span>Processing Payment...</span>
+                </div>
+              ) : isVerifying ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                  <span>Validating Payment...</span>
+                </div>
+              ) : (
+                'Pay with Razorpay'
+              )}
             </button>
             {paymentError && (
               <div className="text-sm text-red-600 text-right">{paymentError}</div>

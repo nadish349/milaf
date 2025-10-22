@@ -13,9 +13,7 @@ const getApiBaseUrl = (): string => {
   }
   
   // In production, use the deployed backend URL
-  // For now, we'll use a placeholder that will show an error message
-  // You need to replace this with your actual deployed backend URL
-  const productionUrl = import.meta.env.VITE_API_BASE_URL || 'https://milaf-backend.herokuapp.com';
+  const productionUrl = import.meta.env.VITE_API_BASE_URL || 'https://backend-qa0mm2q4t-nadish349s-projects.vercel.app';
   
   return productionUrl;
 };
@@ -26,7 +24,7 @@ const getApiBaseUrl = (): string => {
  */
 export const isBackendAvailable = (): boolean => {
   const baseUrl = getApiBaseUrl();
-  return baseUrl !== 'https://milaf-backend.herokuapp.com' || import.meta.env.DEV;
+  return baseUrl !== 'https://backend-qa0mm2q4t-nadish349s-projects.vercel.app' || import.meta.env.DEV;
 };
 
 export const API_CONFIG = {

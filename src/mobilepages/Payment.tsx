@@ -346,7 +346,12 @@ export const Payment = (): JSX.Element => {
       const { loadRazorpay, getPublicKey, createOrder, verifyPayment } = await import('../services/paymentService');
       await loadRazorpay();
       const key = await getPublicKey(baseUrl);
-      const order = await createOrder(baseUrl, token, { cartItems, zipcode: billingInfo.zipcode });
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        setPaymentError('User authentication required');
+        return;
+      }
+      const order = await createOrder(baseUrl, token, { cartItems, zipcode: billingInfo.zipcode, userId });
 
       // @ts-ignore
       const rzp = new window.Razorpay({
@@ -358,7 +363,12 @@ export const Payment = (): JSX.Element => {
         description: 'Order Payment',
         handler: async function (response: any) {
           try {
-            await verifyPayment(baseUrl, token, response);
+            const userId = auth.currentUser?.uid;
+            if (!userId) {
+              setPaymentError('User authentication required');
+              return;
+            }
+            await verifyPayment(baseUrl, token, { ...response, userId });
             alert('Payment successful!');
             // Navigate to checkpoint/confirmation page
             navigate('/checkpoint');

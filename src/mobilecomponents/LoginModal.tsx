@@ -1,10 +1,9 @@
-import React from 'react';
-import { X } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { LoginForm } from '../components/LoginForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/mobilecontexts/CartContext';
-import { useProductCart } from '@/contexts/ProductCartContext';
-import { useBulkCart } from '@/contexts/BulkCartContext';
+import { showAddToCartSuccess, showCartError } from '@/controllers/CartNotificationController';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,17 +17,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   onLoginSuccess 
 }) => {
   const { user } = useAuth();
-  const { mergeGuestCart } = useCart();
-  const { mergeGuestCart: mergeProductGuestCart } = useProductCart();
-  const { mergeGuestCart: mergeBulkGuestCart } = useBulkCart();
+  const [isMergingCart, setIsMergingCart] = useState(false);
 
   const handleLoginSuccess = async () => {
-    // Merge guest cart with user cart after successful login
-    await mergeGuestCart();
-    await mergeProductGuestCart();
-    await mergeBulkGuestCart();
-    onLoginSuccess?.();
-    onClose();
+    try {
+      onLoginSuccess?.();
+      onClose();
+    } catch (error) {
+      console.error('❌ Mobile LoginModal: Error during login:', error);
+      showCartError("Login failed. Please try again.");
+    }
   };
 
   if (!isOpen) return null;
@@ -51,7 +49,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         {/* Content */}
         <div className="p-4">
-          <LoginForm onLoginSuccess={handleLoginSuccess} />
+          {isMergingCart ? (
+            <div className="flex flex-col items-center justify-center py-6">
+              <Loader2 className="h-6 w-6 animate-spin text-blue-600 mb-3" />
+              <p className="text-gray-600 text-center text-sm">
+                Transferring your cart items...
+              </p>
+            </div>
+          ) : (
+            <LoginForm onLoginSuccess={handleLoginSuccess} />
+          )}
         </div>
       </div>
     </div>

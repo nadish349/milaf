@@ -197,7 +197,25 @@ export const HeroProducts = ({ onGradientChange, onOrderNow }: HeroProductsProps
             borderColor: currentProductData.id === 0 && currentProductData.textColor ? currentProductData.textColor : 'white',
             color: currentProductData.id === 0 && currentProductData.textColor ? currentProductData.textColor : 'white'
           }}
-          onClick={() => onOrderNow?.(currentProductData.id)}
+          onClick={() => {
+            console.log('Order Now button clicked for:', currentProductData.id, currentProductData.name);
+            // Call the parent function to update the selected product
+            onOrderNow?.(currentProductData.id);
+            // Navigate directly to ProductDetail section using the same logic as ProductInfo
+            setTimeout(() => {
+              const productDetailSection = document.querySelector('.product-detail-section');
+              if (productDetailSection) {
+                console.log('Scrolling to ProductDetail section');
+                productDetailSection.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'start',
+                  inline: 'nearest'
+                });
+              } else {
+                console.log('ProductDetail section not found');
+              }
+            }, 200);
+          }}
         >
           Order Now
         </button>

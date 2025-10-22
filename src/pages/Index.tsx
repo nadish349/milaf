@@ -10,12 +10,16 @@ import { ProductDetail } from "@/components/ProductDetail";
 import { CompanyInfoSection } from "@/components/CompanyInfoSection";
 import { Footer } from "@/components/Footer";
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import { LoginPrompt } from "@/components/LoginPrompt";
 
 const Index = () => {
   const [currentSection, setCurrentSection] = useState(0);
   const [heroGradient, setHeroGradient] = useState("linear-gradient(135deg, #84B393, #C5E2CE)");
   const [selectedProductId, setSelectedProductId] = useState<number | undefined>(undefined);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   // Handle Order Now click from HeroProductsSection
   const handleOrderNow = (productId: number) => {
@@ -44,6 +48,20 @@ const Index = () => {
     "#8B4513", // CompanyInfoSection (brown from m1 background)
     "#1f2937"  // Footer (dark gray)
   ], [heroGradient]);
+
+  // Listen for login prompt events
+  useEffect(() => {
+    const handleShowLoginPrompt = () => {
+      console.log('Login prompt event received in Index.tsx');
+      setShowLoginPrompt(true);
+    };
+
+    window.addEventListener('showLoginPrompt', handleShowLoginPrompt);
+    
+    return () => {
+      window.removeEventListener('showLoginPrompt', handleShowLoginPrompt);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,6 +125,26 @@ const Index = () => {
         <CompanyInfoSection />
         <Footer />
       </div>
+      
+      {/* Login Prompt Modal - ONLY for protected route redirects */}
+      <LoginPrompt 
+        isOpen={showLoginPrompt} 
+        onClose={() => setShowLoginPrompt(false)}
+        onLoginSuccess={() => {
+          // Check if there was a pending cart item
+          const pendingItem = localStorage.getItem('pendingCartItem');
+          if (pendingItem) {
+            // Redirect to cart to show the added item
+            window.location.href = '/cart';
+            return;
+          }
+          
+          // Redirect to the originally requested page if available
+          if (location.state?.from) {
+            window.location.href = location.state.from.pathname;
+          }
+        }}
+      />
     </div>
     </>
   );

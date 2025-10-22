@@ -23,7 +23,6 @@ export const BulkOrderPopup: React.FC<BulkOrderPopupProps> = ({ isVisible, onClo
 
   // Debug: Log when popup visibility changes
   React.useEffect(() => {
-    console.log('Mobile BulkOrderPopup: isVisible changed to:', isVisible);
   }, [isVisible]);
 
   useEffect(() => {

@@ -7,7 +7,6 @@ import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
 import { useCart } from "@/mobilecontexts/CartContext";
-import { handleProductAddToCart } from "@/services/productCartPlacer";
 import { Notification } from "./Notification";
 import { BulkOrderPopup } from "./BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
@@ -205,16 +204,33 @@ export const ProductDetail = ({ onGradientChange, selectedProductId, showBulkOrd
   const visibleProducts = products.slice(currentProduct, currentProduct + 4);
 
   const handleAddToCart = () => {
-    console.log('🛒 Mobile handleAddToCart called with currentProductData:', currentProductData);
-    console.log('💰 Mobile Price being added to cart:', currentProductData.price, 'type:', typeof currentProductData.price);
-    
-    handleProductAddToCart(
-      currentProductData,
-      quantity,
-      addToCart,
-      setShowNotification,
-      setQuantity
-    );
+    if (!currentProductData) {
+      console.error('Product data is missing');
+      return;
+    }
+
+    try {
+      // Add product to cart with proper flags
+      addToCart({
+        name: currentProductData.name,
+        price: currentProductData.price,
+        quantity: quantity,
+        cases: false, // Regular products are not bulk orders
+        pieces: true, // Regular products are pieces
+        payment: false,
+        category: currentProductData.category,
+        description: currentProductData.description,
+        gradient: currentProductData.gradient
+      });
+      
+      // Show notification
+      setShowNotification(true);
+      
+      // Reset quantity to 1 after adding to cart
+      setQuantity(1);
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+    }
   };
 
   useEffect(() => {

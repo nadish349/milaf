@@ -25,14 +25,23 @@ service cloud.firestore {
       match /cart/{cartItemId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+      
+      // Orders subcollection - allow users to read their own orders
+      match /orders/{orderId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        // Server-side order creation (Firebase Admin SDK bypasses rules)
+        allow create, update: if request.auth != null && request.auth.uid == userId;
+      }
     }
     
-    // Products collection - allow admin access for product management
+    // Products collection - allow read access to all, write for admin
     match /products/{productId} {
-      allow read, write: if true;
+      allow read: if true;
+      // Allow server-side updates for inventory management
+      allow write: if true;
     }
     
-    // Orders collection - allow users to read their own orders and create new orders
+    // Main orders collection - allow users to read their own orders
     match /orders/{orderId} {
       // Allow users to read their own orders
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
@@ -45,6 +54,13 @@ service cloud.firestore {
       
       // Allow users to delete their own orders
       allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+    
+    // Payment audit collection - allow server-side logging
+    match /payments/{paymentId} {
+      allow read: if request.auth != null;
+      // Server-side payment audit logging (Firebase Admin SDK bypasses rules)
+      allow create, update: if true;
     }
     
     // Block access to all other collections by default

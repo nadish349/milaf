@@ -95,7 +95,6 @@ export const ProductInfo = ({ onProductSelect }: ProductInfoProps) => {
                key={product.id}
                className="relative group cursor-pointer transition-all duration-500 hover:scale-105 hover:shadow-2xl h-[280px] sm:h-[300px] md:h-[320px] lg:h-[340px] xl:h-[360px]"
                onClick={() => {
-                 console.log('Product card clicked:', product.id, product.name);
                  // Call the parent function to update the selected product
                  onProductSelect(product.id);
                  // Navigate directly to ProductDetail section
@@ -158,21 +157,18 @@ export const ProductInfo = ({ onProductSelect }: ProductInfoProps) => {
                        style={{ color: product.name === "Milaf Cola" ? "#BF7E3E" : "white" }}
                        onClick={(e) => {
                          e.stopPropagation(); // Prevent card click from firing
-                         console.log('Buy Now button clicked for:', product.id, product.name);
                          // Call the parent function to update the selected product
                          onProductSelect(product.id);
                          // Navigate directly to ProductDetail section
                          setTimeout(() => {
                            const productDetailSection = document.querySelector('.product-detail-section');
                            if (productDetailSection) {
-                             console.log('Scrolling to ProductDetail section');
                              productDetailSection.scrollIntoView({ 
                                behavior: 'smooth', 
                                block: 'start',
                                inline: 'nearest'
                              });
                            } else {
-                             console.log('ProductDetail section not found');
                            }
                          }, 200);
                        }}

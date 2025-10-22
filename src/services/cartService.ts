@@ -18,7 +18,6 @@ export interface CartItem {
   id: string;
   name: string;
   quantity: number;
-  pieces?: boolean; // Flag to identify regular product orders (true for regular products)
   cases?: boolean; // Flag to identify bulk orders (true for bulk orders)
   price: number;
   payment: boolean;
@@ -59,9 +58,6 @@ export const addItemToUserCart = async (userId: string, item: Omit<CartItem, 'id
     };
 
     // Add only the relevant field based on order type
-    if (item.pieces !== undefined) {
-      docData.pieces = item.pieces;
-    }
     if (item.cases !== undefined) {
       docData.cases = item.cases;
     }
@@ -153,9 +149,42 @@ export const getUserCart = async (userId: string): Promise<CartItem[]> => {
       };
 
       // Add only the relevant field if it exists
-      if (data.pieces !== undefined) {
-        cartItem.pieces = data.pieces;
+      if (data.cases !== undefined) {
+        cartItem.cases = data.cases;
       }
+
+      cartItems.push(cartItem);
+    });
+    
+    // Filter out paid items from cart display
+    return cartItems.filter(item => !item.payment);
+  } catch (error) {
+    console.error('Error fetching user cart:', error);
+    return [];
+  }
+};
+
+// Get all cart items (including paid ones) for admin purposes
+export const getAllUserCartItems = async (userId: string): Promise<CartItem[]> => {
+  try {
+    const cartRef = collection(db, 'users', userId, 'cart');
+    const cartSnap = await getDocs(cartRef);
+    
+    const cartItems: CartItem[] = [];
+    cartSnap.forEach((doc) => {
+      const data = doc.data();
+      const price = typeof data.price === 'string' ? parseFloat(data.price) : (data.price || 0);
+      const cartItem: any = {
+        id: doc.id,
+        name: data.name,
+        quantity: data.quantity,
+        price: price,
+        payment: data.payment || false,
+        addedAt: data.addedAt,
+        paidAt: data.paidAt
+      };
+
+      // Add only the relevant field if it exists
       if (data.cases !== undefined) {
         cartItem.cases = data.cases;
       }
@@ -165,7 +194,45 @@ export const getUserCart = async (userId: string): Promise<CartItem[]> => {
     
     return cartItems;
   } catch (error) {
-    console.error('Error fetching user cart:', error);
+    console.error('Error fetching all user cart items:', error);
+    return [];
+  }
+};
+
+// Get only paid/ordered items
+export const getOrderedItems = async (userId: string): Promise<CartItem[]> => {
+  try {
+    const cartRef = collection(db, 'users', userId, 'cart');
+    const cartSnap = await getDocs(cartRef);
+    
+    const orderedItems: CartItem[] = [];
+    cartSnap.forEach((doc) => {
+      const data = doc.data();
+      const price = typeof data.price === 'string' ? parseFloat(data.price) : (data.price || 0);
+      const cartItem: any = {
+        id: doc.id,
+        name: data.name,
+        quantity: data.quantity,
+        price: price,
+        payment: data.payment || false,
+        addedAt: data.addedAt,
+        paidAt: data.paidAt
+      };
+
+      // Add only the relevant field if it exists
+      if (data.cases !== undefined) {
+        cartItem.cases = data.cases;
+      }
+      
+      // Only include paid items
+      if (cartItem.payment) {
+        orderedItems.push(cartItem);
+      }
+    });
+    
+    return orderedItems;
+  } catch (error) {
+    console.error('Error fetching ordered items:', error);
     return [];
   }
 };

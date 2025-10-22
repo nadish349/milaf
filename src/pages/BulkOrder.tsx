@@ -6,14 +6,13 @@ import datespread from "@/assets/datespread.png";
 import safawidates from "@/assets/safawidates.png";
 import segaidates from "@/assets/segaidates.png";
 import khalasdates from "@/assets/khalasdates.png";
-import { useBulkCart } from "@/contexts/BulkCartContext";
+import { useCart } from "@/contexts/CartContext";
 import { Notification } from "../components/Notification";
 import { BulkOrderPopup } from "../components/BulkOrderPopup";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
 import { getProductImage } from "@/utils/productImages";
-import { handleBulkAddToCart } from "@/services/bulkCartPlacer";
 
 interface BulkOrderProps {
   onGradientChange?: (gradient: string) => void;
@@ -30,7 +29,7 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const [showNotification, setShowNotification] = useState(false);
   const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
   const [showEntranceAnimation, setShowEntranceAnimation] = useState(true);
-  const { addToCart } = useBulkCart();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   // Helper function to get gradient for product
@@ -193,13 +192,33 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
   const currentProductData = products[currentProduct];
 
   const handleAddToCart = () => {
-    handleBulkAddToCart(
-      currentProductData,
-      quantity,
-      addToCart,
-      setShowNotification,
-      setQuantity
-    );
+    if (!currentProductData) {
+      console.error('Product data is missing');
+      return;
+    }
+
+    try {
+      // Add bulk product to cart with proper flags
+      addToCart({
+        name: currentProductData.name,
+        price: currentProductData.price,
+        quantity: quantity,
+        cases: true, // Bulk orders are cases
+        pieces: false, // Bulk orders are not pieces
+        payment: false,
+        category: currentProductData.category,
+        description: currentProductData.description,
+        gradient: currentProductData.gradient
+      });
+      
+      // Show notification
+      setShowNotification(true);
+      
+      // Reset quantity to 1 after adding to cart
+      setQuantity(1);
+    } catch (error) {
+      console.error('Error adding bulk product to cart:', error);
+    }
   };
 
   useEffect(() => {

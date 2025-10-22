@@ -307,7 +307,7 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Welcome to Milaf Cola</CardTitle>
+            <CardTitle className="text-2xl font-bold">MILAF COLA AUSTRALIA & NZ</CardTitle>
             <CardDescription>Sign in to your account or create a new one</CardDescription>
           </CardHeader>
           
