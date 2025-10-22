@@ -20,7 +20,8 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@radix-ui/react-toast": "^1.1.5",
     "sonner": "^1.0.0",
-    "next-themes": "^0.2.1"
+    "next-themes": "^0.2.1",
+    "jose": "^5.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
