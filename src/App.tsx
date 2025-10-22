@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useMediaQuery } from "react-responsive";
+import { useMobile } from "@/hooks/use-mobile";
 import { Suspense, lazy } from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -121,7 +121,7 @@ const DesktopRoutes = () => (
 );
 
 const App = () => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isMobile = useMobile();
 
   return (
     <ErrorBoundary>
