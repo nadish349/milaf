@@ -13,7 +13,8 @@ const getApiBaseUrl = (): string => {
   }
   
   // In production, use the deployed backend URL
-  const productionUrl = import.meta.env.VITE_API_BASE_URL || 'https://backend-qa0mm2q4t-nadish349s-projects.vercel.app';
+  // This is your deployed Vercel backend URL
+  const productionUrl = import.meta.env.VITE_API_BASE_URL || 'https://milaf-backend.vercel.app';
   
   return productionUrl;
 };
@@ -24,7 +25,8 @@ const getApiBaseUrl = (): string => {
  */
 export const isBackendAvailable = (): boolean => {
   const baseUrl = getApiBaseUrl();
-  return baseUrl !== 'https://backend-qa0mm2q4t-nadish349s-projects.vercel.app' || import.meta.env.DEV;
+  // Backend is available if we have a valid baseUrl
+  return baseUrl && baseUrl.length > 0;
 };
 
 export const API_CONFIG = {

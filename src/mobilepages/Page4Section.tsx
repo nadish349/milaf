@@ -151,7 +151,6 @@ export const Page4Section = () => {
                         <img 
                           src={image} 
                           alt={`Product ${index + 1}`}
-                          loading="lazy"
                           decoding="async"
                           className="w-full h-full object-contain rounded-lg"
                         />

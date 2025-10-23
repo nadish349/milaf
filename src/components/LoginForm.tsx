@@ -304,32 +304,32 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">MILAF COLA AUSTRALIA & NZ</CardTitle>
-            <CardDescription>Sign in to your account or create a new one</CardDescription>
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center p-4">
+            <CardTitle className="text-lg font-bold">MILAF COLA AUSTRALIA & NZ</CardTitle>
+            <CardDescription className="text-sm">Sign in to your account or create a new one</CardDescription>
           </CardHeader>
           
-          <CardContent>
+          <CardContent className="p-4">
             {/* Success Display */}
             {successMessage && (
-              <div className="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-md text-sm">
+              <div className="mb-3 p-2 bg-green-100 border border-green-300 text-green-700 rounded-md text-xs">
                 {successMessage}
               </div>
             )}
 
             {/* Error Display */}
             {error && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-md text-sm">
+              <div className="mb-3 p-2 bg-red-100 border border-red-300 text-red-700 rounded-md text-xs">
                 {error}
                 {error.includes("Account doesn't exist") && (
-                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs">
+                  <div className="mt-1 p-1 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs">
                     💡 <strong>Tip:</strong> We'll automatically switch you to the Sign Up tab in a moment!
                   </div>
                 )}
                 {error.includes("already registered") && (
-                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs">
+                  <div className="mt-1 p-1 bg-blue-50 border border-blue-200 rounded text-blue-700 text-xs">
                     💡 <strong>Tip:</strong> We'll automatically switch you to the Sign In tab in a moment!
                   </div>
                 )}
@@ -340,7 +340,7 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
             <Button 
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full mb-6 bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 disabled:opacity-50"
+              className="w-full mb-4 bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 disabled:opacity-50 text-sm py-2"
               variant="outline"
             >
               {isLoading ? (
@@ -361,9 +361,9 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
               )}
             </Button>
 
-            <div className="relative mb-6">
+            <div className="relative mb-4">
               <Separator />
-              <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-4 text-sm text-gray-500">
+              <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-500">
                 or
               </span>
             </div>
@@ -375,8 +375,8 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
               </TabsList>
 
               {/* Sign In Tab */}
-              <TabsContent value="signin" className="space-y-4">
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
+              <TabsContent value="signin" className="space-y-3">
+                <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-xs">
                   <strong>Don't have an account?</strong> Use the "Sign Up" tab to create one, or try Google sign-in above.
                 </div>
                 <form onSubmit={handleSignIn} className="space-y-4">
@@ -435,8 +435,8 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
               </TabsContent>
 
               {/* Sign Up Tab */}
-              <TabsContent value="signup" className="space-y-4">
-                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+              <TabsContent value="signup" className="space-y-3">
+                <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded-md text-green-700 text-xs">
                   <strong>New to Milaf Cola?</strong> Create your account and we'll help you complete your profile.
                 </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
@@ -512,8 +512,8 @@ export const LoginForm = ({ isOpen, onClose, onLoginSuccess }: LoginFormProps) =
             </Tabs>
 
             {/* Close Button */}
-            <div className="mt-6 text-center">
-              <Button variant="ghost" onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <div className="mt-4 text-center">
+              <Button variant="ghost" onClick={onClose} className="text-gray-500 hover:text-gray-700 text-sm py-1">
                 Close
               </Button>
             </div>

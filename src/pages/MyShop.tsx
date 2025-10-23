@@ -26,7 +26,6 @@ interface OrderItem {
   quantity: number;
   price: number;
   cases?: boolean;
-  pieces?: boolean;
   payment: boolean;
   paidAt?: Date;
   category?: string;
@@ -77,13 +76,12 @@ export const MyShop = () => {
         quantity: item.quantity,
         price: item.price,
         cases: item.cases,
-        pieces: item.pieces,
         payment: item.payment,
         paidAt: item.paidAt,
         category: item.category,
         description: item.description,
         itemTotal: item.price * item.quantity,
-        itemType: item.cases ? 'cases' : (item.pieces ? 'pieces' : 'units')
+        itemType: item.cases ? 'cases' : 'units'
       }));
       
       setOrders(orderItems);

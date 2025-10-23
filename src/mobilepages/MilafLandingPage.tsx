@@ -127,7 +127,6 @@ export const MilafLandingPage = () => {
               <img
                 src={productImage}
                 alt="Milaf Date Cola can on a glossy surface with condensation"
-                loading="lazy"
                 className="relative z-10 w-full h-auto object-contain drop-shadow-2xl rounded-2xl"
               />
             </div>

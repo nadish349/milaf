@@ -6,11 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCartFetcher } from "@/services/cartFetcher";
 import { useOrderSummary } from "@/services/orderSummaryService";
+import { LoginPrompt } from "@/components/LoginPrompt";
 
 export const Cart = (): JSX.Element => {
   const { updateQuantity: updateRegularQuantity, removeFromCart: removeFromRegularCart, getTotalPrice, getTotalItems } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   
   // Use cartFetcher for all cart data and functionality (includes regular, product, and bulk carts)
   const { cartItems, orderedItems, isLoadingOrders, loadCartAndOrders, getCartImage } = useCartFetcher();
@@ -44,6 +46,20 @@ export const Cart = (): JSX.Element => {
     
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, []);
+
+  // Listen for login prompt events
+  useEffect(() => {
+    const handleShowLoginPrompt = () => {
+      console.log('Login prompt event received in mobile Cart.tsx');
+      setShowLoginPrompt(true);
+    };
+
+    window.addEventListener('showLoginPrompt', handleShowLoginPrompt);
+    
+    return () => {
+      window.removeEventListener('showLoginPrompt', handleShowLoginPrompt);
     };
   }, []);
 
@@ -131,50 +147,50 @@ export const Cart = (): JSX.Element => {
       <Header showNavigationWithoutShop={true} />
       
       {/* Cart Content - Single screen height */}
-      <div className="pt-16 h-full overflow-y-auto px-4 pb-4">
-        <div className="max-w-6xl mx-auto">
+      <div className="pt-12 h-full overflow-y-auto px-2 pb-2">
+        <div className="max-w-4xl mx-auto">
           {/* Back to Shop Button */}
-          <div className="relative z-50 mb-2">
+          <div className="relative z-50 mb-1">
             <button
               onClick={handleBackToShop}
-              className="w-10 h-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800 ml-4 cursor-pointer"
+              className="w-8 h-8 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800 ml-2 cursor-pointer"
               type="button"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
           </div>
           
-          <div className="p-2">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="p-1">
+            <div className="grid grid-cols-1 gap-2">
               {/* Cart Items */}
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-2xl shadow-xl p-4 mt-8">
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+              <div>
+                <div className="bg-white rounded-xl shadow-lg p-3 mt-4">
+                  <h2 className="text-lg font-bold text-gray-800 mb-3">
                     Cart Items
                   </h2>
                   
                   {cartItems.length === 0 ? (
-                    <div className="text-center py-8">
-                      <div className="text-4xl mb-2">🛒</div>
-                      <h3 className="text-lg font-semibold text-gray-600 mb-1">
+                    <div className="text-center py-4">
+                      <div className="text-2xl mb-1">🛒</div>
+                      <h3 className="text-base font-semibold text-gray-600 mb-1">
                         Your cart is empty
                       </h3>
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-gray-500 text-xs">
                         Add some products to get started!
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-[calc(4*4.5rem+3*0.75rem)] overflow-y-auto pr-2">
+                    <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
                       {cartItems.map((item) => (
                         <div 
                           key={item.id}
-                          className="flex items-center p-3 rounded-xl border border-gray-100 hover:shadow-md transition-all duration-300"
+                          className="flex items-center p-2 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-300"
                         >
                           {/* Product Image */}
                           <div 
-                            className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 mr-4 bg-white"
+                            className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 mr-3 bg-white"
                           >
                             <img
                               src={getCartImage(item.name)}
@@ -187,50 +203,52 @@ export const Cart = (): JSX.Element => {
 
                           {/* Product Info */}
                           <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-800 mb-1">
+                            <h3 className="text-sm font-bold text-gray-800 mb-1">
                               {item.name}
                             </h3>
-                            <p className="text-xl font-bold text-green-600">
+                            <p className="text-base font-bold text-green-600">
                               ${item.price.toFixed(2)}
                             </p>
                           </div>
 
                           {/* Quantity Controls */}
-                          <div className="flex items-center space-x-2 mr-4">
+                          <div className="flex items-center space-x-1 mr-2">
                             <button
                               onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
+                              className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                               </svg>
                             </button>
                             
-                            <span className="text-lg font-bold text-gray-800 min-w-[2rem] text-center">
-                              {item.quantity}
-                              {item.cases && (
-                                <span className="text-xs text-gray-500 block">
-                                  ({item.cases} case{item.cases > 1 ? 's' : ''})
+                            <div className="text-center">
+                              <span className="text-sm font-bold text-gray-800 min-w-[1.5rem]">
+                                {item.quantity}
+                              </span>
+                              <div className="mt-1">
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                  {item.cases ? 'Cases' : 'Units'}
                                 </span>
-                              )}
-                            </span>
+                              </div>
+                            </div>
                             
                             <button
                               onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
+                              className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center text-gray-600 hover:text-gray-800"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                               </svg>
                             </button>
                           </div>
 
                           {/* Total Price */}
-                          <div className="text-right mr-4">
-                            <p className="text-sm font-semibold text-gray-600 mb-1">
+                          <div className="text-right mr-2">
+                            <p className="text-xs font-semibold text-gray-600 mb-1">
                               Total
                             </p>
-                            <p className="text-xl font-bold text-green-600">
+                            <p className="text-base font-bold text-green-600">
                               ${(item.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
@@ -238,9 +256,9 @@ export const Cart = (): JSX.Element => {
                           {/* Remove Button */}
                           <button
                             onClick={() => handleRemoveFromCart(item)}
-                            className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 transition-colors flex items-center justify-center text-red-600 hover:text-red-800"
+                            className="w-6 h-6 rounded-full bg-red-100 hover:bg-red-200 transition-colors flex items-center justify-center text-red-600 hover:text-red-800"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
@@ -323,14 +341,14 @@ export const Cart = (): JSX.Element => {
                                     {item.name}
                                   </h4>
                                   <div className="flex items-center space-x-3 text-xs">
-                                    <span className="text-gray-600">
-                                      Qty: {item.quantity}
-                                      {item.cases && (
-                                        <span className="text-gray-500">
-                                          {' '}({item.cases} case{item.cases > 1 ? 's' : ''})
-                                        </span>
-                                      )}
-                                    </span>
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-gray-600">
+                                        Qty: {item.quantity}
+                                      </span>
+                                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        {item.cases ? 'Cases' : 'Units'}
+                                      </span>
+                                    </div>
                                     <span className="text-green-600 font-semibold">
                                       ${(item.price * item.quantity).toFixed(2)}
                                     </span>
@@ -423,7 +441,16 @@ export const Cart = (): JSX.Element => {
           </div>
         </div>
       </div>
-      
+
+      {/* Login Prompt Modal */}
+      <LoginPrompt 
+        isOpen={showLoginPrompt} 
+        onClose={() => setShowLoginPrompt(false)}
+        onLoginSuccess={() => {
+          // Refresh cart after successful login
+          loadCartAndOrders();
+        }}
+      />
     </div>
   );
 };

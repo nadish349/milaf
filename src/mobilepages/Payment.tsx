@@ -10,6 +10,7 @@ import { auth, db } from "@/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { PostalCodeSuggestion } from "@/utils/postalCodeService";
 import { getAusPostServicesUrl, getAusPostCalcUrl, API_CONFIG, isBackendAvailable } from "../config/api";
+import { LoginPrompt } from "@/components/LoginPrompt";
 
 interface DeliveryOption {
   id: string;
@@ -46,7 +47,9 @@ export const Payment = (): JSX.Element => {
   const [auspostServices, setAuspostServices] = useState<any[]>([]);
   const [auspostQuote, setAuspostQuote] = useState<any | null>(null);
   const [isPaying, setIsPaying] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const navigate = useNavigate();
 
@@ -96,7 +99,10 @@ export const Payment = (): JSX.Element => {
         setShippingError("");
         return;
       }
-      if (!billingInfo.zipcode) return;
+      if (!billingInfo.zipcode) {
+        setShippingError("Please enter a postal code to get shipping rates");
+        return;
+      }
 
       try {
         setIsLoadingShipping(true);
@@ -154,6 +160,20 @@ export const Payment = (): JSX.Element => {
 
     fetchShipping();
   }, [selectedDeliveryOption, billingInfo.zipcode]);
+
+  // Listen for login prompt events
+  useEffect(() => {
+    const handleShowLoginPrompt = () => {
+      console.log('Login prompt event received in mobile Payment.tsx');
+      setShowLoginPrompt(true);
+    };
+
+    window.addEventListener('showLoginPrompt', handleShowLoginPrompt);
+    
+    return () => {
+      window.removeEventListener('showLoginPrompt', handleShowLoginPrompt);
+    };
+  }, []);
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -363,6 +383,9 @@ export const Payment = (): JSX.Element => {
         description: 'Order Payment',
         handler: async function (response: any) {
           try {
+            setIsVerifying(true);
+            setPaymentError("");
+            
             const userId = auth.currentUser?.uid;
             if (!userId) {
               setPaymentError('User authentication required');
@@ -374,6 +397,8 @@ export const Payment = (): JSX.Element => {
             navigate('/checkpoint');
           } catch (e: any) {
             setPaymentError(e?.message || 'Verification failed');
+          } finally {
+            setIsVerifying(false);
           }
         },
         prefill: {
@@ -393,6 +418,15 @@ export const Payment = (): JSX.Element => {
 
   const handleBackToForm = () => {
     setShowPaymentForm(false);
+  };
+
+  const handleDeliveryOptionSelect = (optionId: string) => {
+    if (optionId === 'australian-post' && !billingInfo.zipcode) {
+      setShippingError("Please enter a postal code first to check delivery availability");
+      return;
+    }
+    setSelectedDeliveryOption(optionId);
+    setShippingError(""); // Clear any previous errors
   };
 
   // If showing payment form, display only the payment form
@@ -604,7 +638,7 @@ export const Payment = (): JSX.Element => {
                 {deliveryOptions.map((option) => (
                   <div
                     key={option.id}
-                    onClick={() => setSelectedDeliveryOption(option.id)}
+                    onClick={() => handleDeliveryOptionSelect(option.id)}
                     className={`p-2 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
                       selectedDeliveryOption === option.id
                         ? "border-green-500 bg-green-50"
@@ -658,6 +692,8 @@ export const Payment = (): JSX.Element => {
                               </div>
                             )}
                           </div>
+                        ) : !billingInfo.zipcode ? (
+                          <p className="text-xs text-amber-600">⚠️ Please enter a postal code first</p>
                         ) : (
                           <p className="text-xs text-gray-500">Enter your zip code to see shipping rates.</p>
                         )}
@@ -715,10 +751,22 @@ export const Payment = (): JSX.Element => {
           <div className="flex flex-col items-end space-y-2">
             <button
               onClick={handleProceedToPayment}
-              disabled={!billingInfo.buyerName || !billingInfo.contact || !billingInfo.streetAddress || !billingInfo.address || !billingInfo.zipcode || !selectedDeliveryOption || isPaying}
+              disabled={!billingInfo.buyerName || !billingInfo.contact || !billingInfo.streetAddress || !billingInfo.address || !billingInfo.zipcode || !selectedDeliveryOption || isPaying || isVerifying}
               className="bg-green-400 hover:bg-green-300 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-black font-bold text-base py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-full lg:w-auto"
             >
-              {isPaying ? 'Processing Payment...' : 'Pay with Razorpay'}
+              {isPaying ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                  <span>Processing Payment...</span>
+                </div>
+              ) : isVerifying ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                  <span>Validating Payment...</span>
+                </div>
+              ) : (
+                'Pay with Razorpay'
+              )}
             </button>
             {paymentError && (
               <div className="text-sm text-red-600 text-right">{paymentError}</div>
@@ -726,6 +774,32 @@ export const Payment = (): JSX.Element => {
           </div>
         </div>
       </div>
+
+      {/* Payment Verification Overlay */}
+      {isVerifying && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center shadow-2xl">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Validating Payment</h3>
+            <p className="text-gray-600 text-sm">Please wait while we verify your payment...</p>
+            <div className="flex justify-center space-x-1 mt-4">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Login Prompt Modal */}
+      <LoginPrompt 
+        isOpen={showLoginPrompt} 
+        onClose={() => setShowLoginPrompt(false)}
+        onLoginSuccess={() => {
+          // Refresh page after successful login to reload user data
+          window.location.reload();
+        }}
+      />
     </div>
   );
 };

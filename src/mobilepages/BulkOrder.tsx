@@ -163,7 +163,6 @@ export const BulkOrder = ({ onGradientChange, selectedProductId }: BulkOrderProp
         price: currentProductData.price,
         quantity: quantity,
         cases: true, // Bulk orders are cases
-        pieces: false, // Bulk orders are not pieces
         payment: false,
         category: currentProductData.category,
         description: currentProductData.description,

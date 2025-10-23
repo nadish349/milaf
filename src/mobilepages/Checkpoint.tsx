@@ -270,7 +270,7 @@ export const Checkpoint = (): JSX.Element => {
               ${cartItems.map(item => `
                 <tr>
                   <td>${item.name}</td>
-                  <td>${item.quantity}</td>
+                  <td>${item.quantity} ${item.cases ? 'Cases' : 'Units'}</td>
                   <td>$${item.price.toFixed(2)}</td>
                   <td>$${(item.price * item.quantity).toFixed(2)}</td>
                 </tr>
@@ -462,7 +462,12 @@ export const Checkpoint = (): JSX.Element => {
                     <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
                       <div>
                         <p className="font-semibold text-gray-800">{item.name}</p>
-                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            {item.cases ? 'Cases' : 'Units'}
+                          </span>
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-gray-800">${(item.price * item.quantity).toFixed(2)}</p>
@@ -474,6 +479,21 @@ export const Checkpoint = (): JSX.Element => {
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="flex justify-between text-lg font-bold text-gray-800">
                     <span>Total: ${orderDetails.totalAmount.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Summary */}
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-3">Order Summary</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Cases:</span>
+                    <span className="font-medium">{cartItems.filter(item => item.cases).length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Units:</span>
+                    <span className="font-medium">{cartItems.filter(item => !item.cases).length}</span>
                   </div>
                 </div>
               </div>

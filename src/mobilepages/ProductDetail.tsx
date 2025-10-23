@@ -12,6 +12,7 @@
   import { useNavigate } from "react-router-dom";
   import { fetchAllProductsFromFirestore, ProductData } from "@/services/productService";
   import { getProductImage } from "@/utils/productImages";
+  import { LoginPrompt } from "@/components/LoginPrompt";
 
 interface ProductDetailProps {
   onGradientChange?: (gradient: string) => void;
@@ -26,11 +27,26 @@ interface ProductDetailProps {
     const [quantity, setQuantity] = useState(1);
     const [showNotification, setShowNotification] = useState(false);
     const [showBulkOrderPopup, setShowBulkOrderPopup] = useState(false);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Debug: Log when popup state changes
   useEffect(() => {
     console.log('Mobile ProductDetail: showBulkOrderPopup state changed to:', showBulkOrderPopup);
   }, [showBulkOrderPopup]);
+
+  // Listen for login prompt events
+  useEffect(() => {
+    const handleShowLoginPrompt = () => {
+      console.log('Login prompt event received in mobile ProductDetail.tsx');
+      setShowLoginPrompt(true);
+    };
+
+    window.addEventListener('showLoginPrompt', handleShowLoginPrompt);
+    
+    return () => {
+      window.removeEventListener('showLoginPrompt', handleShowLoginPrompt);
+    };
+  }, []);
 
   // Show bulk order popup - simplified approach
   useEffect(() => {
@@ -263,8 +279,7 @@ interface ProductDetailProps {
           name: currentProductData.name,
           price: currentProductData.price,
           quantity: quantity,
-          cases: false, // Regular products are not bulk orders
-          pieces: true, // Regular products are pieces
+        cases: false, // Regular products are not bulk orders
           payment: false,
           category: currentProductData.category,
           description: currentProductData.description,
@@ -508,5 +523,15 @@ interface ProductDetailProps {
           onClose={() => setShowBulkOrderPopup(false)}
         />
       </section>
+
+      {/* Login Prompt Modal */}
+      <LoginPrompt 
+        isOpen={showLoginPrompt} 
+        onClose={() => setShowLoginPrompt(false)}
+        onLoginSuccess={() => {
+          // Refresh page after successful login
+          window.location.reload();
+        }}
+      />
     );
   };

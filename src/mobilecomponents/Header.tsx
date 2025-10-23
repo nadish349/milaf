@@ -6,6 +6,7 @@ import { User } from "lucide-react";
 import { auth, db } from "@/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { User as FirebaseUser } from "firebase/auth";
+import { LoginPrompt } from "@/components/LoginPrompt";
 
 interface HeaderProps {
   showOnlyLogo?: boolean;
@@ -18,6 +19,7 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [cartUpdateTrigger, setCartUpdateTrigger] = useState(0);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -47,6 +49,10 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
   }, []);
 
   const handleCartClick = () => {
+    if (!currentUser) {
+      setShowLoginPrompt(true);
+      return;
+    }
     navigate('/cart');
   };
 
@@ -55,7 +61,10 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
   };
 
   const handleShopClick = () => {
-    // Let protected routes handle authentication
+    if (!currentUser) {
+      setShowLoginPrompt(true);
+      return;
+    }
     navigate('/my-orders');
   };
 
@@ -219,6 +228,15 @@ export const Header = ({ showOnlyLogo = false, showNavigationWithoutShop = false
         </div>
       )}
 
+      {/* Login Prompt Modal */}
+      <LoginPrompt 
+        isOpen={showLoginPrompt} 
+        onClose={() => setShowLoginPrompt(false)}
+        onLoginSuccess={() => {
+          // Refresh page after successful login
+          window.location.reload();
+        }}
+      />
     </header>
   );
 };

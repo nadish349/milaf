@@ -15,9 +15,6 @@ interface HeroProductsProps {
 export const HeroProducts = ({ onGradientChange, onOrderNow }: HeroProductsProps): JSX.Element => {
   const [currentProduct, setCurrentProduct] = useState(0); // Start with milaf cola (id: 0)
   const [isAnimating, setIsAnimating] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [shouldAnimate, setShouldAnimate] = useState(false);
 
   const products = [
     {
@@ -106,55 +103,14 @@ export const HeroProducts = ({ onGradientChange, onOrderNow }: HeroProductsProps
     }
   }, [currentProduct, onGradientChange, currentProductData.gradient]);
 
-  // Intersection Observer to detect when page is visible
+  // Simple auto-advance without lazy loading
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasInitialized) {
-          // First time visiting - show milaf cola immediately
-          setCurrentProduct(0);
-          setIsVisible(true);
-          setShouldAnimate(true); // Enable animations immediately
-          setHasInitialized(true); // Mark as initialized immediately
-        } else if (entry.isIntersecting && hasInitialized) {
-          // Page is visible again but already initialized - just make it visible without changing product
-          setIsVisible(true);
-        } else {
-          // Page is not visible, reset states
-          setIsVisible(false);
-        }
-      },
-      { threshold: 0.5 } // Trigger when 50% of the section is visible
-    );
-
-    const currentElement = document.querySelector('.hero-products-section');
-    if (currentElement) {
-      observer.observe(currentElement);
-    }
-
-    return () => {
-      if (currentElement) {
-        observer.unobserve(currentElement);
-      }
-    };
-  }, [hasInitialized]);
-
-  // Auto-advance with custom timing: milaf cola stays for 10 seconds, others for 5 seconds
-  useEffect(() => {
-    // Start auto-advance immediately when page is initialized
-    if (!hasInitialized) return;
-    
-    const getDisplayTime = () => {
-      return currentProduct === 0 ? 10000 : 5000; // 10 seconds for milaf cola, 5 for others
-    };
-
-    // Set a timeout for the current product instead of an interval
-    const timeoutId = setTimeout(() => {
+    const interval = setInterval(() => {
       autoAdvanceProduct();
-    }, getDisplayTime());
+    }, 4000); // 4 seconds for all products
     
-    return () => clearTimeout(timeoutId);
-  }, [currentProduct, hasInitialized]);
+    return () => clearInterval(interval);
+  }, [currentProduct]);
 
   return (
     <div 

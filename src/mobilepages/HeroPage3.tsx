@@ -130,7 +130,6 @@ export const HeroPage3 = (): JSX.Element => {
           src={cutdate4} 
           alt="Cut Date 4" 
           className="absolute animate-float-optimized"
-          loading="lazy"
           style={{
             left: isTablet ? 'calc(50% - 1.5rem - 70px - 20px)' : 'calc(50% - 1rem - 70px - 20px)', // Tablet: moved left - 70px - 20px
             top: isTablet ? 'calc(25% + 10rem - 70px - 25px)' : 'calc(25% + 12.6rem - 70px - 25px)', // Tablet: moved up - 70px - 25px

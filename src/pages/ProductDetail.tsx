@@ -235,7 +235,6 @@ export const ProductDetail = ({ onGradientChange, selectedProductId }: ProductDe
         price: currentProductData.price,
         quantity: quantity,
         cases: false, // Regular products are not bulk orders
-        pieces: true, // Regular products are pieces
         payment: false,
         category: currentProductData.category,
         description: currentProductData.description,

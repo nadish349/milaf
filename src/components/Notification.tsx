@@ -39,26 +39,26 @@ export const Notification: React.FC<NotificationProps> = ({
   };
 
   return (
-    <div className="fixed top-24 right-6 z-50" style={{
+    <div className="fixed top-20 right-4 z-50" style={{
       animation: 'slideIn 0.3s ease-out'
     }}>
-      <div className={`px-6 py-4 rounded-lg shadow-lg border-2 ${getNotificationStyles()} flex items-center space-x-3`}>
+      <div className={`px-4 py-3 rounded-lg shadow-lg border ${getNotificationStyles()} flex items-center space-x-2`}>
         {/* Success Icon */}
         {type === 'success' && (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         )}
         
         {/* Message */}
-        <span className="font-semibold">{message}</span>
+        <span className="font-medium text-sm">{message}</span>
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="ml-4 hover:opacity-80 transition-opacity"
+          className="ml-3 hover:opacity-80 transition-opacity"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
